@@ -1,27 +1,29 @@
 #' Title
 #'
-#' @param data
-#' @param i
-#' @param j
-#' @param by
-#' @param keyby
-#' @param with
-#' @param nomatch
-#' @param mult
-#' @param roll
-#' @param rollends
-#' @param which
-#' @param .SDcols
-#' @param verbose
-#' @param allow.cartesian
-#' @param drop
-#' @param on
+#' @param data sa
+#' @param i asa
+#' @param ... sa
+#' @param by as
+#' @param keyby as
+#' @param with as
+#' @param nomatch as
+#' @param mult as
+#' @param roll as
+#' @param rollends as
+#' @param which as
+#' @param .SDcols as
+#' @param verbose as
+#' @param allow.cartesian as
+#' @param drop as
+#' @param on as
+#' @param autoname as
+#' @param fun as
 #'
-#' @return
+#' @return sa
+#' @export
 #'
 #' @examples
-#'
-#' @export
+#' 1
 query = function(data,
                  j,
                  by,
@@ -40,7 +42,7 @@ query = function(data,
                  drop = NULL,
                  on = NULL){
     call_expr = sys.call()
-    call_expr[[1]] = as.symbol("query")
+    call_expr[[1]] = as.symbol("query_if")
     call_expr = insert_empty_i(call_expr)
     eval.parent(call_expr)
 }
@@ -66,12 +68,16 @@ query_if = function(data,
                     drop = NULL,
                     on = NULL){
     if(!is.data.frame(data)) stop("query/query_if: 'data' should be data.frame or data.table")
-    if(!is.data.table(data)){
-        eval.parent(substitute(setDT(data)))
-    }
     call_expr = sys.call()
+    if(!is.data.table(data)){
+        data = as.data.table(data)
+        call_expr[[2]] = as.symbol("data")
+        curr_eval = eval
+    } else {
+        curr_eval = eval.parent
+    }
     call_expr[[1]] = as.symbol("[")
-    eval.parent(call_expr)
+    curr_eval(call_expr)
 }
 
 
