@@ -3,7 +3,7 @@
 \name{query}
 \alias{query}
 \alias{query_if}
-\title{Title}
+\title{One-to-one interface for data.table '[' method}
 \usage{
 query(data, j, by, keyby, with = TRUE,
   nomatch = getOption("datatable.nomatch"), mult = "all", roll = FALSE,
@@ -22,47 +22,73 @@ query_if(data, i, j, by, keyby, with = TRUE,
   on = NULL)
 }
 \arguments{
-\item{data}{sa}
+\item{data}{data.table/data.frame data.frame will be automatically converted
+to data.table. \code{let} modify data.table object in-place. data.frame
+will be converted to data.table.}
 
-\item{by}{as}
+\item{j}{When with=TRUE (default), j is evaluated within the frame of the
+data.table; i.e., it sees column names as if they are variables. This
+allows to not just select columns in j, but also compute on them e.g., x[,
+a] and x[, sum(a)] returns x$a and sum(x$a) as a vector respectively. x[,
+.(a, b)] and x[, .(sa=sum(a), sb=sum(b))] returns a two column data.table
+each, the first simply selecting columns a, b and the second computing
+their sums. For details see \link[data.table]{data.table}.}
 
-\item{keyby}{as}
+\item{by}{unquoted name of grouping variable of list of unquoted names of
+grouping variables. For details see \link[data.table]{data.table}}
 
-\item{with}{as}
+\item{keyby}{Same as by, but with an additional \code{setkey()} run on the by
+columns of the result, for convenience. It is common practice to use
+'keyby=' routinely when you wish the result to be sorted. For details see
+\link[data.table]{data.table}}
 
-\item{nomatch}{as}
+\item{with}{logical. For details see \link[data.table]{data.table}.}
 
-\item{mult}{as}
+\item{nomatch}{Same as nomatch in match. For details see
+\link[data.table]{data.table}.}
 
-\item{roll}{as}
+\item{mult}{For details see \link[data.table]{data.table}.}
 
-\item{rollends}{as}
+\item{roll}{For details see \link[data.table]{data.table}.}
 
-\item{which}{as}
+\item{rollends}{For details see \link[data.table]{data.table}.}
 
-\item{.SDcols}{as}
+\item{which}{For details see \link[data.table]{data.table}.}
 
-\item{verbose}{as}
+\item{.SDcols}{Specifies the columns of x to be included in the special
+symbol .SD which stands for Subset of data.table. May be character column
+names or numeric positions. For details see \link[data.table]{data.table}.}
 
-\item{allow.cartesian}{as}
+\item{verbose}{logical. For details see \link[data.table]{data.table}.}
 
-\item{drop}{as}
+\item{allow.cartesian}{For details see \link[data.table]{data.table}.}
 
-\item{on}{as}
+\item{drop}{For details see \link[data.table]{data.table}.}
 
-\item{i}{asa}
+\item{on}{For details see \link[data.table]{data.table}.}
 
-\item{...}{sa}
-
-\item{autoname}{as}
-
-\item{fun}{as}
+\item{i}{integer/logical vector. Supposed to use to subset/conditional
+modifications if \code{data}. For details see \link[data.table]{data.table}}
 }
 \value{
-sa
+It depends. For details see \link[data.table]{data.table}.
 }
 \description{
-Title
+Quote from \link[data.table]{data.table}:
+\preformatted{
+query(data, j,  by) # + extra arguments
+            |   |
+            |    -------> grouped by what?
+             -------> what to do?
+}
+or,
+\preformatted{
+query_if(data, i,  j,  by) # + extra arguments
+               |   |   |
+               |   |    -------> grouped by what?
+               |    -------> what to do?
+                ---> on which rows?
+}
 }
 \examples{
 1

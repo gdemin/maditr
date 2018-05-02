@@ -56,7 +56,7 @@ grouping variables. For details see \link[data.table]{data.table}}
 \item{keyby}{Same as by, but with an additional \code{setkey()} run on the by
 columns of the result, for convenience. It is common practice to use
 'keyby=' routinely when you wish the result to be sorted. For details see
-\link[data.table]{data.table}}
+\link[data.table]{data.table}.}
 
 \item{with}{logical. For details see \link[data.table]{data.table}.}
 
