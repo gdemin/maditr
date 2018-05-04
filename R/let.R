@@ -16,7 +16,7 @@
 #'   to data.table. \code{let} modify data.table object in-place. data.frame
 #'   will be converted to data.table.
 #' @param i integer/logical vector. Supposed to use to subset/conditional
-#'   modifications if \code{data}. For details see \link[data.table]{data.table}
+#'   modifications of \code{data}. For details see \link[data.table]{data.table}
 #' @param ... List of variables or name-value pairs of summary/modifications
 #'   functions. The name will be the name of the variable in the result. In the
 #'   \code{let} function we can use \code{a = b} or \code{a := b} notation. Advantages of
@@ -118,6 +118,9 @@
 #' # You can group by expressions:
 #' mtcars %>%
 #'     take(fun = mean, by = list(vsam = vs + am))
+#'
+#' ########################################
+#'
 #' # examples from data.table
 #' dat = data.table(
 #'     x=rep(c("b","a","c"), each=3),
@@ -141,7 +144,7 @@
 #' take(dat, v, v*2)             # return two column data.table, v and v*2
 #'
 #' # subset rows and select|compute
-#' take_if(dat, 2:3, sum(v))      # sum(v) over rows 2 and 3, return vector
+#' take_if(dat, 2:3, sum(v))      # sum(v) over rows 2 and 3
 #' take_if(dat, 2:3, sv = sum(v)) # same, but return data.table with column sv
 #'
 #' # grouping operations
@@ -172,7 +175,11 @@
 #' let(dat, m = mean(v), by=x)[]         # add new column by reference by group
 #'
 #' # advanced usage
-#' dat = data.table(x=rep(c("b","a","c"), each=3), v=c(1,1,1,2,2,1,1,2,2), y=c(1,3,6), a=1:9, b=9:1)
+#' dat = data.table(x=rep(c("b","a","c"), each=3),
+#'                  v=c(1,1,1,2,2,1,1,2,2),
+#'                  y=c(1,3,6),
+#'                  a=1:9,
+#'                  b=9:1)
 #'
 #' take(dat, sum(v), by=list(y%%2))              # expressions in by
 #' take(dat, sum(v), by=list(bool = y%%2))       # same, using a named list to change by column name
@@ -181,8 +188,8 @@
 #'      MySum=sum(v),
 #'      MyMin=min(v),
 #'      MyMax=max(v),
-#'      by = list(x, y%%2)
-#' )                                     # by 2 expressions
+#'      by = list(x, y%%2)               # by 2 expressions
+#' )
 #'
 #' take(dat, seq = min(a):max(b), by=x)  # j is not limited to just aggregations
 #' dat %>%
@@ -191,62 +198,75 @@
 #'
 #' dat %>%
 #'     take(V1 = sum(v), by=x) %>%
-#'     take_if(order(-V1))               # ordering results
+#'     setorder(-V1) %>%                 # ordering results
+#'     head()
 #'
 #'
-take = function(data,
-                ...,
-                by,
-                keyby,
-                with = TRUE,
-                nomatch = getOption("datatable.nomatch"),
-                mult = "all",
-                roll = FALSE,
-                rollends = if (roll=="nearest") c(TRUE,TRUE)
-                else if (roll>=0) c(FALSE,TRUE)
-                else c(TRUE,FALSE),
-                which = FALSE,
-                .SDcols,
-                verbose = getOption("datatable.verbose"),                   # default: FALSE
-                allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
-                drop = NULL,
-                on = NULL,
-                autoname = TRUE,
-                fun = NULL
+let_if = function(data,
+                  i,
+                  ...,
+                  by,
+                  keyby,
+                  with = TRUE,
+                  nomatch = getOption("datatable.nomatch"),
+                  mult = "all",
+                  roll = FALSE,
+                  rollends = if (roll=="nearest") c(TRUE,TRUE)
+                  else if (roll>=0) c(FALSE,TRUE)
+                  else c(TRUE,FALSE),
+                  which = FALSE,
+                  .SDcols,
+                  verbose = getOption("datatable.verbose"),                   # default: FALSE
+                  allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
+                  drop = NULL,
+                  on = NULL
 ){
+    if(!is.data.frame(data)) stop("let/let_if: 'data' should be data.frame or data.table")
     call_expr = sys.call()
-    call_expr[[1]] = as.symbol("take_if")
-    call_expr = insert_empty_i(call_expr)
-    eval.parent(call_expr)
+    if(!is.data.table(data)){
+        data = as.data.table(data)
+        call_expr[[2]] = as.symbol("data")
+        curr_eval = eval
+    } else {
+        curr_eval = eval.parent
+    }
+    call_expr[[1]] = as.symbol("[")
+    call_list = as.list(call_expr)
+    j_list = as.list(substitute(list(...)))[-1]
+    j_length = length(j_list)
+    if(j_length==0) stop("let/let_if: please, provide at least one expression.")
+    if(is.null(names(j_list))){
+        names(j_list) = rep("", j_length )
+    }
+    # check for names
+    all_names = names(j_list)
+    for(i in seq_along(j_list)){
+        if(all_names[i]==""){
+            if(!identical(j_list[[i]][[1]], as.symbol(":="))){
+                stop(sprintf("let/let_if: '%s' - incorrect expression. All unnamed expressions should be
+                             in the form  'var_name = expression' or 'var_name := expression'.", safe_deparse(j_list[[i]])))
+            }
+        }
+    }
+    i_position = 3
+    call_list = call_list[-(seq_len(j_length) + i_position)]
+    call_list = c(call_list[1:3], list(NULL), call_list[-(1:i_position)]) # reserve position for j
+    for(i in seq_along(j_list)){
+        if(all_names[i]==""){
+            call_list[[i_position + 1]] = j_list[[i]]
+        } else {
+            curr_name = all_names[i]
+            curr_expr = j_list[[i]]
+            call_list[[i_position + 1]] = substitute(`:=`(curr_name, curr_expr))
+        }
+        call_expr = as.call(call_list)
+        curr_eval(call_expr)
+    }
+
+    data
 }
 
-#' @rdname take
-#' @export
-let = function(data,
-               ...,
-               by,
-               keyby,
-               with = TRUE,
-               nomatch = getOption("datatable.nomatch"),
-               mult = "all",
-               roll = FALSE,
-               rollends = if (roll=="nearest") c(TRUE,TRUE)
-               else if (roll>=0) c(FALSE,TRUE)
-               else c(TRUE,FALSE),
-               which = FALSE,
-               .SDcols,
-               verbose = getOption("datatable.verbose"),                   # default: FALSE
-               allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
-               drop = NULL,
-               on = NULL
-){
-    call_expr = sys.call()
-    call_expr[[1]] = as.symbol("let_if")
-    call_expr = insert_empty_i(call_expr)
-    eval.parent(call_expr)
-}
-
-#' @rdname take
+#' @rdname let_if
 #' @export
 take_if = function(data,
                    i,
@@ -312,10 +332,39 @@ take_if = function(data,
 }
 
 
-#' @rdname take
+
+
+#' @rdname let_if
 #' @export
-let_if = function(data,
-                  i,
+take = function(data,
+                ...,
+                by,
+                keyby,
+                with = TRUE,
+                nomatch = getOption("datatable.nomatch"),
+                mult = "all",
+                roll = FALSE,
+                rollends = if (roll=="nearest") c(TRUE,TRUE)
+                else if (roll>=0) c(FALSE,TRUE)
+                else c(TRUE,FALSE),
+                which = FALSE,
+                .SDcols,
+                verbose = getOption("datatable.verbose"),                   # default: FALSE
+                allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
+                drop = NULL,
+                on = NULL,
+                autoname = TRUE,
+                fun = NULL
+){
+    call_expr = sys.call()
+    call_expr[[1]] = as.symbol("take_if")
+    call_expr = insert_empty_i(call_expr)
+    eval.parent(call_expr)
+}
+
+#' @rdname let_if
+#' @export
+let = function(data,
                ...,
                by,
                keyby,
@@ -333,47 +382,9 @@ let_if = function(data,
                drop = NULL,
                on = NULL
 ){
-    if(!is.data.frame(data)) stop("let/let_if: 'data' should be data.frame or data.table")
     call_expr = sys.call()
-    if(!is.data.table(data)){
-        data = as.data.table(data)
-        call_expr[[2]] = as.symbol("data")
-        curr_eval = eval
-    } else {
-        curr_eval = eval.parent
-    }
-    call_expr[[1]] = as.symbol("[")
-    call_list = as.list(call_expr)
-    j_list = as.list(substitute(list(...)))[-1]
-    j_length = length(j_list)
-    if(j_length==0) stop("let/let_if: please, provide at least one expression.")
-    if(is.null(names(j_list))){
-        names(j_list) = rep("", j_length )
-    }
-    # check for names
-    all_names = names(j_list)
-    for(i in seq_along(j_list)){
-        if(all_names[i]==""){
-            if(!identical(j_list[[i]][[1]], as.symbol(":="))){
-                stop(sprintf("let/let_if: '%s' - incorrect expression. All unnamed expressions should be
-                             in the form  'var_name = expression' or 'var_name := expression'.", safe_deparse(j_list[[i]])))
-            }
-        }
-    }
-    i_position = 3
-    call_list = call_list[-(seq_len(j_length) + i_position)]
-    call_list = c(call_list[1:3], list(NULL), call_list[-(1:i_position)]) # reserve position for j
-    for(i in seq_along(j_list)){
-        if(all_names[i]==""){
-            call_list[[i_position + 1]] = j_list[[i]]
-        } else {
-            curr_name = all_names[i]
-            curr_expr = j_list[[i]]
-            call_list[[i_position + 1]] = substitute(`:=`(curr_name, curr_expr))
-        }
-        call_expr = as.call(call_list)
-        curr_eval(call_expr)
-    }
-
-    data
+    call_expr[[1]] = as.symbol("let_if")
+    call_expr = insert_empty_i(call_expr)
+    eval.parent(call_expr)
 }
+
