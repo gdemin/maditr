@@ -13,8 +13,8 @@ Package provides pipe-friendly interface for [data.table](https://cran.r-project
 - To select columns from data: `take(mtcars, am, vs, mpg)`
 - To aggregate data: `take(mtcars, mean_mpg = mean(mpg), by = am)`
 - To aggregate all non-grouping columns: `take(mtcars, fun = mean, by = am)`
-- To get total summary skip 'by' argument: `take(mtcars, fun = mean)`
-- Use magrittr pipe '%>%' to chain several operations: 
+- To get total summary skip `by` argument: `take(mtcars, fun = mean)`
+- Use magrittr pipe `%>%` to chain several operations: 
 ```R
      mtcars %>%
         let(mpg_hp = mpg/hp) %>%
