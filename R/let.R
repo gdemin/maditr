@@ -5,7 +5,7 @@
 #' subset of the data by rows or columns. Both functions return
 #' \code{data.table}.
 #' \itemize{
-#' \item{Add new variables: }{\code{let(mtcars, new_var = 42, new_var2 = new_var*old_var)}}
+#' \item{Add new variables: }{\code{let(mtcars, new_var = 42, new_var2 = new_var*hp)}}
 #' \item{Filter data: }{\code{take_if(mtcars, am==0)}}
 #' \item{Select variables: }{\code{take(mtcars, am, vs, mpg)}}
 #' \item{Aggregate data: }{\code{take(mtcars, mean_mpg = mean(mpg), by = am)}}
