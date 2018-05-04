@@ -2,7 +2,7 @@ Package: maditr
 Type: Package
 Title: Pipe-friendly Interface for 'data.table'
 Version: 0.5.0
-Date: 2018-05-02
+Date: 2018-05-04
 Maintainer: Gregory Demin <gdemin@gmail.com>
 Authors@R: person("Gregory", "Demin", email = "gdemin@gmail.com", role = c("aut", "cre"))
 Depends: 
@@ -13,10 +13,11 @@ Suggests:
     knitr, 
     testthat
 Description: Package provides pipe-friendly interface for 'data.table'. It preserves all
-    'data.table' features without significant impact on performance. For example,
-    you can write 'mtcars %>% take(mean(mpg), by = am)' for aggregation or 'mtcars
-         %>% let(hp_wt = hp/wt, hp_wt_mpg = hp_wt/mpg)' for modification. Use
-    'take_if/let_if' for conditional aggregation/modification. 'query_if' function
+    'data.table' features without significant impact on performance. 'let'
+    and 'take' functions are simplified interfaces for most common data manipulation
+    tasks. For example, you can write 'mtcars %>% take(mean(mpg), by = am)' for 
+    aggregation or 'mtcars %>% let(hp_wt = hp/wt, hp_wt_mpg = hp_wt/mpg)' for modification.
+    Use 'take_if/let_if' for conditional aggregation/modification. 'query_if' function
     translates its arguments one-to-one to '[.data.table' method. Additionally there are
     some conveniences such as automatic 'data.frame' conversion to 'data.table'.
 License: GPL-2
