@@ -243,7 +243,7 @@ let_if = function(data,
     for(i in seq_along(j_list)){
         if(all_names[i]==""){
             if(!identical(j_list[[i]][[1]], as.symbol(":="))){
-                stop(sprintf("let/let_if: '%s' - incorrect expression. All unnamed expressions should be
+                stop(sprintf("let/let_if: '%s' - incorrect expression. All expressions should be
                              in the form  'var_name = expression' or 'var_name := expression'.", safe_deparse(j_list[[i]])))
             }
         }
