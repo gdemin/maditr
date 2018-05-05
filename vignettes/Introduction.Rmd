@@ -1,6 +1,6 @@
 ---
 title: "Introduction"
-output: html_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{maditr: Introduction}
   %\VignetteEngine{knitr::rmarkdown}
