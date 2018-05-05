@@ -44,17 +44,19 @@ conveniences such as automatic 'data.frame' conversion to 'data.table'.
 data(mtcars)
 
 # Newly created variables are available immediately
-mtcars \%>\% let(
-    cyl2 = cyl * 2,
-    cyl4 = cyl2 * 2
-) \%>\% head()
+mtcars \%>\%
+    let(
+        cyl2 = cyl * 2,
+        cyl4 = cyl2 * 2
+    ) \%>\% head()
 
 # You can also use let() to remove variables and
 # modify existing variables
-mtcars \%>\% let(
-    mpg = NULL,
-    disp = disp * 0.0163871 # convert to litres
-) \%>\% head()
+mtcars \%>\%
+    let(
+        mpg = NULL,
+        disp = disp * 0.0163871 # convert to litres
+    ) \%>\% head()
 
 
 # window functions are useful for grouped computations

@@ -5,7 +5,7 @@
         'To aggregate data: take(mtcars, mean_mpg = mean(mpg), by = am)',
         'To aggregate all non-grouping columns: take(mtcars, fun = mean, by = am)',
         'To aggregate several columns with one summary: take(mtcars, mpg, hp, fun = mean, by = am)',
-        'To get total summary skip by argument: take(mtcars, fun = mean)',
+        "To get total summary skip 'by' argument: take(mtcars, fun = mean)",
         "Use magrittr pipe '%>%' to chain several operations:
              mtcars %>%
                  let(mpg_hp = mpg/hp) %>%
