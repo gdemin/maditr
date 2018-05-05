@@ -4,9 +4,9 @@
 \name{maditr}
 \alias{maditr}
 \alias{maditr-package}
-\title{maditr: Pipe-friendly Interface for 'data.table'}
+\title{maditr: Pipe-Style Interface for 'data.table'}
 \description{
-Package provides pipe-friendly interface for \code{data.table}. It preserves
+Package provides pipe-style interface for \code{data.table}. It preserves
 all data.table features without significant impact on performance. '\code{let}'
 and '\code{take}' functions are simplified interfaces for most common data
 manipulation tasks. '\code{query_if}' function translates its arguments

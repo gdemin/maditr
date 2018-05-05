@@ -1,6 +1,6 @@
 Package: maditr
 Type: Package
-Title: Pipe-Friendly Interface for 'data.table'
+Title: Pipe-Style Interface for 'data.table'
 Version: 0.5.0
 Date: 2018-05-05
 Maintainer: Gregory Demin <gdemin@gmail.com>
@@ -13,7 +13,7 @@ Imports:
 Suggests: 
     knitr, 
     testthat
-Description: Package provides pipe-friendly interface for 'data.table'. It preserves all
+Description: Package provides pipe-style interface for 'data.table'. It preserves all
     'data.table' features without significant impact on performance. 'let'
     and 'take' functions are simplified interfaces for most common data manipulation
     tasks. For example, you can write 'mtcars %>% take(mean(mpg), by = am)' for 

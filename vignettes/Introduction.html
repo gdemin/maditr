@@ -124,7 +124,7 @@ $(document).ready(function () {
 
 <div id="overview" class="section level2">
 <h2>Overview</h2>
-<p>Package provides pipe-friendly interface for <a href="https://cran.r-project.org/package=data.table">data.table</a> package. It preserves all data.table features without significant impact on performance. <code>let</code> and <code>take</code> functions are simplified interfaces for most common data manipulation tasks. <code>query_if</code> function translates its arguments one-to-one to <code>[.data.table</code> method. Additionally there are some conveniences such as automatic <code>data.frame</code> conversion to <code>data.table</code>.</p>
+<p>Package provides pipe-style interface for <a href="https://cran.r-project.org/package=data.table">data.table</a> package. It preserves all data.table features without significant impact on performance. <code>let</code> and <code>take</code> functions are simplified interfaces for most common data manipulation tasks. <code>query_if</code> function translates its arguments one-to-one to <code>[.data.table</code> method. Additionally there are some conveniences such as automatic <code>data.frame</code> conversion to <code>data.table</code>.</p>
 <ul>
 <li>To select rows from data: <code>take_if(mtcars, am==0)</code></li>
 <li>To select columns from data: <code>take(mtcars, am, vs, mpg)</code></li>

@@ -1,6 +1,6 @@
-#' maditr: Pipe-friendly Interface for 'data.table'
+#' maditr: Pipe-Style Interface for 'data.table'
 #'
-#' Package provides pipe-friendly interface for \code{data.table}. It preserves
+#' Package provides pipe-style interface for \code{data.table}. It preserves
 #' all data.table features without significant impact on performance. '\code{let}'
 #' and '\code{take}' functions are simplified interfaces for most common data
 #' manipulation tasks. '\code{query_if}' function translates its arguments
@@ -259,8 +259,6 @@ data.table::rowid
 #' @export
 data.table::rowidv
 #' @export
-data.table::as.xts.data.table
-#' @export
 data.table::uniqueN
 #' @export
 data.table::setDTthreads
@@ -316,8 +314,5 @@ data.table::month
 data.table::quarter
 #' @export
 data.table::year
-#' @export
-data.table::as.chron.IDate
-#' @export
-data.table::as.chron.ITime
+
 
