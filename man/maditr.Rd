@@ -17,6 +17,7 @@ conveniences such as automatic 'data.frame' conversion to 'data.table'.
 \item{To select columns from data: }{\code{take(mtcars, am, vs, mpg)}}
 \item{To aggregate data: }{\code{take(mtcars, mean_mpg = mean(mpg), by = am)}}
 \item{To aggregate all non-grouping columns: }{\code{take(mtcars, fun = mean, by = am)}}
+\item{To aggregate several columns with one summary: }{\code{take(mtcars, mpg, hp, fun = mean, by = am)}}
 \item{To get total summary skip 'by' argument: }{\code{take(mtcars, fun = mean)}}
 \item{Use magrittr pipe '\%>\%' to chain several operations: }{\preformatted{
      mtcars \%>\%

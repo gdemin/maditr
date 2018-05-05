@@ -130,6 +130,7 @@ $(document).ready(function () {
 <li>To select columns from data: <code>take(mtcars, am, vs, mpg)</code></li>
 <li>To aggregate data: <code>take(mtcars, mean_mpg = mean(mpg), by = am)</code></li>
 <li>To aggregate all non-grouping columns: <code>take(mtcars, fun = mean, by = am)</code></li>
+<li>To aggregate several columns with one summary: <code>take(mtcars, mpg, hp, fun = mean, by = am)</code></li>
 <li>To get total summary skip <code>by</code> argument: <code>take(mtcars, fun = mean)</code></li>
 <li>Use magrittr pipe <code>%&gt;%</code> to chain several operations:</li>
 </ul>
