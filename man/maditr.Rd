@@ -4,10 +4,116 @@
 \name{maditr}
 \alias{maditr}
 \alias{maditr-package}
-\title{maditr: Tables with Labels and Some Useful Functions from Spreadsheets and SPSS Statistics}
+\title{maditr: Pipe-friendly Interface for 'data.table'}
 \description{
-'expss' package implements some popular functions from spreadsheets and SPSS
-Statistics software. Implementations are not complete copies of their
-originals. I try to make them consistent with other R functions. See examples
-in the vignette and in the help.
+Package provides pipe-friendly interface for \code{data.table}. It preserves
+all data.table features without significant impact on performance. '\code{let}'
+and '\code{take}' functions are simplified interfaces for most common data
+manipulation tasks. '\code{query_if}' function translates its arguments
+one-to-one to '\code{[.data.table}' method. Additionally there are some
+conveniences such as automatic 'data.frame' conversion to 'data.table'.
+\itemize{
+\item{To select rows from data: }{\code{take_if(mtcars, am==0)}}
+\item{To select columns from data: }{\code{take(mtcars, am, vs, mpg)}}
+\item{To aggregate data: }{\code{take(mtcars, mean_mpg = mean(mpg), by = am)}}
+\item{To aggregate all non-grouping columns: }{\code{take(mtcars, fun = mean, by = am)}}
+\item{To get total summary skip 'by' argument: }{\code{take(mtcars, fun = mean)}}
+\item{Use magrittr pipe '\%>\%' to chain several operations: }{\preformatted{
+     mtcars \%>\%
+        let(mpg_hp = mpg/hp) \%>\%
+        take(mean(mpg_hp), by = am)
+}}
+\item{To modify variables or add new variables: }{\preformatted{
+      mtcars \%>\%
+         let(new_var = 42,
+             new_var2 = new_var*hp) \%>\%
+          head()}}
+\item{To drop variable assign NULL: }{\code{let(mtcars, am = NULL) \%>\% head()}}
+\item{For parametric assignment use ':=': }{\preformatted{
+     new_var = "my_var"
+     old_var = "mpg"
+     mtcars \%>\%
+         let((new_var) := get(old_var)*2) \%>\%
+         head()}}
+\item{For more sophisticated operations see 'query': }{\code{?query}}
+}
+}
+\examples{
+# examples form 'dplyr' package
+data(mtcars)
+
+# Newly created variables are available immediately
+mtcars \%>\% let(
+    cyl2 = cyl * 2,
+    cyl4 = cyl2 * 2
+) \%>\% head()
+
+# You can also use let() to remove variables and
+# modify existing variables
+mtcars \%>\% let(
+    mpg = NULL,
+    disp = disp * 0.0163871 # convert to litres
+) \%>\% head()
+
+
+# window functions are useful for grouped computations
+mtcars \%>\%
+    let(rank = rank(-mpg, ties.method = "min"),
+        by = cyl) \%>\%
+    head()
+
+# You can drop variables by setting them to NULL
+mtcars \%>\%
+    let(cyl = NULL) \%>\%
+    head()
+
+# keeps all existing variables
+mtcars \%>\%
+    let(displ_l = disp / 61.0237) \%>\%
+    head()
+
+# keeps only the variables you create
+mtcars \%>\%
+    take(displ_l = disp / 61.0237)
+
+
+# can refer to both contextual variables and variable names:
+var = 100
+mtcars \%>\%
+    let(cyl = cyl * var) \%>\%
+    head()
+
+# filter by condition
+mtcars \%>\%
+    take_if(am==0)
+
+# filter by compound condition
+mtcars \%>\%
+    take_if(am==0 & mpg>mean(mpg))
+
+
+# A 'take' with summary functions applied without 'by' argument returns an aggregated data
+mtcars \%>\%
+    take(mean = mean(disp), n = .N)
+
+# Usually, you'll want to group first
+mtcars \%>\%
+    take(mean = mean(disp), n = .N, by = am)
+
+# grouping by multiple variables
+mtcars \%>\%
+    take(mean = mean(disp), n = .N, by = list(am, vs))
+
+# parametric evaluation:
+var = quote(mean(cyl))
+take(mtcars, eval(var))
+
+
+# You can group by expressions:
+mtcars \%>\%
+    take(
+        fun = mean,
+        by = list(vsam = vs + am)
+    )
+
 }

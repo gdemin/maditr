@@ -6,9 +6,10 @@ Date: 2018-05-04
 Maintainer: Gregory Demin <gdemin@gmail.com>
 Authors@R: person("Gregory", "Demin", email = "gdemin@gmail.com", role = c("aut", "cre"))
 Depends: 
-    R (>= 3.3.0), 
-    magrittr (>= 1.5), 
-    data.table (>= 1.10)
+    R (>= 3.3.0)
+Imports:
+    data.table (>= 1.10),
+    magrittr (>= 1.5)
 Suggests: 
     knitr, 
     testthat
