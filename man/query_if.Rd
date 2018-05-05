@@ -134,18 +134,25 @@ query(dat, sum(v), by=x) \%>\%
     query_if(order(x))               # same but by chaining expressions together
 
 # fast ad hoc row subsets (subsets as joins)
-query_if(dat, "a", on="x")                             # same as x == "a" but uses binary search (fast)
-query_if(dat, "a", on=list(x))                         # same, for convenience, no need to quote every column
+# same as x == "a" but uses binary search (fast)
+query_if(dat, "a", on="x")
+# same, for convenience, no need to quote every column
+query_if(dat, "a", on=list(x))
 query_if(dat, .("a"), on="x")                          # same
-query_if(dat, x=="a")                                  # same, single "==" internally optimised to use binary search (fast)
-query_if(dat, x!="b" | y!=3)                           # not yet optimized, currently vector scan subset
-query_if(dat, .("b", 3), on=c("x", "y"))               # join on columns x,y of 'dat'; uses binary search (fast)
+# same, single "==" internally optimised to use binary search (fast)
+query_if(dat, x=="a")
+# not yet optimized, currently vector scan subset
+query_if(dat, x!="b" | y!=3)
+# join on columns x,y of 'dat'; uses binary search (fast)
+query_if(dat, .("b", 3), on=c("x", "y"))
 query_if(dat, .("b", 3), on=list(x, y))                # same, but using on=list()
 query_if(dat, .("b", 1:2), on=c("x", "y"))             # no match returns NA
 query_if(dat, .("b", 1:2), on=.(x, y), nomatch=0)      # no match row is not returned
-query_if(dat, .("b", 1:2), on=c("x", "y"), roll=Inf)   # locf, nomatch row gets rolled by previous row
+# locf, nomatch row gets rolled by previous row
+query_if(dat, .("b", 1:2), on=c("x", "y"), roll=Inf)
 query_if(dat, .("b", 1:2), on=.(x, y), roll=-Inf)      # nocb, nomatch row gets rolled by next row
-query_if(dat, "b", sum(v*y), on="x")                   # on rows where dat$x=="b", calculate sum(v*y)
+# on rows where dat$x=="b", calculate sum(v*y)
+query_if(dat, "b", sum(v*y), on="x")
 
 # all together now
 query_if(dat, x!="a", sum(v), by=x)                    # get sum(v) by "x" for each i != "a"
