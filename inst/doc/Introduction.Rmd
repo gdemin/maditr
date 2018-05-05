@@ -11,7 +11,7 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction
+## Overview
 
 Package provides pipe-friendly interface for [data.table](https://cran.r-project.org/package=data.table) package. It preserves all data.table features without significant impact on performance. `let` and `take` functions are simplified interfaces for most common data manipulation tasks. `query_if` function translates its arguments one-to-one to `[.data.table` method. Additionally there are some conveniences such as automatic `data.frame` conversion to `data.table`.
 
