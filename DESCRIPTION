@@ -8,7 +8,7 @@ Authors@R: person("Gregory", "Demin", email = "gdemin@gmail.com", role = c("aut"
 Depends: 
     R (>= 3.3.0)
 Imports:
-    data.table (>= 1.10),
+    data.table (>= 1.11),
     magrittr (>= 1.5)
 Suggests: 
     knitr, 
