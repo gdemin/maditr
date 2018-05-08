@@ -85,7 +85,7 @@ dt_arrange = function(data, ..., na.last = FALSE){
 }
 
 #' @export
-dt_filter = function(data, ...){
+dt_filter = function(data, ..., by, keyby){
     if(!is.data.frame(data)) stop("dt_arrange: 'data' should be data.frame or data.table")
     if(!is.data.table(data)){
         data = as.data.table(data)
