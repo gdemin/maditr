@@ -239,14 +239,10 @@ query_if = function(data,
     if(!is.data.frame(data)) stop("query/query_if: 'data' should be data.frame or data.table")
     call_expr = sys.call()
     if(!is.data.table(data)){
-        data = as.data.table(data)
-        call_expr[[2]] = as.symbol("data")
-        curr_eval = eval
-    } else {
-        curr_eval = eval.parent
+        call_expr[[2]] = substitute(as.data.table(data))
     }
     call_expr[[1]] = as.symbol("[")
-    curr_eval(call_expr)
+    eval.parent(call_expr)
 }
 
 #' @rdname query_if

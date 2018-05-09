@@ -13,7 +13,7 @@
         ",
         'To modify variables or add new variables:
              let(mtcars, new_var = 42, new_var2 = new_var*hp) %>% head()',
-        'To drop variable assign NULL: let(mtcars, am = NULL) %>% head()'
+        'To drop variable use NULL: let(mtcars, am = NULL) %>% head()'
     )
     curr_hint = sample(hints, 1)
     packageStartupMessage(paste0("\n", curr_hint, "\n"))

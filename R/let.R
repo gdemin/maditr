@@ -13,18 +13,17 @@
 #' }
 #'
 #' @param data data.table/data.frame data.frame will be automatically converted
-#'   to data.table. \code{let} modify data.table object in-place. data.frame
-#'   will be converted to data.table.
+#'   to data.table. \code{let} modify data.table object in-place.
 #' @param i integer/logical vector. Supposed to use to subset/conditional
 #'   modifications of \code{data}. For details see \link[data.table]{data.table}
 #' @param ... List of variables or name-value pairs of summary/modifications
 #'   functions. The name will be the name of the variable in the result. In the
 #'   \code{let} function we can use \code{a = b} or \code{a := b} notation. Advantages of
-#'   \code{:=} are multiassignment (\code{c(a, b) := list(1,2)}) and parametric
+#'   \code{:=} are multiassignment (\code{c("a", "b")  := list(1,2)}) and parametric
 #'   assignment (\code{(a) := 2}).
 #' @param by unquoted name of grouping variable of list of unquoted names of
 #'   grouping variables. For details see \link[data.table]{data.table}
-#' @param keyby Same as by, but with an additional \code{setkey()} run on the by
+#' @param keyby Same as \code{by}, but with an additional \code{setkey()} run on the by
 #'   columns of the result, for convenience. It is common practice to use
 #'   'keyby=' routinely when you wish the result to be sorted. For details see
 #'   \link[data.table]{data.table}.
@@ -294,11 +293,7 @@ take_if = function(data,
     if(!is.data.frame(data)) stop("take/take_if: 'data' should be data.frame or data.table")
     call_expr = sys.call()
     if(!is.data.table(data)){
-        data = as.data.table(data)
-        call_expr[[2]] = as.symbol("data")
-        curr_eval = eval
-    } else {
-        curr_eval = eval.parent
+        call_expr[[2]] = substitute(as.data.table(data))
     }
     call_expr[[1]] = as.symbol("[")
 
@@ -330,8 +325,25 @@ take_if = function(data,
             call_expr = as.call(call_list)
         }
     }
-    curr_eval(call_expr)
+    eval.parent(call_expr)
 }
+
+# 'j_expr' - result of substitute(list(...))
+# evaluate_parametric_assign = function(j_expr, parent_frame){
+#     j_list = as.list(j_expr)
+#     j_list[-1] = lapply(j_list[-1], function(item){
+#         if(is.call(item)){
+#             if(identical(item[[1]], as.symbol(":="))){
+#                 if(is.call(item[[2]])){
+#                     eval(item[[2]], envir = parent_frame)
+#                 } else {
+#                     as.character(item[[2]])
+#                 }
+#             }
+#         }
+#     })
+#
+# }
 
 
 

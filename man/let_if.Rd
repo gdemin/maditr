@@ -41,8 +41,7 @@ let(data, ..., by, keyby, with = TRUE,
 }
 \arguments{
 \item{data}{data.table/data.frame data.frame will be automatically converted
-to data.table. \code{let} modify data.table object in-place. data.frame
-will be converted to data.table.}
+to data.table. \code{let} modify data.table object in-place.}
 
 \item{i}{integer/logical vector. Supposed to use to subset/conditional
 modifications of \code{data}. For details see \link[data.table]{data.table}}
@@ -50,13 +49,13 @@ modifications of \code{data}. For details see \link[data.table]{data.table}}
 \item{...}{List of variables or name-value pairs of summary/modifications
 functions. The name will be the name of the variable in the result. In the
 \code{let} function we can use \code{a = b} or \code{a := b} notation. Advantages of
-\code{:=} are multiassignment (\code{c(a, b) := list(1,2)}) and parametric
+\code{:=} are multiassignment (\code{c("a", "b")  := list(1,2)}) and parametric
 assignment (\code{(a) := 2}).}
 
 \item{by}{unquoted name of grouping variable of list of unquoted names of
 grouping variables. For details see \link[data.table]{data.table}}
 
-\item{keyby}{Same as by, but with an additional \code{setkey()} run on the by
+\item{keyby}{Same as \code{by}, but with an additional \code{setkey()} run on the by
 columns of the result, for convenience. It is common practice to use
 'keyby=' routinely when you wish the result to be sorted. For details see
 \link[data.table]{data.table}.}
