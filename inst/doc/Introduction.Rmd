@@ -217,9 +217,6 @@ mtcars %>%
 mtcars %>%
     dt_filter(am==0,  mpg>mean(mpg))
 
-# grouped filter
-mtcars %>%
-    dt_filter(disp == max(disp), by = cyl)
 
 # select
 mtcars %>% dt_select(vs:carb, cyl)

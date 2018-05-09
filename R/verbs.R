@@ -99,9 +99,6 @@
 #' mtcars %>%
 #'     dt_filter(am==0,  mpg>mean(mpg))
 #'
-#' # grouped filter
-#' mtcars %>%
-#'     dt_filter(disp == max(disp), by = cyl)
 #'
 #' # select
 #' mtcars %>% dt_select(vs:carb, cyl)
@@ -110,10 +107,9 @@
 #' # sorting
 #' dt_arrange(mtcars, cyl, disp)
 #' dt_arrange(mtcars, -disp)
-dt_mutate = function(data, ..., by, keyby){
+dt_mutate = function(data, ..., by){
     eval.parent(substitute(let(data, ...,
-                               by = by,
-                               keyby = keyby))
+                               by = by))
     )
 }
 
@@ -200,19 +196,26 @@ dt_select = function(data, ...){
 
 #' @rdname dt_mutate
 #' @export
-dt_filter = function(data, ..., by, keyby){
+dt_filter = function(data, ...){
     if(!is.data.frame(data)) stop("dt_filter: 'data' should be data.frame or data.table")
-    filt = eval.parent(substitute(take(data, ...,
-                                       by = by,
-                                       keyby = keyby)))
-    if(!(NROW(filt)==1 || NROW(filt)==NROW(data))) {
-        stop(sprintf("dt_filter: incorrect number of rows in filter: %s. 'data' have %s rows.", NROW(filt), NROW(data)))
+    curr_names = names(substitute(list(...)))
+    if(!is.null(curr_names)){
+        if(any(c("by", "keyby") %in% curr_names)){
+            stop("'dt_filter': you try to use 'by' or 'keyby'. Sorry, but by now grouped filtering is not supported.")
+        }
+        curr_names = curr_names[curr_names!=""][[1]]
+        stop(sprintf("'dt_filter': it seems you use '=' instead of '==': %s.", curr_names))
     }
-    filt___ = Reduce(f = `&`, filt)
     if(!is.data.table(data)){
-        data = as.data.table(data)
+        eval.parent(substitute(
+            as.data.table(data)[Reduce(f = '&', list(...)), ]
+        ))
+    } else {
+        eval.parent(substitute(
+            data[Reduce(f = '&', list(...)), ]
+        ))
     }
-    data[filt___, ]
+
 }
 
 #' @rdname dt_mutate

@@ -11,7 +11,7 @@
 \alias{dt_arrange}
 \title{'dplyr'-like interface for data.table.}
 \usage{
-dt_mutate(data, ..., by, keyby)
+dt_mutate(data, ..., by)
 
 dt_summarize(data, ..., by, keyby, fun = NULL)
 
@@ -23,7 +23,7 @@ dt_summarise_all(data, fun, by, keyby)
 
 dt_select(data, ...)
 
-dt_filter(data, ..., by, keyby)
+dt_filter(data, ...)
 
 dt_arrange(data, ..., na.last = FALSE)
 }
@@ -133,9 +133,6 @@ mtcars \%>\%
 mtcars \%>\%
     dt_filter(am==0,  mpg>mean(mpg))
 
-# grouped filter
-mtcars \%>\%
-    dt_filter(disp == max(disp), by = cyl)
 
 # select
 mtcars \%>\% dt_select(vs:carb, cyl)
