@@ -259,6 +259,320 @@ mtcars <span class="op">%&gt;%</span>
 ## 3: 3.000000 3.083333</code></pre>
 </div>
 </div>
+<div id="dplyr-like-interface-for-data.table." class="section level2">
+<h2>‘dplyr’-like interface for data.table.</h2>
+<p>There are a small subset of ‘dplyr’ verbs to work with data.table. Note that there is no <code>group_by</code> verb - use by or keyby argument when needed.</p>
+<ul>
+<li><code>dt_mutate</code> adds new variables or modify existing variables. If data is data.table then it modifies in-place.</li>
+<li><code>dt_summarize</code> computes summary statistics. Splits the data into subsets, computes summary statistics for each, and returns the result in the “data.table” form.</li>
+<li><code>dt_summarize_all</code> the same as <code>dt_summarize</code> but work over all non-grouping variables.</li>
+<li><code>dt_filter</code> Selects rows/cases where conditions are true. Rows where the condition evaluates to NA are dropped.</li>
+<li><code>dt_select</code> Selects column/variables from the data.set.</li>
+<li><code>dt_arrange</code> sorts dataset by variable(-s). Use ‘-’ to sort in desending order. If data is data.table then it modifies in-place.</li>
+</ul>
+<p>The same examples with ‘dplyr’-verbs:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># examples from 'dplyr'</span>
+<span class="co"># newly created variables are available immediately</span>
+mtcars  <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">dt_mutate</span>(
+        <span class="dt">cyl2 =</span> cyl <span class="op">*</span><span class="st"> </span><span class="dv">2</span>,
+        <span class="dt">cyl4 =</span> cyl2 <span class="op">*</span><span class="st"> </span><span class="dv">2</span>
+    ) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">head</span>()</code></pre></div>
+<pre><code>##     mpg cyl disp  hp drat    wt  qsec vs am gear carb cyl2 cyl4
+## 1: 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4   12   24
+## 2: 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4   12   24
+## 3: 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1    8   16
+## 4: 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1   12   24
+## 5: 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2   16   32
+## 6: 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1   12   24</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># you can also use dt_mutate() to remove variables and</span>
+<span class="co"># modify existing variables</span>
+mtcars <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">dt_mutate</span>(
+        <span class="dt">mpg =</span> <span class="ot">NULL</span>,
+        <span class="dt">disp =</span> disp <span class="op">*</span><span class="st"> </span><span class="fl">0.0163871</span> <span class="co"># convert to litres</span>
+    ) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">head</span>()</code></pre></div>
+<pre><code>##    cyl     disp  hp drat    wt  qsec vs am gear carb
+## 1:   6 2.621936 110 3.90 2.620 16.46  0  1    4    4
+## 2:   6 2.621936 110 3.90 2.875 17.02  0  1    4    4
+## 3:   4 1.769807  93 3.85 2.320 18.61  1  1    4    1
+## 4:   6 4.227872 110 3.08 3.215 19.44  1  0    3    1
+## 5:   8 5.899356 175 3.15 3.440 17.02  0  0    3    2
+## 6:   6 3.687098 105 2.76 3.460 20.22  1  0    3    1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># window functions are useful for grouped mutates</span>
+mtcars <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">dt_mutate</span>(
+        <span class="dt">rank =</span> <span class="kw">rank</span>(<span class="op">-</span>mpg, <span class="dt">ties.method =</span> <span class="st">&quot;min&quot;</span>),
+        <span class="dt">keyby =</span> cyl) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">print</span>()</code></pre></div>
+<pre><code>##      mpg cyl  disp  hp drat    wt  qsec vs am gear carb rank
+##  1: 22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1    8
+##  2: 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2    7
+##  3: 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2    8
+##  4: 32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1    2
+##  5: 30.4   4  75.7  52 4.93 1.615 18.52  1  1    4    2    3
+##  6: 33.9   4  71.1  65 4.22 1.835 19.90  1  1    4    1    1
+##  7: 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1   10
+##  8: 27.3   4  79.0  66 4.08 1.935 18.90  1  1    4    1    5
+##  9: 26.0   4 120.3  91 4.43 2.140 16.70  0  1    5    2    6
+## 10: 30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2    3
+## 11: 21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2   11
+## 12: 21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4    2
+## 13: 21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4    2
+## 14: 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1    1
+## 15: 18.1   6 225.0 105 2.76 3.460 20.22  1  0    3    1    6
+## 16: 19.2   6 167.6 123 3.92 3.440 18.30  1  0    4    4    5
+## 17: 17.8   6 167.6 123 3.92 3.440 18.90  1  0    4    4    7
+## 18: 19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6    4
+## 19: 18.7   8 360.0 175 3.15 3.440 17.02  0  0    3    2    2
+## 20: 14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4   11
+## 21: 16.4   8 275.8 180 3.07 4.070 17.40  0  0    3    3    4
+## 22: 17.3   8 275.8 180 3.07 3.730 17.60  0  0    3    3    3
+## 23: 15.2   8 275.8 180 3.07 3.780 18.00  0  0    3    3    7
+## 24: 10.4   8 472.0 205 2.93 5.250 17.98  0  0    3    4   13
+## 25: 10.4   8 460.0 215 3.00 5.424 17.82  0  0    3    4   13
+## 26: 14.7   8 440.0 230 3.23 5.345 17.42  0  0    3    4   10
+## 27: 15.5   8 318.0 150 2.76 3.520 16.87  0  0    3    2    6
+## 28: 15.2   8 304.0 150 3.15 3.435 17.30  0  0    3    2    7
+## 29: 13.3   8 350.0 245 3.73 3.840 15.41  0  0    3    4   12
+## 30: 19.2   8 400.0 175 3.08 3.845 17.05  0  0    3    2    1
+## 31: 15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4    5
+## 32: 15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8    9
+##      mpg cyl  disp  hp drat    wt  qsec vs am gear carb rank</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># You can drop variables by setting them to NULL</span>
+mtcars <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">dt_mutate</span>(<span class="dt">cyl =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>()</code></pre></div>
+<pre><code>##     mpg disp  hp drat    wt  qsec vs am gear carb
+## 1: 21.0  160 110 3.90 2.620 16.46  0  1    4    4
+## 2: 21.0  160 110 3.90 2.875 17.02  0  1    4    4
+## 3: 22.8  108  93 3.85 2.320 18.61  1  1    4    1
+## 4: 21.4  258 110 3.08 3.215 19.44  1  0    3    1
+## 5: 18.7  360 175 3.15 3.440 17.02  0  0    3    2
+## 6: 18.1  225 105 2.76 3.460 20.22  1  0    3    1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># A summary applied without by returns a single row</span>
+mtcars <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">dt_summarise</span>(<span class="dt">mean =</span> <span class="kw">mean</span>(disp), <span class="dt">n =</span> .N)</code></pre></div>
+<pre><code>##        mean  n
+## 1: 230.7219 32</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Usually, you'll want to group first</span>
+mtcars <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">dt_summarise</span>(<span class="dt">mean =</span> <span class="kw">mean</span>(disp), <span class="dt">n =</span> .N, <span class="dt">by =</span> cyl)</code></pre></div>
+<pre><code>##    cyl     mean  n
+## 1:   6 183.3143  7
+## 2:   4 105.1364 11
+## 3:   8 353.1000 14</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Multiple 'by' - variables</span>
+mtcars <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">dt_summarise</span>(<span class="dt">cyl_n =</span> .N, <span class="dt">by =</span> <span class="kw">list</span>(cyl, vs))</code></pre></div>
+<pre><code>##    cyl vs cyl_n
+## 1:   6  0     3
+## 2:   4  1    10
+## 3:   6  1     4
+## 4:   8  0    14
+## 5:   4  0     1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Newly created summaries immediately</span>
+<span class="co"># doesn't overwrite existing variables</span>
+mtcars <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">dt_summarise</span>(<span class="dt">disp =</span> <span class="kw">mean</span>(disp),
+                  <span class="dt">sd =</span> <span class="kw">sd</span>(disp),
+                  <span class="dt">by =</span> cyl)</code></pre></div>
+<pre><code>##    cyl     disp       sd
+## 1:   6 183.3143 41.56246
+## 2:   4 105.1364 26.87159
+## 3:   8 353.1000 67.77132</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># You can group by expressions:</span>
+mtcars <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">dt_summarise_all</span>(mean, <span class="dt">by =</span> <span class="kw">list</span>(<span class="dt">vsam =</span> vs <span class="op">+</span><span class="st"> </span>am))</code></pre></div>
+<pre><code>##    vsam      mpg      cyl     disp        hp     drat       wt     qsec
+## 1:    1 20.28462 5.692308 189.4692 138.46154 3.738462 3.038846 18.04231
+## 2:    2 28.37143 4.000000  89.8000  80.57143 4.148571 2.028286 18.70000
+## 3:    0 15.05000 8.000000 357.6167 194.16667 3.120833 4.104083 17.14250
+##        gear     carb
+## 1: 4.076923 3.307692
+## 2: 4.142857 1.428571
+## 3: 3.000000 3.083333</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># filter by condition</span>
+mtcars <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">dt_filter</span>(am<span class="op">==</span><span class="dv">0</span>)</code></pre></div>
+<pre><code>##      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+##  1: 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
+##  2: 18.7   8 360.0 175 3.15 3.440 17.02  0  0    3    2
+##  3: 18.1   6 225.0 105 2.76 3.460 20.22  1  0    3    1
+##  4: 14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4
+##  5: 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
+##  6: 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
+##  7: 19.2   6 167.6 123 3.92 3.440 18.30  1  0    4    4
+##  8: 17.8   6 167.6 123 3.92 3.440 18.90  1  0    4    4
+##  9: 16.4   8 275.8 180 3.07 4.070 17.40  0  0    3    3
+## 10: 17.3   8 275.8 180 3.07 3.730 17.60  0  0    3    3
+## 11: 15.2   8 275.8 180 3.07 3.780 18.00  0  0    3    3
+## 12: 10.4   8 472.0 205 2.93 5.250 17.98  0  0    3    4
+## 13: 10.4   8 460.0 215 3.00 5.424 17.82  0  0    3    4
+## 14: 14.7   8 440.0 230 3.23 5.345 17.42  0  0    3    4
+## 15: 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1
+## 16: 15.5   8 318.0 150 2.76 3.520 16.87  0  0    3    2
+## 17: 15.2   8 304.0 150 3.15 3.435 17.30  0  0    3    2
+## 18: 13.3   8 350.0 245 3.73 3.840 15.41  0  0    3    4
+## 19: 19.2   8 400.0 175 3.08 3.845 17.05  0  0    3    2</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># filter by compound condition</span>
+mtcars <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">dt_filter</span>(am<span class="op">==</span><span class="dv">0</span>,  mpg<span class="op">&gt;</span><span class="kw">mean</span>(mpg))</code></pre></div>
+<pre><code>##     mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+## 1: 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
+## 2: 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
+## 3: 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
+## 4: 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># grouped filter</span>
+mtcars <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">dt_filter</span>(disp <span class="op">==</span><span class="st"> </span><span class="kw">max</span>(disp), <span class="dt">by =</span> cyl)</code></pre></div>
+<pre><code>##     mpg cyl  disp  hp drat   wt  qsec vs am gear carb
+## 1: 22.8   4 108.0  93 3.85 2.32 18.61  1  1    4    1
+## 2: 22.8   4 140.8  95 3.92 3.15 22.90  1  0    4    2
+## 3: 13.3   8 350.0 245 3.73 3.84 15.41  0  0    3    4</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># select</span>
+mtcars <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">dt_select</span>(vs<span class="op">:</span>carb, cyl)</code></pre></div>
+<pre><code>##     vs am gear carb cyl
+##  1:  0  1    4    4   6
+##  2:  0  1    4    4   6
+##  3:  1  1    4    1   4
+##  4:  1  0    3    1   6
+##  5:  0  0    3    2   8
+##  6:  1  0    3    1   6
+##  7:  0  0    3    4   8
+##  8:  1  0    4    2   4
+##  9:  1  0    4    2   4
+## 10:  1  0    4    4   6
+## 11:  1  0    4    4   6
+## 12:  0  0    3    3   8
+## 13:  0  0    3    3   8
+## 14:  0  0    3    3   8
+## 15:  0  0    3    4   8
+## 16:  0  0    3    4   8
+## 17:  0  0    3    4   8
+## 18:  1  1    4    1   4
+## 19:  1  1    4    2   4
+## 20:  1  1    4    1   4
+## 21:  1  0    3    1   4
+## 22:  0  0    3    2   8
+## 23:  0  0    3    2   8
+## 24:  0  0    3    4   8
+## 25:  0  0    3    2   8
+## 26:  1  1    4    1   4
+## 27:  0  1    5    2   4
+## 28:  1  1    5    2   4
+## 29:  0  1    5    4   8
+## 30:  0  1    5    6   6
+## 31:  0  1    5    8   8
+## 32:  1  1    4    2   4
+##     vs am gear carb cyl</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mtcars <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">dt_select</span>(<span class="op">-</span>am, <span class="op">-</span>cyl)</code></pre></div>
+<pre><code>##      mpg  disp  hp drat    wt  qsec vs gear carb
+##  1: 21.0 160.0 110 3.90 2.620 16.46  0    4    4
+##  2: 21.0 160.0 110 3.90 2.875 17.02  0    4    4
+##  3: 22.8 108.0  93 3.85 2.320 18.61  1    4    1
+##  4: 21.4 258.0 110 3.08 3.215 19.44  1    3    1
+##  5: 18.7 360.0 175 3.15 3.440 17.02  0    3    2
+##  6: 18.1 225.0 105 2.76 3.460 20.22  1    3    1
+##  7: 14.3 360.0 245 3.21 3.570 15.84  0    3    4
+##  8: 24.4 146.7  62 3.69 3.190 20.00  1    4    2
+##  9: 22.8 140.8  95 3.92 3.150 22.90  1    4    2
+## 10: 19.2 167.6 123 3.92 3.440 18.30  1    4    4
+## 11: 17.8 167.6 123 3.92 3.440 18.90  1    4    4
+## 12: 16.4 275.8 180 3.07 4.070 17.40  0    3    3
+## 13: 17.3 275.8 180 3.07 3.730 17.60  0    3    3
+## 14: 15.2 275.8 180 3.07 3.780 18.00  0    3    3
+## 15: 10.4 472.0 205 2.93 5.250 17.98  0    3    4
+## 16: 10.4 460.0 215 3.00 5.424 17.82  0    3    4
+## 17: 14.7 440.0 230 3.23 5.345 17.42  0    3    4
+## 18: 32.4  78.7  66 4.08 2.200 19.47  1    4    1
+## 19: 30.4  75.7  52 4.93 1.615 18.52  1    4    2
+## 20: 33.9  71.1  65 4.22 1.835 19.90  1    4    1
+## 21: 21.5 120.1  97 3.70 2.465 20.01  1    3    1
+## 22: 15.5 318.0 150 2.76 3.520 16.87  0    3    2
+## 23: 15.2 304.0 150 3.15 3.435 17.30  0    3    2
+## 24: 13.3 350.0 245 3.73 3.840 15.41  0    3    4
+## 25: 19.2 400.0 175 3.08 3.845 17.05  0    3    2
+## 26: 27.3  79.0  66 4.08 1.935 18.90  1    4    1
+## 27: 26.0 120.3  91 4.43 2.140 16.70  0    5    2
+## 28: 30.4  95.1 113 3.77 1.513 16.90  1    5    2
+## 29: 15.8 351.0 264 4.22 3.170 14.50  0    5    4
+## 30: 19.7 145.0 175 3.62 2.770 15.50  0    5    6
+## 31: 15.0 301.0 335 3.54 3.570 14.60  0    5    8
+## 32: 21.4 121.0 109 4.11 2.780 18.60  1    4    2
+##      mpg  disp  hp drat    wt  qsec vs gear carb</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># sorting</span>
+<span class="kw">dt_arrange</span>(mtcars, cyl, disp)</code></pre></div>
+<pre><code>##      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+##  1: 33.9   4  71.1  65 4.22 1.835 19.90  1  1    4    1
+##  2: 30.4   4  75.7  52 4.93 1.615 18.52  1  1    4    2
+##  3: 32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1
+##  4: 27.3   4  79.0  66 4.08 1.935 18.90  1  1    4    1
+##  5: 30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2
+##  6: 22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
+##  7: 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1
+##  8: 26.0   4 120.3  91 4.43 2.140 16.70  0  1    5    2
+##  9: 21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2
+## 10: 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
+## 11: 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
+## 12: 19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6
+## 13: 21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
+## 14: 21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
+## 15: 19.2   6 167.6 123 3.92 3.440 18.30  1  0    4    4
+## 16: 17.8   6 167.6 123 3.92 3.440 18.90  1  0    4    4
+## 17: 18.1   6 225.0 105 2.76 3.460 20.22  1  0    3    1
+## 18: 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
+## 19: 16.4   8 275.8 180 3.07 4.070 17.40  0  0    3    3
+## 20: 17.3   8 275.8 180 3.07 3.730 17.60  0  0    3    3
+## 21: 15.2   8 275.8 180 3.07 3.780 18.00  0  0    3    3
+## 22: 15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
+## 23: 15.2   8 304.0 150 3.15 3.435 17.30  0  0    3    2
+## 24: 15.5   8 318.0 150 2.76 3.520 16.87  0  0    3    2
+## 25: 13.3   8 350.0 245 3.73 3.840 15.41  0  0    3    4
+## 26: 15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4
+## 27: 18.7   8 360.0 175 3.15 3.440 17.02  0  0    3    2
+## 28: 14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4
+## 29: 19.2   8 400.0 175 3.08 3.845 17.05  0  0    3    2
+## 30: 14.7   8 440.0 230 3.23 5.345 17.42  0  0    3    4
+## 31: 10.4   8 460.0 215 3.00 5.424 17.82  0  0    3    4
+## 32: 10.4   8 472.0 205 2.93 5.250 17.98  0  0    3    4
+##      mpg cyl  disp  hp drat    wt  qsec vs am gear carb</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dt_arrange</span>(mtcars, <span class="op">-</span>disp)</code></pre></div>
+<pre><code>##      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+##  1: 10.4   8 472.0 205 2.93 5.250 17.98  0  0    3    4
+##  2: 10.4   8 460.0 215 3.00 5.424 17.82  0  0    3    4
+##  3: 14.7   8 440.0 230 3.23 5.345 17.42  0  0    3    4
+##  4: 19.2   8 400.0 175 3.08 3.845 17.05  0  0    3    2
+##  5: 18.7   8 360.0 175 3.15 3.440 17.02  0  0    3    2
+##  6: 14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4
+##  7: 15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4
+##  8: 13.3   8 350.0 245 3.73 3.840 15.41  0  0    3    4
+##  9: 15.5   8 318.0 150 2.76 3.520 16.87  0  0    3    2
+## 10: 15.2   8 304.0 150 3.15 3.435 17.30  0  0    3    2
+## 11: 15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
+## 12: 16.4   8 275.8 180 3.07 4.070 17.40  0  0    3    3
+## 13: 17.3   8 275.8 180 3.07 3.730 17.60  0  0    3    3
+## 14: 15.2   8 275.8 180 3.07 3.780 18.00  0  0    3    3
+## 15: 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
+## 16: 18.1   6 225.0 105 2.76 3.460 20.22  1  0    3    1
+## 17: 19.2   6 167.6 123 3.92 3.440 18.30  1  0    4    4
+## 18: 17.8   6 167.6 123 3.92 3.440 18.90  1  0    4    4
+## 19: 21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
+## 20: 21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
+## 21: 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
+## 22: 19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6
+## 23: 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
+## 24: 21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2
+## 25: 26.0   4 120.3  91 4.43 2.140 16.70  0  1    5    2
+## 26: 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1
+## 27: 22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
+## 28: 30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2
+## 29: 27.3   4  79.0  66 4.08 1.935 18.90  1  1    4    1
+## 30: 32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1
+## 31: 30.4   4  75.7  52 4.93 1.615 18.52  1  1    4    2
+## 32: 33.9   4  71.1  65 4.22 1.835 19.90  1  1    4    1
+##      mpg cyl  disp  hp drat    wt  qsec vs am gear carb</code></pre>
+</div>
 
 
 
