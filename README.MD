@@ -139,7 +139,7 @@ mtcars %>%
 ## 'dplyr'-like interface for data.table.
 
 There are a small subset of 'dplyr' verbs to work with data.table. Note that there is no `group_by`
-verb - use by or keyby argument when needed.
+verb - use `by` or `keyby` argument when needed.
 
 - `dt_mutate` adds new variables or modify existing variables. If data is data.table then it modifies in-place.
 - `dt_summarize` computes summary statistics. Splits the data into subsets, computes summary statistics for each, and returns the result in the "data.table" form.
@@ -148,7 +148,7 @@ verb - use by or keyby argument when needed.
 - `dt_select` Selects column/variables from the data.set.
 - `dt_arrange` sorts dataset by variable(-s). Use '-' to sort in desending order. If data is data.table then it modifies in-place.
 
-```
+```R
 # examples from 'dplyr'
 # newly created variables are available immediately
 mtcars  %>%
