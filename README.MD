@@ -36,6 +36,16 @@ Package provides pipe-style interface for [data.table](https://cran.r-project.or
      mtcars %>%
          let((new_var) := get(old_var)*2) %>%
          head()
+         
+    # or,  
+    expr = quote(mean(cyl))
+    mtcars %>% 
+        let((new_var) := eval(expr)) %>% 
+        head()
+        
+    # the same with `take` 
+    by_var = "vs,am"
+    take(mtcars, (new_var) := eval(expr), by = by_var)
 ```         
 
 
