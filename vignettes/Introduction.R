@@ -10,14 +10,24 @@ knitr::opts_chunk$set(echo = TRUE)
 #        mtcars %>%
 #           let(new_var = 42,
 #               new_var2 = new_var*hp) %>%
-#            head()
+#           head()
 
 ## ---- eval=FALSE---------------------------------------------------------
-#       new_var = "my_var"
-#       old_var = "mpg"
-#       mtcars %>%
-#           let((new_var) := get(old_var)*2) %>%
-#           head()
+#      new_var = "my_var"
+#      old_var = "mpg"
+#      mtcars %>%
+#          let((new_var) := get(old_var)*2) %>%
+#          head()
+#  
+#      # or,
+#      expr = quote(mean(cyl))
+#      mtcars %>%
+#          let((new_var) := eval(expr)) %>%
+#          head()
+#  
+#      # the same with `take`
+#      by_var = "vs,am"
+#      take(mtcars, (new_var) := eval(expr), by = by_var)
 
 ## ------------------------------------------------------------------------
 library(maditr)
