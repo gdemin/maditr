@@ -238,11 +238,6 @@ mtcars <span class="op">%&gt;%</span>
 ## 2:  1  1  89.8000  7
 ## 3:  0  1 175.1143  7
 ## 4:  0  0 357.6167 12</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># parametric evaluation:</span>
-var =<span class="st"> </span><span class="kw">quote</span>(<span class="kw">mean</span>(cyl))
-<span class="kw">take</span>(mtcars, <span class="kw">eval</span>(var))</code></pre></div>
-<pre><code>##    eval(var)
-## 1:    6.1875</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># You can group by expressions:</span>
 mtcars <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">take</span>(
@@ -257,6 +252,36 @@ mtcars <span class="op">%&gt;%</span>
 ## 1: 4.076923 3.307692
 ## 2: 4.142857 1.428571
 ## 3: 3.000000 3.083333</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># parametric evaluation:</span>
+var =<span class="st"> </span><span class="kw">quote</span>(<span class="kw">mean</span>(cyl))
+mtcars <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">let</span>(<span class="dt">mean_cyl =</span> <span class="kw">eval</span>(var)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">head</span>()</code></pre></div>
+<pre><code>##     mpg cyl disp  hp drat    wt  qsec vs am gear carb mean_cyl
+## 1: 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4   6.1875
+## 2: 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4   6.1875
+## 3: 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1   6.1875
+## 4: 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1   6.1875
+## 5: 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2   6.1875
+## 6: 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1   6.1875</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">take</span>(mtcars, <span class="kw">eval</span>(var))</code></pre></div>
+<pre><code>##    eval(var)
+## 1:    6.1875</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># all together</span>
+new_var =<span class="st"> &quot;mean_cyl&quot;</span>
+mtcars <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">let</span>((new_var) <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">eval</span>(var)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">head</span>()</code></pre></div>
+<pre><code>##     mpg cyl disp  hp drat    wt  qsec vs am gear carb mean_cyl
+## 1: 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4   6.1875
+## 2: 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4   6.1875
+## 3: 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1   6.1875
+## 4: 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1   6.1875
+## 5: 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2   6.1875
+## 6: 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1   6.1875</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">take</span>(mtcars, (new_var) <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">eval</span>(var))</code></pre></div>
+<pre><code>##    mean_cyl
+## 1:   6.1875</code></pre>
 </div>
 </div>
 <div id="dplyr-like-interface-for-data.table." class="section level2">

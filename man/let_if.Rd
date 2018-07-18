@@ -48,9 +48,11 @@ modifications of \code{data}. For details see \link[data.table]{data.table}}
 
 \item{...}{List of variables or name-value pairs of summary/modifications
 functions. The name will be the name of the variable in the result. In the
-\code{let} function we can use \code{a = b} or \code{a := b} notation. Advantages of
-\code{:=} are multiassignment (\code{c("a", "b")  := list(1,2)}) and parametric
-assignment (\code{(a) := 2}).}
+\code{let} and \code{take} functions we can use \code{a = b} or \code{a :=
+b} notation. Advantages of \code{:=} is parametric assignment, e. g.
+\code{(a) := 2} create variable with name which are stored in \code{a}. In
+\code{let} \code{:=} can be used for multiassignment (\code{c("a", "b")  :=
+list(1,2)})}
 
 \item{by}{unquoted name of grouping variable of list of unquoted names of
 grouping variables. For details see \link[data.table]{data.table}}
@@ -169,14 +171,24 @@ mtcars \%>\%
 mtcars \%>\%
     take(mean = mean(disp), n = .N, by = cyl)
 
-# parametric evaluation:
-var = quote(mean(cyl))
-take(mtcars, eval(var))
-
-
 # You can group by expressions:
 mtcars \%>\%
     take(fun = mean, by = list(vsam = vs + am))
+
+
+# parametric evaluation:
+var = quote(mean(cyl))
+mtcars \%>\%
+    let(mean_cyl = eval(var)) \%>\%
+    head()
+take(mtcars, eval(var))
+
+# all together
+new_var = "mean_cyl"
+mtcars \%>\%
+    let((new_var) := eval(var)) \%>\%
+    head()
+take(mtcars, (new_var) := eval(var))
 
 ########################################
 

@@ -90,17 +90,28 @@ mtcars %>%
 mtcars %>%
     take(mean = mean(disp), n = .N, by = list(am, vs))
 
-# parametric evaluation:
-var = quote(mean(cyl))
-take(mtcars, eval(var))
-
-
 # You can group by expressions:
 mtcars %>%
     take(
         fun = mean,
         by = list(vsam = vs + am)
     )
+
+# parametric evaluation:
+var = quote(mean(cyl))
+mtcars %>% 
+    let(mean_cyl = eval(var)) %>% 
+    head()
+take(mtcars, eval(var))
+
+# all together
+new_var = "mean_cyl"
+mtcars %>% 
+    let((new_var) := eval(var)) %>% 
+    head()
+take(mtcars, (new_var) := eval(var))
+
+
 
 ## ------------------------------------------------------------------------
 # examples from 'dplyr'

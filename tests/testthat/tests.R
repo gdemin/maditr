@@ -61,6 +61,14 @@ res3 = mt_dt[, lapply(list(mpg = mpg, just_wow = hp), mean), by = am]
 expect_identical(res3, res)
 expect_identical(res3, res2)
 ###################
+###############
+mt_dt = as.data.table(mtcars)
+res = take(mtcars, mpg, just_wow := hp, fun = mean, by = am)
+res2 = take(mt_dt, mpg, just_wow := hp, fun = mean, by = am)
+res3 = mt_dt[, lapply(list(mpg = mpg, just_wow = hp), mean), by = am]
+expect_identical(res3, res)
+expect_identical(res3, res2)
+###################
 mt_dt = as.data.table(mtcars)
 res = take_if(mtcars, am==0, fun = mean, by = am)
 res2 = take_if(mt_dt, am==0, fun = mean, by = am)
@@ -72,6 +80,20 @@ expect_identical(res3, res2)
 mt_dt = as.data.table(mtcars)
 res = take(mtcars, agg = mean(mpg), agg2 = mean(hp), by = am)
 res2 = take(mt_dt, agg = mean(mpg), agg2 = mean(hp), by = am)
+res3 = mt_dt[, list(agg = mean(mpg), agg2 = mean(hp)), by = am]
+expect_identical(res3, res)
+expect_identical(res3, res2)
+#############
+mt_dt = as.data.table(mtcars)
+res = take(mtcars, agg := mean(mpg), agg2 = mean(hp), by = am)
+res2 = take(mt_dt, agg := mean(mpg), agg2 = mean(hp), by = am)
+res3 = mt_dt[, list(agg = mean(mpg), agg2 = mean(hp)), by = am]
+expect_identical(res3, res)
+expect_identical(res3, res2)
+#############
+mt_dt = as.data.table(mtcars)
+res = take(mtcars, agg := mean(mpg), agg2 := mean(hp), by = am)
+res2 = take(mt_dt, agg := mean(mpg), agg2 := mean(hp), by = am)
 res3 = mt_dt[, list(agg = mean(mpg), agg2 = mean(hp)), by = am]
 expect_identical(res3, res)
 expect_identical(res3, res2)
@@ -111,5 +133,38 @@ mt_dt = as.data.table(mtcars)
 res = query_if(mtcars, vs==0, list(mean(mpg), mean(hp)), by = am)
 res2 = query_if(mt_dt, vs==0, list(mean(mpg), mean(hp)), by = am)
 res3 = mt_dt[vs==0,  list(mean(mpg), mean(hp)), by = am]
+expect_identical(res3, res)
+expect_identical(res3, res2)
+
+context("let/take: parametric evaluation")
+
+#############
+mt_dt = as.data.table(mtcars)
+new_var = "agg"
+res = take(mtcars, (new_var) := mean(mpg), agg2 = mean(hp), by = am)
+res2 = take(mt_dt, (new_var) := mean(mpg), agg2 = mean(hp), by = am)
+res3 = mt_dt[, list(agg = mean(mpg), agg2 = mean(hp)), by = am]
+expect_identical(res3, res)
+expect_identical(res3, res2)
+
+
+mt_dt = as.data.table(mtcars)
+new_var = "agg"
+new_var2 = "agg2"
+res = take(mtcars, (new_var) := mean(mpg), (new_var2) := mean(hp), by = am)
+res2 = take(mt_dt, (new_var) := mean(mpg), (new_var2) := mean(hp), by = am)
+res3 = mt_dt[, list(agg = mean(mpg), agg2 = mean(hp)), by = am]
+expect_identical(res3, res)
+expect_identical(res3, res2)
+
+
+expr1 = quote(mean(mpg))
+expr2 = quote(mean(hp))
+mt_dt = as.data.table(mtcars)
+new_var = "agg"
+new_var2 = "agg2"
+res = take(mtcars, (new_var) := eval(expr1), (new_var2) := eval(expr2), by = am)
+res2 = take(mt_dt, (new_var) := eval(expr1), (new_var2) := eval(expr2), by = am)
+res3 = mt_dt[, list(agg = mean(mpg), agg2 = mean(hp)), by = am]
 expect_identical(res3, res)
 expect_identical(res3, res2)

@@ -18,9 +18,11 @@
 #'   modifications of \code{data}. For details see \link[data.table]{data.table}
 #' @param ... List of variables or name-value pairs of summary/modifications
 #'   functions. The name will be the name of the variable in the result. In the
-#'   \code{let} function we can use \code{a = b} or \code{a := b} notation. Advantages of
-#'   \code{:=} are multiassignment (\code{c("a", "b")  := list(1,2)}) and parametric
-#'   assignment (\code{(a) := 2}).
+#'   \code{let} and \code{take} functions we can use \code{a = b} or \code{a :=
+#'   b} notation. Advantages of \code{:=} is parametric assignment, e. g.
+#'   \code{(a) := 2} create variable with name which are stored in \code{a}. In
+#'   \code{let} \code{:=} can be used for multiassignment (\code{c("a", "b")  :=
+#'   list(1,2)})
 #' @param by unquoted name of grouping variable of list of unquoted names of
 #'   grouping variables. For details see \link[data.table]{data.table}
 #' @param keyby Same as \code{by}, but with an additional \code{setkey()} run on the by
@@ -111,14 +113,24 @@
 #' mtcars %>%
 #'     take(mean = mean(disp), n = .N, by = cyl)
 #'
-#' # parametric evaluation:
-#' var = quote(mean(cyl))
-#' take(mtcars, eval(var))
-#'
-#'
 #' # You can group by expressions:
 #' mtcars %>%
 #'     take(fun = mean, by = list(vsam = vs + am))
+#'
+#'
+#' # parametric evaluation:
+#' var = quote(mean(cyl))
+#' mtcars %>%
+#'     let(mean_cyl = eval(var)) %>%
+#'     head()
+#' take(mtcars, eval(var))
+#'
+#' # all together
+#' new_var = "mean_cyl"
+#' mtcars %>%
+#'     let((new_var) := eval(var)) %>%
+#'     head()
+#' take(mtcars, (new_var) := eval(var))
 #'
 #' ########################################
 #'
@@ -243,7 +255,7 @@ let_if = function(data,
     all_names = names(j_list)
     for(i in seq_along(j_list)){
         if(all_names[i]==""){
-            if(!identical(j_list[[i]][[1]], as.symbol(":="))){
+            if(!is.call(j_list[[i]]) || !identical(j_list[[i]][[1]], as.symbol(":="))){
                 stop(sprintf("let/let_if: '%s' - incorrect expression. All expressions should be
                              in the form  'var_name = expression' or 'var_name := expression'.", safe_deparse(j_list[[i]])))
             }
@@ -307,6 +319,29 @@ take_if = function(data,
     j_length = length(j_expr) - 1
     i_position = 3
     if(j_length>0){
+
+        ## parse ':=' expression
+        j_expr = as.list(j_expr)
+        if(is.null(names(j_expr))){
+            names(j_expr) = rep("", j_length +1)
+        }
+        for(i in seq_along(j_expr)[-1]){
+            if(is.call(j_expr[[i]]) && identical(j_expr[[i]][[1]], as.symbol(":="))){
+                name_expr = j_expr[[i]][[2]]
+                j_expr[[i]] = j_expr[[i]][[3]]
+                if(is.call(name_expr)){
+                    names(j_expr)[i] = eval.parent(name_expr)
+                } else {
+                    if(is.character(name_expr)){
+                        names(j_expr)[i] = name_expr
+                    } else {
+                        names(j_expr)[i] = safe_deparse(name_expr)
+                    }
+                }
+            }
+        }
+        j_expr = as.call(j_expr)
+        #################
         if(autoname){
             j_expr = add_names_to_quoted_list(j_expr)
         }
