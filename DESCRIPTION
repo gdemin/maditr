@@ -1,8 +1,8 @@
 Package: maditr
 Type: Package
 Title: Pipe-Style Interface for 'data.table'
-Version: 0.5.1
-Date: 2018-05-09
+Version: 0.5.5
+Date: 2018-07-18
 Maintainer: Gregory Demin <gdemin@gmail.com>
 Authors@R: person("Gregory", "Demin", email = "gdemin@gmail.com", role = c("aut", "cre"))
 Depends: 
