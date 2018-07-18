@@ -22,8 +22,8 @@ expect_identical(new_dt2, mt_dt2)
 ###############
 mt_dt = as.data.table(mtcars)
 mt_dt2 = data.table::copy(mt_dt)
-new_dt = let_if(mt_dt, am==0, mpg_hp := mpg/hp, new := mpg_hp*2)
-new_dt2 = let_if(mtcars, am==0, mpg_hp := mpg/hp, new := mpg_hp*2)
+new_dt = let_if(mt_dt, am==0, mpg_hp := mpg/hp, "new" := mpg_hp*2)
+new_dt2 = let_if(mtcars, am==0, mpg_hp := mpg/hp, "new" := mpg_hp*2)
 mt_dt2[am==0, mpg_hp := mpg/hp][am==0, new := mpg_hp*2]
 expect_identical(new_dt, mt_dt)
 expect_identical(new_dt, mt_dt2)

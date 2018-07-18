@@ -1,8 +1,7 @@
-0.5.5 (2018-07-18)
+0.5.2 (2018-07-18)
 ================
 * add 'dcast' and 'melt' methods for data.frame
 * add ':=' operator for 'take'/'take_if'/'summarize' for parametric evaluation
-
 
 0.5.1 (2018-05-09)
 ================
