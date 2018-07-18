@@ -285,10 +285,6 @@ data.table::cube
 #' @export
 data.table::rollup
 #' @export
-data.table::melt
-#' @export
-data.table::dcast
-#' @export
 data.table::as.IDate
 #' @export
 data.table::as.ITime
@@ -316,5 +312,6 @@ data.table::month
 data.table::quarter
 #' @export
 data.table::year
+
 
 
