@@ -168,7 +168,8 @@ query_if(dat, X, on="x")                         # right join
 query_if(X, dat, on="x")                         # left join
 query_if(dat, X, on="x", nomatch=0)              # inner join
 query_if(dat, !X, on="x")                        # not join
-query_if(dat, X, on=c(y="v"))                    # join using column "y" of DT with column "v" of X
+# join using column "y" of 'dat' with column "v" of X
+query_if(dat, X, on=c(y="v"))
 query_if(dat,X, on="y==v")                       # same as above (v1.9.8+)
 
 query_if(dat, X, on = .(y<=foo))                 # NEW non-equi join (v1.9.8+)
