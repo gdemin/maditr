@@ -1,1 +1,3 @@
-testthat::test_check("maditr")
+if(capabilities('long.double')){
+    testthat::test_check("maditr")
+}
