@@ -156,6 +156,53 @@ take(mtcars, (new_var) := eval(var))
 
 ```
 
+## Joins
+
+Let's make datasets for joining:
+
+```R
+workers = fread("
+    name company
+    Nick Acme
+    John Ajax
+    Daniela Ajax
+")
+
+positions = fread("
+    name position
+    John designer
+    Daniela engineer
+    Cathie manager
+")
+
+workers
+positions
+```
+
+Different kinds of joins:
+
+```R
+workers %>% dt_inner_join(positions)
+workers %>% dt_left_join(positions)
+workers %>% dt_right_join(positions)
+workers %>% dt_full_join(positions)
+
+# filtering joins
+workers %>% dt_anti_join(positions)
+workers %>% dt_semi_join(positions)
+```
+
+To suppress the message, supply `by` argument:
+```R
+workers %>% dt_left_join(positions, by = "name")
+```
+
+Use a named `by` if the join variables have different names:
+```R
+positions2 = setNames(positions, c("worker", "position")) # rename first column in 'positions'
+workers %>% dt_inner_join(positions2, by = c("name" = "worker"))
+```
+
 ## 'dplyr'-like interface for data.table.
 
 There are a small subset of 'dplyr' verbs to work with data.table. Note that there is no `group_by`

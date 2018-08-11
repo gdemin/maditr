@@ -1,6 +1,8 @@
 ---
 title: "Introduction"
-output: rmarkdown::html_vignette
+output:
+  html_document:
+    toc: true
 vignette: >
   %\VignetteIndexEntry{maditr: Introduction}
   %\VignetteEngine{knitr::rmarkdown}
@@ -10,6 +12,12 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+## Links
+
+- [maditr on CRAN](https://cran.r-project.org/package=maditr)
+- [maditr on Github](https://github.com/gdemin/maditr)
+- [Issues](https://github.com/gdemin/maditr/issues)
 
 ## Overview
 
@@ -55,14 +63,7 @@ Package provides pipe-style interface for [data.table](https://cran.r-project.or
 ```         
 
 
-### Links
-
-- [maditr on CRAN](https://cran.r-project.org/package=maditr)
-- [maditr on Github](https://github.com/gdemin/maditr)
-- [Issues](https://github.com/gdemin/maditr/issues)
-
-
-### Some examples
+## Some examples
 
 We will use for demonstartion well-known `mtcars` dataset and some examples from `dplyr` package. 
 
@@ -159,6 +160,52 @@ mtcars %>%
 take(mtcars, (new_var) := eval(var))
 
 
+```
+## Joins
+
+Let's make datasets for joining:
+
+```{r}
+workers = fread("
+    name company
+    Nick Acme
+    John Ajax
+    Daniela Ajax
+")
+
+positions = fread("
+    name position
+    John designer
+    Daniela engineer
+    Cathie manager
+")
+
+workers
+positions
+```
+
+Different kinds of joins:
+
+```{r}
+workers %>% dt_inner_join(positions)
+workers %>% dt_left_join(positions)
+workers %>% dt_right_join(positions)
+workers %>% dt_full_join(positions)
+
+# filtering joins
+workers %>% dt_anti_join(positions)
+workers %>% dt_semi_join(positions)
+```
+
+To suppress the message, supply `by` argument:
+```{r, eval=FALSE}
+workers %>% dt_left_join(positions, by = "name")
+```
+
+Use a named `by` if the join variables have different names:
+```{r, eval=FALSE}
+positions2 = setNames(positions, c("worker", "position")) # rename first column in 'positions'
+workers %>% dt_inner_join(positions2, by = c("name" = "worker"))
 ```
 
 ## 'dplyr'-like interface for data.table.

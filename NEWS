@@ -1,3 +1,7 @@
+0.6.0 (2018-08-12)
+================
+* add joins: 'dt_left_join', 'dt_right_join', 'dt_inner_join', 'dt_full_join', 'dt_anti_join', 'dt_semi_join'
+
 0.5.2 (2018-07-18)
 ================
 * add 'dcast' and 'melt' methods for data.frame

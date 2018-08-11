@@ -124,6 +124,41 @@ take(mtcars, (new_var) := eval(var))
 
 
 ## ------------------------------------------------------------------------
+workers = fread("
+    name company
+    Nick Acme
+    John Ajax
+    Daniela Ajax
+")
+
+positions = fread("
+    name position
+    John designer
+    Daniela engineer
+    Cathie manager
+")
+
+workers
+positions
+
+## ------------------------------------------------------------------------
+workers %>% dt_inner_join(positions)
+workers %>% dt_left_join(positions)
+workers %>% dt_right_join(positions)
+workers %>% dt_full_join(positions)
+
+# filtering joins
+workers %>% dt_anti_join(positions)
+workers %>% dt_semi_join(positions)
+
+## ---- eval=FALSE---------------------------------------------------------
+#  workers %>% dt_left_join(positions, by = "name")
+
+## ---- eval=FALSE---------------------------------------------------------
+#  positions2 = setNames(positions, c("worker", "position")) # rename first column in 'positions'
+#  workers %>% dt_inner_join(positions2, by = c("name" = "worker"))
+
+## ------------------------------------------------------------------------
 # examples from 'dplyr'
 # newly created variables are available immediately
 mtcars  %>%
