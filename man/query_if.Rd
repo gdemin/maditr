@@ -6,20 +6,20 @@
 \title{One-to-one interface for data.table '[' method}
 \usage{
 query_if(data, i, j, by, keyby, with = TRUE,
-  nomatch = getOption("datatable.nomatch"), mult = "all", roll = FALSE,
-  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE,
-  TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
+  nomatch = getOption("datatable.nomatch"), mult = "all",
+  roll = FALSE, rollends = if (roll == "nearest") c(TRUE, TRUE) else if
+  (roll >= 0) c(FALSE, TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
   verbose = getOption("datatable.verbose"),
-  allow.cartesian = getOption("datatable.allow.cartesian"), drop = NULL,
-  on = NULL)
+  allow.cartesian = getOption("datatable.allow.cartesian"),
+  drop = NULL, on = NULL)
 
 query(data, j, by, keyby, with = TRUE,
-  nomatch = getOption("datatable.nomatch"), mult = "all", roll = FALSE,
-  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE,
-  TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
+  nomatch = getOption("datatable.nomatch"), mult = "all",
+  roll = FALSE, rollends = if (roll == "nearest") c(TRUE, TRUE) else if
+  (roll >= 0) c(FALSE, TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
   verbose = getOption("datatable.verbose"),
-  allow.cartesian = getOption("datatable.allow.cartesian"), drop = NULL,
-  on = NULL)
+  allow.cartesian = getOption("datatable.allow.cartesian"),
+  drop = NULL, on = NULL)
 }
 \arguments{
 \item{data}{data.table/data.frame data.frame will be automatically converted

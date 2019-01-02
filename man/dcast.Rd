@@ -6,9 +6,9 @@
 \alias{guess}
 \title{Convert data between wide and long forms.}
 \usage{
-dcast(data, formula, fun.aggregate = NULL, sep = "_", ..., margins = NULL,
-  subset = NULL, fill = NULL, drop = TRUE, value.var = guess(data),
-  verbose = getOption("datatable.verbose"))
+dcast(data, formula, fun.aggregate = NULL, sep = "_", ...,
+  margins = NULL, subset = NULL, fill = NULL, drop = TRUE,
+  value.var = guess(data), verbose = getOption("datatable.verbose"))
 
 melt(data, id.vars, measure.vars, variable.name = "variable",
   value.name = "value", ..., na.rm = FALSE, variable.factor = TRUE,

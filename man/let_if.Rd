@@ -8,36 +8,36 @@
 \title{Modify, aggregate, select or filter data.frame/data.table}
 \usage{
 let_if(data, i, ..., by, keyby, with = TRUE,
-  nomatch = getOption("datatable.nomatch"), mult = "all", roll = FALSE,
-  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE,
-  TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
+  nomatch = getOption("datatable.nomatch"), mult = "all",
+  roll = FALSE, rollends = if (roll == "nearest") c(TRUE, TRUE) else if
+  (roll >= 0) c(FALSE, TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
   verbose = getOption("datatable.verbose"),
-  allow.cartesian = getOption("datatable.allow.cartesian"), drop = NULL,
-  on = NULL)
+  allow.cartesian = getOption("datatable.allow.cartesian"),
+  drop = NULL, on = NULL)
 
 take_if(data, i, ..., by, keyby, with = TRUE,
-  nomatch = getOption("datatable.nomatch"), mult = "all", roll = FALSE,
-  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE,
-  TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
+  nomatch = getOption("datatable.nomatch"), mult = "all",
+  roll = FALSE, rollends = if (roll == "nearest") c(TRUE, TRUE) else if
+  (roll >= 0) c(FALSE, TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
   verbose = getOption("datatable.verbose"),
-  allow.cartesian = getOption("datatable.allow.cartesian"), drop = NULL,
-  on = NULL, autoname = TRUE, fun = NULL)
+  allow.cartesian = getOption("datatable.allow.cartesian"),
+  drop = NULL, on = NULL, autoname = TRUE, fun = NULL)
 
 take(data, ..., by, keyby, with = TRUE,
-  nomatch = getOption("datatable.nomatch"), mult = "all", roll = FALSE,
-  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE,
-  TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
+  nomatch = getOption("datatable.nomatch"), mult = "all",
+  roll = FALSE, rollends = if (roll == "nearest") c(TRUE, TRUE) else if
+  (roll >= 0) c(FALSE, TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
   verbose = getOption("datatable.verbose"),
-  allow.cartesian = getOption("datatable.allow.cartesian"), drop = NULL,
-  on = NULL, autoname = TRUE, fun = NULL)
+  allow.cartesian = getOption("datatable.allow.cartesian"),
+  drop = NULL, on = NULL, autoname = TRUE, fun = NULL)
 
 let(data, ..., by, keyby, with = TRUE,
-  nomatch = getOption("datatable.nomatch"), mult = "all", roll = FALSE,
-  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE,
-  TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
+  nomatch = getOption("datatable.nomatch"), mult = "all",
+  roll = FALSE, rollends = if (roll == "nearest") c(TRUE, TRUE) else if
+  (roll >= 0) c(FALSE, TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
   verbose = getOption("datatable.verbose"),
-  allow.cartesian = getOption("datatable.allow.cartesian"), drop = NULL,
-  on = NULL)
+  allow.cartesian = getOption("datatable.allow.cartesian"),
+  drop = NULL, on = NULL)
 }
 \arguments{
 \item{data}{data.table/data.frame data.frame will be automatically converted
