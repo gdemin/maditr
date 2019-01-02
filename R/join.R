@@ -116,6 +116,15 @@ dt_anti_join = function (x, y, by = NULL) {
     if(length(by)==0) {
         by = get_column_names(colnames(x), colnames(y), src = "dt_anti_join")
     }
+    by_x = names(by)
+    by_y = unname(by)
+    if(is.null(by_x)){
+        by_x = by_y
+    } else {
+        empty_names = is.na(by_x)|(by_x=="")
+        by_x[empty_names] = by_y[empty_names]
+    }
+    check_existense(by_x, by_y, colnames(x), colnames(y), src = "dt_anti_join")
     x[!y, on = by]
 }
 
@@ -124,7 +133,7 @@ get_column_names = function(col_x, col_y, src){
     if(length(by)>0){
         message(sprintf("%s: joining, by = %s", src, paste(paste0('"', by, '"'), collapse = ", ")))
     } else {
-        stop(sprintf("%s: 'by' required, because the data sources have no common variables", src))
+        stop(sprintf("%s: 'by' required, because the data sources have no common variables", src), call. = FALSE)
     }
     by
 }
@@ -144,6 +153,7 @@ dt_join = function(x, y, by, suffix, all_x, all_y, src){
             by_x[empty_names] = by_y[empty_names]
         }
     }
+    check_existense(by_x, by_y, colnames(x), colnames(y), src)
     merge(x = x,
           y = y,
           by.x = by_x,
@@ -156,4 +166,18 @@ dt_join = function(x, y, by, suffix, all_x, all_y, src){
           allow.cartesian = TRUE
           )
 
+}
+
+
+check_existense = function(by_x, by_y, names_x, names_y, src){
+    err = setdiff(by_x, names_x)
+    if(length(err)>0){
+        err = paste(paste0("'", err, "'"), collapse = ", ")
+        stop(sprintf("'%s': 'by' can't contain join column(s) %s which is missing from LHS", src, err), call. = FALSE)
+    }
+    err = setdiff(by_y, names_y)
+    if(length(err)>0){
+        err = paste(paste0("'", err, "'"), collapse = ", ")
+        stop(sprintf("'%s': 'by' can't contain join column(s) %s which is missing from RHS", src, err), call. = FALSE)
+    }
 }
