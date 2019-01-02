@@ -166,5 +166,5 @@ new_var2 = "agg2"
 res = take(mtcars, (new_var) := eval(expr1), (new_var2) := eval(expr2), by = am)
 res2 = take(mt_dt, (new_var) := eval(expr1), (new_var2) := eval(expr2), by = am)
 res3 = mt_dt[, list(agg = mean(mpg), agg2 = mean(hp)), by = am]
-expect_identical(res3, res)
-expect_identical(res3, res2)
+expect_equal(res3, res)
+expect_equal(res3, res2)
