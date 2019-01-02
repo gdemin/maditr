@@ -79,8 +79,8 @@ mt_dt = as.data.table(mtcars)
 res = dt_summarize(mtcars, (new_var1) := eval(expr1), (new_var2) := eval(expr2), by = am)
 res2 = dt_summarize(mt_dt, (new_var1) := eval(expr1), (new_var2) := eval(expr2), by = am)
 res3 = mt_dt[, list(agg = mean(mpg), agg2 = mean(hp)), by = am]
-expect_identical(res3, res)
-expect_identical(res3, res2)
+expect_equal(res3, res)
+expect_equal(res3, res2)
 
 
 
