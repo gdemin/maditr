@@ -1,6 +1,9 @@
 0.6.1 (2019-01-03)
 ================
 * fix tests
+* add 'coalesce' function
+* add 'data.frame' method for 'rollup', 'cube' and 'groupingsets'
+* minor fixes
 
 0.6.0 (2018-08-12)
 ================
