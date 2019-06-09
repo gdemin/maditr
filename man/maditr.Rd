@@ -9,9 +9,7 @@
 Package provides pipe-style interface for \code{data.table}. It preserves
 all data.table features without significant impact on performance. '\code{let}'
 and '\code{take}' functions are simplified interfaces for most common data
-manipulation tasks. '\code{query_if}' function translates its arguments
-one-to-one to '\code{[.data.table}' method. Additionally there are some
-conveniences such as automatic 'data.frame' conversion to 'data.table'.
+manipulation tasks.
 \itemize{
 \item{To select rows from data: }{\code{take_if(mtcars, am==0)}}
 \item{To select columns from data: }{\code{take(mtcars, am, vs, mpg)}}
@@ -36,7 +34,10 @@ conveniences such as automatic 'data.frame' conversion to 'data.table'.
      mtcars \%>\%
          let((new_var) := get(old_var)*2) \%>\%
          head()}}
-\item{For more sophisticated operations see 'query': }{\code{?query}}
+\item{For more sophisticated operations see 'query'/'query_if': }{these
+functions translates its arguments one-to-one to '\code{[.data.table}'
+method. Additionally there are some conveniences such as automatic
+'data.frame' conversion to 'data.table'.}
 }
 }
 \examples{
