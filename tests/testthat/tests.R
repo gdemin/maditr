@@ -47,6 +47,13 @@ expect_identical(res3, res)
 expect_identical(res3, res2)
 ###############
 mt_dt = as.data.table(mtcars)
+res = take(mtcars, fun = mean, by = am, .SDcols = c("mpg", "qsec"))
+res2 = take(mt_dt, fun = mean, by = am, .SDcols = c("mpg", "qsec"))
+res3 = mt_dt[, lapply(.SD, mean), by = am, .SDcols = c("mpg", "qsec")]
+expect_identical(res3, res)
+expect_identical(res3, res2)
+###############
+mt_dt = as.data.table(mtcars)
 res = take(mtcars, mpg, hp, fun = mean, by = am)
 res2 = take(mt_dt, mpg, hp, fun = mean, by = am)
 res3 = mt_dt[, lapply(list(mpg = mpg, hp = hp), mean), by = am]

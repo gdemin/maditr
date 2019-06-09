@@ -237,7 +237,7 @@ query_if = function(data,
                     allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
                     drop = NULL,
                     on = NULL){
-    if(!is.data.frame(data)) stop("query/query_if: 'data' should be data.frame or data.table")
+    is.data.frame(data) || stop("query/query_if: 'data' should be data.frame or data.table")
     call_expr = sys.call()
     if(!is.data.table(data)){
         call_expr[[2]] = substitute(as.data.table(data))

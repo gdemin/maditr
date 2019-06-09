@@ -23,13 +23,12 @@ coalesce = function(...) {
     ans = args[[1]]
     length_ans = length(ans)
     for (elt in args[-1]) {
+        elem_length = length(elt)
+        elem_length == length_ans || elem_length == 1 ||
+            stop("'coalesce': all arguments should be the same length as first element or length one.", call. = FALSE)
 
-        if(length(elt)==1){
+        if(elem_length==1){
             elt = rep_len(elt, length.out = length_ans)
-        } else {
-            if(length(elt)!=length_ans){
-                stop("'coalesce': all arguments should be the same length as first element or length one.", call. = FALSE)
-            }
         }
         i = which(is.na(ans))
         ans[i] = elt[i]

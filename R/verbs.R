@@ -156,9 +156,7 @@ dt_summarize = function(data, ..., by, keyby, fun = NULL){
 #' @rdname dt_mutate
 #' @export
 dt_summarize_all = function(data, fun, by, keyby){
-    if(missing(fun)){
-        stop("'dt_summarize_all': argument 'fun' is missing.")
-    }
+    !missing(fun) || stop("'dt_summarize_all': argument 'fun' is missing.")
     eval.parent(substitute(take(data,
                                 by = by,
                                 keyby = keyby,
@@ -177,7 +175,7 @@ dt_summarise_all = dt_summarize_all
 #' @rdname dt_mutate
 #' @export
 dt_select = function(data, ...){
-    if(!is.data.frame(data)) stop("dt_select: 'data' should be data.frame or data.table")
+    is.data.frame(data) || stop("dt_select: 'data' should be data.frame or data.table")
     if(!is.data.table(data)){
         data = as.data.table(data)
     }
@@ -197,7 +195,7 @@ dt_select = function(data, ...){
 #' @rdname dt_mutate
 #' @export
 dt_filter = function(data, ...){
-    if(!is.data.frame(data)) stop("dt_filter: 'data' should be data.frame or data.table")
+    is.data.frame(data) || stop("dt_filter: 'data' should be data.frame or data.table")
     curr_names = names(substitute(list(...)))
     if(!is.null(curr_names)){
         if(any(c("by", "keyby") %in% curr_names)){
@@ -220,29 +218,8 @@ dt_filter = function(data, ...){
 
 #' @rdname dt_mutate
 #' @export
-dt_arrange = function(data, ..., na.last = FALSE){
-    if(!is.data.frame(data)) stop("dt_arrange: 'data' should be data.frame or data.table")
-    if(!is.data.table(data)){
-        data = as.data.table(data)
-        setorder(data, ..., na.last = na.last)
-    } else {
-        eval.parent(substitute(setorder(data, ..., na.last = na.last)))
-    }
-    data
-}
+dt_arrange = sort_by
 
 
 
 
-# if (!is.data.frame(data))
-#     data = as.sheet(data)
-# if (!is.data.frame(dict))
-#     dict = as.sheet(dict)
-# colnames_data = colnames(data)
-# colnames_dict = colnames(dict)
-# if (is.null(by)) {
-#     by = intersect(colnames_data, colnames_dict)
-#     stopif(length(by) == 0, "'join' - no common column names between 'data' and 'dict'.")
-#     message(paste0("Joining by ", paste(dQuote(by),
-#                                                collapse = ", ")))
-# }

@@ -136,3 +136,4 @@ res2 = dt_select(mtcars, -(cyl:wt), -am)
 res3 = mt_dt[, -c(2:6, 9), with = FALSE]
 expect_identical(res1, res3)
 expect_identical(res2, res3)
+
