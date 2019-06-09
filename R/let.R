@@ -47,7 +47,8 @@
 #' @param fun function which will be applied to all variables in \code{take}. If
 #'   there are no variables in \code{take} then it will be applied to all non-grouping
 #'   variables in the \code{data}.
-#'
+#' @param na.last logical. FALSE by default. If TRUE, missing values in the data
+#'   are put last; if FALSE, they are put first.
 #' @return data.table. \code{let} returns its result invisibly.
 #' @export
 #'
@@ -234,7 +235,7 @@ let_if = function(data,
                   drop = NULL,
                   on = NULL
 ){
-    if(!is.data.frame(data)) stop("let/let_if: 'data' should be data.frame or data.table")
+    is.data.frame(data) || stop("let/let_if: 'data' should be data.frame or data.table")
     call_expr = sys.call()
     if(!is.data.table(data)){
         data = as.data.table(data)
@@ -247,14 +248,14 @@ let_if = function(data,
     call_list = as.list(call_expr)
     j_list = as.list(substitute(list(...)))[-1]
     j_length = length(j_list)
-    if(j_length==0) stop("let/let_if: please, provide at least one expression.")
+    j_length>0 || stop("let/let_if: please, provide at least one expression.")
     if(is.null(names(j_list))){
         names(j_list) = rep("", j_length )
     }
     # check for names
     all_names = names(j_list)
     for(i in seq_along(j_list)){
-        if(all_names[i]==""){
+        if(all_names[i] == ""){
             if(!is.call(j_list[[i]]) || !identical(j_list[[i]][[1]], as.symbol(":="))){
                 stop(sprintf("let/let_if: '%s' - incorrect expression. All expressions should be
                              in the form  'var_name = expression' or 'var_name := expression'.", safe_deparse(j_list[[i]])))
@@ -302,7 +303,7 @@ take_if = function(data,
                    autoname = TRUE,
                    fun = NULL
 ){
-    if(!is.data.frame(data)) stop("take/take_if: 'data' should be data.frame or data.table")
+    is.data.frame(data) || stop("take/take_if: 'data' should be data.frame or data.table")
     call_expr = sys.call()
     if(!is.data.table(data)){
         call_expr[[2]] = substitute(as.data.table(data))
@@ -437,3 +438,15 @@ let = function(data,
     eval.parent(call_expr)
 }
 
+#' @rdname let_if
+#' @export
+sort_by = function(data, ..., na.last = FALSE){
+    is.data.frame(data) || stop("'sort_by': 'data' should be data.frame or data.table")
+    if(!is.data.table(data)){
+        data = as.data.table(data)
+        setorder(data, ..., na.last = na.last)
+    } else {
+        eval.parent(substitute(setorder(data, ..., na.last = na.last)))
+    }
+    data
+}

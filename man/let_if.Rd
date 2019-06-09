@@ -5,6 +5,7 @@
 \alias{take_if}
 \alias{take}
 \alias{let}
+\alias{sort_by}
 \title{Modify, aggregate, select or filter data.frame/data.table}
 \usage{
 let_if(data, i, ..., by, keyby, with = TRUE,
@@ -38,6 +39,8 @@ let(data, ..., by, keyby, with = TRUE,
   verbose = getOption("datatable.verbose"),
   allow.cartesian = getOption("datatable.allow.cartesian"),
   drop = NULL, on = NULL)
+
+sort_by(data, ..., na.last = FALSE)
 }
 \arguments{
 \item{data}{data.table/data.frame data.frame will be automatically converted
@@ -92,6 +95,9 @@ names or numeric positions. For details see \link[data.table]{data.table}.}
 \item{fun}{function which will be applied to all variables in \code{take}. If
 there are no variables in \code{take} then it will be applied to all non-grouping
 variables in the \code{data}.}
+
+\item{na.last}{logical. FALSE by default. If TRUE, missing values in the data
+are put last; if FALSE, they are put first.}
 }
 \value{
 data.table. \code{let} returns its result invisibly.
