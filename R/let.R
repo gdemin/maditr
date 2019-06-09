@@ -245,6 +245,7 @@ let_if = function(data,
         curr_eval = eval.parent
     }
     call_expr[[1]] = as.symbol("[")
+    call_expr = add_brackets_to_i(call_expr)
     call_list = as.list(call_expr)
     j_list = as.list(substitute(list(...)))[-1]
     j_length = length(j_list)
@@ -361,6 +362,7 @@ take_if = function(data,
             call_expr = as.call(call_list)
         }
     }
+    call_expr = add_brackets_to_i(call_expr)
     eval.parent(call_expr)
 }
 
@@ -449,4 +451,12 @@ sort_by = function(data, ..., na.last = FALSE){
         eval.parent(substitute(setorder(data, ..., na.last = na.last)))
     }
     data
+}
+
+
+add_brackets_to_i = function(expr){
+    if(is.symbol(expr[[3]]) && !identical(expr[[3]], substitute())){
+        expr[[3]] = bquote((.(expr[[3]])))
+    }
+    expr
 }
