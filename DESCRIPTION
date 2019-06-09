@@ -1,8 +1,7 @@
 Package: maditr
 Type: Package
-Title: Pipe-Style Interface for 'data.table'
-Version: 0.6.1
-Date: 2019-01-03
+Title: Fast Data Aggregation, Modification, and Filtering with Pipes and 'data.table'
+Version: 0.6.2
 Maintainer: Gregory Demin <gdemin@gmail.com>
 Authors@R: person("Gregory", "Demin", email = "gdemin@gmail.com", role = c("aut", "cre"))
 Depends: 
