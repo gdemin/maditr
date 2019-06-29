@@ -2,7 +2,7 @@
 
 data(mtcars)
 
-context("verbs errors")
+cat("\nContext:", "verbs errors", "\n")
 expect_error(dt_arrange(1:5, am))
 expect_error(dt_select(1:5, am))
 expect_error(dt_mutate(1:5, new := 1))
@@ -15,7 +15,7 @@ expect_error(dt_filter(mtcars, cyl=1))
 expect_error(dt_filter(mtcars, c(TRUE, FALSE)))
 
 ################
-context("dt_mutate")
+cat("\nContext:", "dt_mutate", "\n")
 mt_dt = as.data.table(mtcars)
 mt_dt2 = data.table::copy(mt_dt)
 new_dt = dt_mutate(mt_dt, mpg_hp = mpg/hp, new = mpg_hp*2)
@@ -27,7 +27,7 @@ expect_identical(new_dt2, mt_dt2)
 ###############
 
 ###############
-context("summarize/summarize_all")
+cat("\nContext:", "summarize/summarize_all", "\n")
 mt_dt = as.data.table(mtcars)
 res = dt_summarize(mtcars, fun = mean, by = am)
 res2 = dt_summarize(mt_dt, fun = mean, by = am)
@@ -93,7 +93,7 @@ expect_identical(res3, res)
 expect_identical(res3, res2)
 
 ##########################
-context("dt_filter")
+cat("\nContext:", "dt_filter", "\n")
 res = dt_filter(mtcars, vs==0, am==0)
 res2 = dt_filter(mt_dt, vs==0, am==0)
 res3 = mt_dt[vs==0 & am==0, ]
@@ -103,7 +103,7 @@ expect_identical(res3, res2)
 
 ##########################
 
-context("dt_arrange")
+cat("\nContext:", "dt_arrange", "\n")
 mt_dt = as.data.table(mtcars)
 mt_dt2 = data.table::copy(mt_dt)
 new_dt = dt_arrange(mt_dt, -cyl, mpg)
@@ -115,7 +115,7 @@ expect_identical(new_dt2, res3)
 
 ##########################
 
-context("dt_select")
+cat("\nContext:", "dt_select", "\n")
 mt_dt = as.data.table(mtcars)
 res1 = dt_select(mt_dt, -cyl, -am)
 res2 = dt_select(mtcars, -cyl, -am)

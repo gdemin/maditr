@@ -1,4 +1,4 @@
-context("dt_join_*")
+cat("\nContext:","dt_join_*", "\n")
 workers = fread("
     name company
                 Nick Acme

@@ -2,7 +2,7 @@
 
 data(mtcars)
 
-context("errors")
+cat("\nContext:", "errors", "\n")
 expect_error(take(1:5, fun = sum))
 expect_error(let(1:5, new = 1))
 expect_error(query(1:5, new := 1))
@@ -10,7 +10,7 @@ expect_error(query(1:5, new := 1))
 expect_error(let(mtcars))
 expect_error(let(mtcars, am*2))
 ################
-context("let/let_if")
+cat("\nContext:", "let/let_if", "\n")
 mt_dt = as.data.table(mtcars)
 mt_dt2 = data.table::copy(mt_dt)
 new_dt = let_if(mt_dt, am==0, mpg_hp = mpg/hp, new = mpg_hp*2)
@@ -53,7 +53,7 @@ expect_identical(mt_dt, mt_dt2)
 expect_identical(take_if(mt_dt, filt), mt_dt[filt==TRUE,])
 
 ###############
-context("take/take_if")
+cat("\nContext:", "take/take_if", "\n")
 mt_dt = as.data.table(mtcars)
 res = take(mtcars, fun = mean, by = am)
 res2 = take(mt_dt, fun = mean, by = am)
@@ -142,7 +142,7 @@ expect_identical(res3, res)
 expect_identical(res3, res2)
 ##########################
 
-context("query/query_if")
+cat("\nContext:", "query/query_if", "\n")
 ##########################
 mt_dt = as.data.table(mtcars)
 res = query(mtcars, list(mean(mpg), mean(hp)), by = am)
@@ -158,7 +158,7 @@ res3 = mt_dt[vs==0,  list(mean(mpg), mean(hp)), by = am]
 expect_identical(res3, res)
 expect_identical(res3, res2)
 
-context("let/take: parametric evaluation")
+cat("\nContext:", "let/take: parametric evaluation", "\n")
 
 
 

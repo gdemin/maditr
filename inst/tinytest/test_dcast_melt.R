@@ -1,5 +1,4 @@
-context("dcast/melt")
-
+cat("\nContext:","dcast/melt", "\n")
 # examples are borrowed from 'tidyr' package
 set.seed(123)
 stocks = data.frame(

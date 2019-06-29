@@ -1,5 +1,4 @@
-context("cube, rollup and etc")
-
+cat("\nContext:","cube, rollup and etc", "\n")
 n = 24L
 set.seed(25)
 DT = data.table(

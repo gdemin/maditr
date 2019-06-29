@@ -4,22 +4,15 @@ Title: Fast Data Aggregation, Modification, and Filtering with Pipes and 'data.t
 Version: 0.6.2
 Maintainer: Gregory Demin <gdemin@gmail.com>
 Authors@R: person("Gregory", "Demin", email = "gdemin@gmail.com", role = c("aut", "cre"))
-Depends: 
-    R (>= 3.3.0)
-Imports:
-    data.table (>= 1.11),
-    magrittr (>= 1.5)
-Suggests: 
-    knitr, 
-    testthat
-Description: Package provides pipe-style interface for 'data.table'. It preserves all
-    'data.table' features without significant impact on performance. 'let'
-    and 'take' functions are simplified interfaces for most common data manipulation
-    tasks. For example, you can write 'mtcars %>% take(mean(mpg), by = am)' for 
-    aggregation or 'mtcars %>% let(hp_wt = hp/wt, hp_wt_mpg = hp_wt/mpg)' for modification.
-    Use 'take_if/let_if' for conditional aggregation/modification. 'query_if' function
-    translates its arguments one-to-one to '[.data.table' method. Additionally there are
-    some conveniences such as automatic 'data.frame' conversion to 'data.table'.
+Depends: R (>= 3.3.0)
+Imports: data.table (>= 1.11), magrittr (>= 1.5)
+Suggests: knitr, tinytest
+Description: Package provides pipe-style interface for 'data.table'. It preserves all 'data.table' features without
+              significant impact on performance. 'let' and 'take' functions are simplified interfaces for most common data
+              manipulation tasks. For example, you can write 'mtcars %>% take(mean(mpg), by = am)' for aggregation or 'mtcars
+              %>% let(hp_wt = hp/wt, hp_wt_mpg = hp_wt/mpg)' for modification. Use 'take_if/let_if' for conditional
+              aggregation/modification. 'query_if' function translates its arguments one-to-one to '[.data.table' method.
+              Additionally there are some conveniences such as automatic 'data.frame' conversion to 'data.table'.
 License: GPL-2
 URL: https://github.com/gdemin/maditr
 BugReports: https://github.com/gdemin/maditr/issues
