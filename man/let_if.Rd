@@ -5,40 +5,110 @@
 \alias{take_if}
 \alias{take}
 \alias{let}
+\alias{let.default}
 \alias{sort_by}
 \title{Modify, aggregate, select or filter data.frame/data.table}
 \usage{
-let_if(data, i, ..., by, keyby, with = TRUE,
-  nomatch = getOption("datatable.nomatch"), mult = "all",
-  roll = FALSE, rollends = if (roll == "nearest") c(TRUE, TRUE) else if
-  (roll >= 0) c(FALSE, TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
+let_if(
+  data,
+  i,
+  ...,
+  by,
+  keyby,
+  with = TRUE,
+  nomatch = getOption("datatable.nomatch"),
+  mult = "all",
+  roll = FALSE,
+  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE)
+    else c(TRUE, FALSE),
+  which = FALSE,
+  .SDcols,
   verbose = getOption("datatable.verbose"),
   allow.cartesian = getOption("datatable.allow.cartesian"),
-  drop = NULL, on = NULL)
+  drop = NULL,
+  on = NULL
+)
 
-take_if(data, i, ..., by, keyby, with = TRUE,
-  nomatch = getOption("datatable.nomatch"), mult = "all",
-  roll = FALSE, rollends = if (roll == "nearest") c(TRUE, TRUE) else if
-  (roll >= 0) c(FALSE, TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
+take_if(
+  data,
+  i,
+  ...,
+  by,
+  keyby,
+  with = TRUE,
+  nomatch = getOption("datatable.nomatch"),
+  mult = "all",
+  roll = FALSE,
+  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE)
+    else c(TRUE, FALSE),
+  which = FALSE,
+  .SDcols,
   verbose = getOption("datatable.verbose"),
   allow.cartesian = getOption("datatable.allow.cartesian"),
-  drop = NULL, on = NULL, autoname = TRUE, fun = NULL)
+  drop = NULL,
+  on = NULL,
+  autoname = TRUE,
+  fun = NULL
+)
 
-take(data, ..., by, keyby, with = TRUE,
-  nomatch = getOption("datatable.nomatch"), mult = "all",
-  roll = FALSE, rollends = if (roll == "nearest") c(TRUE, TRUE) else if
-  (roll >= 0) c(FALSE, TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
+take(
+  data,
+  ...,
+  by,
+  keyby,
+  with = TRUE,
+  nomatch = getOption("datatable.nomatch"),
+  mult = "all",
+  roll = FALSE,
+  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE)
+    else c(TRUE, FALSE),
+  which = FALSE,
+  .SDcols,
   verbose = getOption("datatable.verbose"),
   allow.cartesian = getOption("datatable.allow.cartesian"),
-  drop = NULL, on = NULL, autoname = TRUE, fun = NULL)
+  drop = NULL,
+  on = NULL,
+  autoname = TRUE,
+  fun = NULL
+)
 
-let(data, ..., by, keyby, with = TRUE,
-  nomatch = getOption("datatable.nomatch"), mult = "all",
-  roll = FALSE, rollends = if (roll == "nearest") c(TRUE, TRUE) else if
-  (roll >= 0) c(FALSE, TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
+let(
+  data,
+  ...,
+  by,
+  keyby,
+  with = TRUE,
+  nomatch = getOption("datatable.nomatch"),
+  mult = "all",
+  roll = FALSE,
+  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE)
+    else c(TRUE, FALSE),
+  which = FALSE,
+  .SDcols,
   verbose = getOption("datatable.verbose"),
   allow.cartesian = getOption("datatable.allow.cartesian"),
-  drop = NULL, on = NULL)
+  drop = NULL,
+  on = NULL
+)
+
+\method{let}{default}(
+  data,
+  ...,
+  by,
+  keyby,
+  with = TRUE,
+  nomatch = getOption("datatable.nomatch"),
+  mult = "all",
+  roll = FALSE,
+  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE)
+    else c(TRUE, FALSE),
+  which = FALSE,
+  .SDcols,
+  verbose = getOption("datatable.verbose"),
+  allow.cartesian = getOption("datatable.allow.cartesian"),
+  drop = NULL,
+  on = NULL
+)
 
 sort_by(data, ..., na.last = FALSE)
 }
@@ -275,7 +345,7 @@ dat \%>\%
 
 dat \%>\%
     take(V1 = sum(v), by=x) \%>\%
-    setorder(-V1) \%>\%                 # ordering results
+    sort_by(-V1) \%>\%                  # ordering results
     head()
 
 

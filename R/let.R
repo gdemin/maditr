@@ -212,11 +212,34 @@
 #'
 #' dat %>%
 #'     take(V1 = sum(v), by=x) %>%
-#'     setorder(-V1) %>%                 # ordering results
+#'     sort_by(-V1) %>%                  # ordering results
 #'     head()
 #'
 #'
 let_if = function(data,
+                  i,
+                  ...,
+                  by,
+                  keyby,
+                  with = TRUE,
+                  nomatch = getOption("datatable.nomatch"),
+                  mult = "all",
+                  roll = FALSE,
+                  rollends = if (roll=="nearest") c(TRUE,TRUE)
+                  else if (roll>=0) c(FALSE,TRUE)
+                  else c(TRUE,FALSE),
+                  which = FALSE,
+                  .SDcols,
+                  verbose = getOption("datatable.verbose"),                   # default: FALSE
+                  allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
+                  drop = NULL,
+                  on = NULL
+){
+    UseMethod("let_if")
+}
+
+#' @export
+let_if.default = function(data,
                   i,
                   ...,
                   by,
@@ -304,6 +327,31 @@ take_if = function(data,
                    autoname = TRUE,
                    fun = NULL
 ){
+    UseMethod("take_if")
+}
+
+#' @export
+take_if.default = function(data,
+                   i,
+                   ...,
+                   by,
+                   keyby,
+                   with = TRUE,
+                   nomatch = getOption("datatable.nomatch"),
+                   mult = "all",
+                   roll = FALSE,
+                   rollends = if (roll=="nearest") c(TRUE,TRUE)
+                   else if (roll>=0) c(FALSE,TRUE)
+                   else c(TRUE,FALSE),
+                   which = FALSE,
+                   .SDcols,
+                   verbose = getOption("datatable.verbose"),                   # default: FALSE
+                   allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
+                   drop = NULL,
+                   on = NULL,
+                   autoname = TRUE,
+                   fun = NULL
+){
     is.data.frame(data) || stop("take/take_if: 'data' should be data.frame or data.table")
     call_expr = sys.call()
     if(!is.data.table(data)){
@@ -366,29 +414,33 @@ take_if = function(data,
     eval.parent(call_expr)
 }
 
-# 'j_expr' - result of substitute(list(...))
-# evaluate_parametric_assign = function(j_expr, parent_frame){
-#     j_list = as.list(j_expr)
-#     j_list[-1] = lapply(j_list[-1], function(item){
-#         if(is.call(item)){
-#             if(identical(item[[1]], as.symbol(":="))){
-#                 if(is.call(item[[2]])){
-#                     eval(item[[2]], envir = parent_frame)
-#                 } else {
-#                     as.character(item[[2]])
-#                 }
-#             }
-#         }
-#     })
-#
-# }
-
-
-
-
 #' @rdname let_if
 #' @export
 take = function(data,
+                ...,
+                by,
+                keyby,
+                with = TRUE,
+                nomatch = getOption("datatable.nomatch"),
+                mult = "all",
+                roll = FALSE,
+                rollends = if (roll=="nearest") c(TRUE,TRUE)
+                else if (roll>=0) c(FALSE,TRUE)
+                else c(TRUE,FALSE),
+                which = FALSE,
+                .SDcols,
+                verbose = getOption("datatable.verbose"),                   # default: FALSE
+                allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
+                drop = NULL,
+                on = NULL,
+                autoname = TRUE,
+                fun = NULL
+){
+    UseMethod("take")
+}
+
+#' @export
+take.default = function(data,
                 ...,
                 by,
                 keyby,
@@ -434,6 +486,29 @@ let = function(data,
                drop = NULL,
                on = NULL
 ){
+    UseMethod("let")
+}
+
+#' @rdname let_if
+#' @export
+let.default = function(data,
+               ...,
+               by,
+               keyby,
+               with = TRUE,
+               nomatch = getOption("datatable.nomatch"),
+               mult = "all",
+               roll = FALSE,
+               rollends = if (roll=="nearest") c(TRUE,TRUE)
+               else if (roll>=0) c(FALSE,TRUE)
+               else c(TRUE,FALSE),
+               which = FALSE,
+               .SDcols,
+               verbose = getOption("datatable.verbose"),                   # default: FALSE
+               allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
+               drop = NULL,
+               on = NULL
+){
     call_expr = sys.call()
     call_expr[[1]] = as.symbol("let_if")
     call_expr = insert_empty_i(call_expr)
@@ -443,6 +518,12 @@ let = function(data,
 #' @rdname let_if
 #' @export
 sort_by = function(data, ..., na.last = FALSE){
+    UseMethod("sort_by")
+}
+
+
+#' @export
+sort_by.default = function(data, ..., na.last = FALSE){
     is.data.frame(data) || stop("'sort_by': 'data' should be data.frame or data.table")
     if(!is.data.table(data)){
         data = as.data.table(data)
@@ -452,7 +533,6 @@ sort_by = function(data, ..., na.last = FALSE){
     }
     data
 }
-
 
 add_brackets_to_i = function(expr){
     if(is.symbol(expr[[3]]) && !identical(expr[[3]], substitute())){

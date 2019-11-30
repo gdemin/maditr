@@ -175,17 +175,16 @@ dt_summarise_all = dt_summarize_all
 #' @rdname dt_mutate
 #' @export
 dt_select = function(data, ...){
+    UseMethod("dt_select")
+}
+
+#' @export
+dt_select.default = function(data, ...){
     is.data.frame(data) || stop("dt_select: 'data' should be data.frame or data.table")
     if(!is.data.table(data)){
         data = as.data.table(data)
     }
     var_list = substitute(list(...))
-    # for(i in seq_along(var_list)[-1]){
-    #     curr_expr = var_list[[i]]
-    #     if(!is.symbol(curr_expr) && !identical(curr_expr[[1]], as.symbol(":"))){
-    #         var_list[[i]] = eval.parent(curr_expr)
-    #     }
-    # }
     all_indexes = as.list(seq_along(data))
     names(all_indexes) = colnames(data)
     var_indexes = unlist(eval(var_list, all_indexes, parent.frame()))
@@ -195,6 +194,12 @@ dt_select = function(data, ...){
 #' @rdname dt_mutate
 #' @export
 dt_filter = function(data, ...){
+    UseMethod("dt_filter")
+}
+
+
+#' @export
+dt_filter.default = function(data, ...){
     is.data.frame(data) || stop("dt_filter: 'data' should be data.frame or data.table")
     curr_names = names(substitute(list(...)))
     if(!is.null(curr_names)){

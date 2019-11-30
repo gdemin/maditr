@@ -5,21 +5,44 @@
 \alias{query}
 \title{One-to-one interface for data.table '[' method}
 \usage{
-query_if(data, i, j, by, keyby, with = TRUE,
-  nomatch = getOption("datatable.nomatch"), mult = "all",
-  roll = FALSE, rollends = if (roll == "nearest") c(TRUE, TRUE) else if
-  (roll >= 0) c(FALSE, TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
+query_if(
+  data,
+  i,
+  j,
+  by,
+  keyby,
+  with = TRUE,
+  nomatch = getOption("datatable.nomatch"),
+  mult = "all",
+  roll = FALSE,
+  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE)
+    else c(TRUE, FALSE),
+  which = FALSE,
+  .SDcols,
   verbose = getOption("datatable.verbose"),
   allow.cartesian = getOption("datatable.allow.cartesian"),
-  drop = NULL, on = NULL)
+  drop = NULL,
+  on = NULL
+)
 
-query(data, j, by, keyby, with = TRUE,
-  nomatch = getOption("datatable.nomatch"), mult = "all",
-  roll = FALSE, rollends = if (roll == "nearest") c(TRUE, TRUE) else if
-  (roll >= 0) c(FALSE, TRUE) else c(TRUE, FALSE), which = FALSE, .SDcols,
+query(
+  data,
+  j,
+  by,
+  keyby,
+  with = TRUE,
+  nomatch = getOption("datatable.nomatch"),
+  mult = "all",
+  roll = FALSE,
+  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE)
+    else c(TRUE, FALSE),
+  which = FALSE,
+  .SDcols,
   verbose = getOption("datatable.verbose"),
   allow.cartesian = getOption("datatable.allow.cartesian"),
-  drop = NULL, on = NULL)
+  drop = NULL,
+  on = NULL
+)
 }
 \arguments{
 \item{data}{data.table/data.frame data.frame will be automatically converted
@@ -120,7 +143,7 @@ query(dat, list(v, v*2))             # return two column data.table, v and v*2
 query_if(dat, 2:3, sum(v))                # sum(v) over rows 2 and 3, return vector
 query_if(dat, 2:3, list(sum(v)))             # same, but return data.table with column V1
 query_if(dat, 2:3, list(sv=sum(v)))          # same, but return data.table with column sv
-query_if(dat, 2:5, cat(v, "\\n"))          # just for j's side effect
+query_if(dat, 2:5, cat(v, "\n"))          # just for j's side effect
 
 # select columns the data.frame way
 query(dat, 2, with=FALSE)            # 2nd column, returns a data.table always

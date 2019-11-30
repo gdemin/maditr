@@ -3,7 +3,6 @@
 \docType{package}
 \name{maditr}
 \alias{maditr}
-\alias{maditr-package}
 \title{maditr: Pipe-Style Interface for 'data.table'}
 \description{
 Package provides pipe-style interface for \code{data.table}. It preserves
