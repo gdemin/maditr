@@ -25,9 +25,22 @@ stock = structure(c(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L,
 -2.50015707139703, -6.74677324296965, 3.3511481779781, 0.613492471346061,
 -4.55254774804779, 5.01525968427971)), row.names = c(NA,
 -30L), class = c("data.table", "data.frame"))
+
 stocksm = stocks %>% melt(id.vars = "time", variable.name = "stock", value.name = "price")
 expect_equal(stocksm, res)
-stocksm_dt = as.data.table(stocks) %>% melt(id.vars = "time", variable.name = "stock", value.name = "price")
+
+stocksm = stocks %>% melt(id.vars = "time", variable.name = "stock",
+                          measure.vars = patterns("X|Y|Z"),
+                          value.name = "price")
+expect_equal(stocksm, res)
+
+stocksm_dt = as.data.table(stocks) %>% melt(id.vars = "time", variable.name = "stock",
+                                            value.name = "price")
+expect_equal(stocksm_dt, res)
+
+stocksm_dt = as.data.table(stocks) %>% melt(id.vars = "time", variable.name = "stock",
+                                            measure.vars = patterns("X|Y|Z"),
+                                            value.name = "price")
 expect_equal(stocksm_dt, res)
 
 res2 = structure(list(time = structure(c(14245, 14246, 14247, 14248,

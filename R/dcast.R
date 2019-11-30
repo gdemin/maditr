@@ -75,14 +75,19 @@ dcast = function(data, formula, fun.aggregate = NULL, sep = "_",
                  ..., margins = NULL, subset = NULL, fill = NULL,
                  drop = TRUE, value.var = guess(data),
                  verbose = getOption("datatable.verbose")){
-    curr_call = sys.call()
-    curr_call[[1]] = quote(data.table::dcast.data.table)
-    if(!is.data.table(data)){
-        curr_call[[2]] = substitute(as.data.table(data))
-    }
-    eval.parent(curr_call)
+    UseMethod("dcast")
 }
 
+#' @export
+dcast.data.frame = function(data, formula, fun.aggregate = NULL, sep = "_",
+                 ..., margins = NULL, subset = NULL, fill = NULL,
+                 drop = TRUE, value.var = guess(data),
+                 verbose = getOption("datatable.verbose")){
+    curr_call = sys.call()
+    curr_call[[1]] = quote(data.table::dcast.data.table)
+    curr_call[[2]] = substitute(as.data.table(data))
+    eval.parent(curr_call)
+}
 
 
 #' @export
@@ -92,14 +97,20 @@ melt = function(data, id.vars, measure.vars,
                 ..., na.rm = FALSE, variable.factor = TRUE,
                 value.factor = FALSE,
                 verbose = getOption("datatable.verbose")){
-    curr_call = sys.call()
-    curr_call[[1]] = quote(data.table::melt.data.table)
-    if(!is.data.table(data)){
-        curr_call[[2]] = substitute(as.data.table(data))
-    }
-    eval.parent(curr_call)
+    UseMethod("melt")
 }
 
+#' @export
+melt.data.frame = function(data, id.vars, measure.vars,
+                variable.name = "variable", value.name = "value",
+                ..., na.rm = FALSE, variable.factor = TRUE,
+                value.factor = FALSE,
+                verbose = getOption("datatable.verbose")){
+    curr_call = sys.call()
+    curr_call[[1]] = quote(data.table::melt.data.table)
+    curr_call[[2]] = substitute(as.data.table(data))
+    eval.parent(curr_call)
+}
 
 #' @rdname dcast
 #' @export
