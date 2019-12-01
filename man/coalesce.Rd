@@ -14,7 +14,7 @@ A vector the same length as the first ... argument with NA
   values replaced by the first non-missing value.
 }
 \description{
-Return first non-missing element
+It is an alias for data.table \code{fcoalesce}. For details see \link[data.table]{fcoalesce}
 }
 \examples{
 # examples from dplyr
@@ -24,7 +24,4 @@ coalesce(x, 0L)
 y = c(1, 2, NA, NA, 5)
 z = c(NA, NA, 3, 4, 5)
 coalesce(y, z)
-}
-\author{
-Martin Morgan https://stackoverflow.com/users/547331/martin-morgan
 }

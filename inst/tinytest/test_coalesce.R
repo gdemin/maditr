@@ -1,6 +1,6 @@
 cat("\nContext:","coalesce", "\n")
 x = c(1, NA, 2, NA)
-res = coalesce(x, 0L)
+res = coalesce(x, 0)
 expect_equal( res, c(1, 0, 2, 0))
 expect_error(coalesce(x, 1:2))
 
