@@ -313,6 +313,17 @@ data.table::month
 data.table::quarter
 #' @export
 data.table::year
-
-
-
+#' @export
+data.table::nafill
+#' @export
+data.table::setnafill
+#' @export
+data.table::frollmean
+#' @export
+data.table::frollsum
+#' @export
+data.table::fcoalesce
+#' @export
+data.table::fifelse
+#' @export
+data.table::frollapply
