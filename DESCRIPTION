@@ -1,11 +1,11 @@
 Package: maditr
 Type: Package
 Title: Fast Data Aggregation, Modification, and Filtering with Pipes and 'data.table'
-Version: 0.6.2
+Version: 0.6.3
 Maintainer: Gregory Demin <gdemin@gmail.com>
 Authors@R: person("Gregory", "Demin", email = "gdemin@gmail.com", role = c("aut", "cre"))
 Depends: R (>= 3.3.0)
-Imports: data.table (>= 1.11), magrittr (>= 1.5)
+Imports: data.table (>= 1.12.6), magrittr (>= 1.5)
 Suggests: knitr, tinytest
 Description: Package provides pipe-style interface for 'data.table'. It preserves all 'data.table' features without
               significant impact on performance. 'let' and 'take' functions are simplified interfaces for most common data
@@ -19,4 +19,4 @@ BugReports: https://github.com/gdemin/maditr/issues
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.1
