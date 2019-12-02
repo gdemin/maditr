@@ -1,9 +1,14 @@
-#' Additional functions
+#' Additional useful functions
+#'
+#' \itemize{
+#' \item{dt_count}{ calculate number of cases by groups, possibly
+#' weighted. \code{dt_add_count} adds number of cases to existing dataset}
+#' }
 #'
 #' @param data data.table/data.frame data.frame will be automatically converted
 #'   to data.table.
 #' @param ... variables to group by.
-#' @param weight. optional. Unquoted variable name. If provided result will be the sum of this variable by groups.
+#' @param weight optional. Unquoted variable name. If provided result will be the sum of this variable by groups.
 #' @param sort logical. If TRUE result will be sorted in desending order by resulting variable.
 #' @param name character. Name of resulting variable.
 #'
@@ -11,7 +16,13 @@
 #' @export
 #'
 #' @examples
-#' 1
+#'
+#' data(mtcars)
+#'
+#' # dt_count
+#' dt_count(mtcars, am, vs)
+#' dt_add_count(mtcars, am, vs, name = "am_vs")[] # [] for autoprinting
+#'
 dt_count = function(data, ..., weight = NULL, sort = FALSE, name = "n"){
     name = as.symbol(name)
     weight_expr = substitute(weight)
@@ -28,6 +39,7 @@ dt_count = function(data, ..., weight = NULL, sort = FALSE, name = "n"){
 }
 
 #' @export
+#' @rdname dt_count
 dt_add_count = function(data, ..., weight = NULL, sort = FALSE, name = "n"){
     name = as.symbol(name)
     weight_expr = substitute(weight)

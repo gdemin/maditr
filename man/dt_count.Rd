@@ -2,9 +2,12 @@
 % Please edit documentation in R/dt_utils.R
 \name{dt_count}
 \alias{dt_count}
-\title{Additional functions}
+\alias{dt_add_count}
+\title{Additional useful functions}
 \usage{
 dt_count(data, ..., weight = NULL, sort = FALSE, name = "n")
+
+dt_add_count(data, ..., weight = NULL, sort = FALSE, name = "n")
 }
 \arguments{
 \item{data}{data.table/data.frame data.frame will be automatically converted
@@ -12,18 +15,27 @@ to data.table.}
 
 \item{...}{variables to group by.}
 
+\item{weight}{optional. Unquoted variable name. If provided result will be the sum of this variable by groups.}
+
 \item{sort}{logical. If TRUE result will be sorted in desending order by resulting variable.}
 
 \item{name}{character. Name of resulting variable.}
-
-\item{weight.}{optional. Unquoted variable name. If provided result will be the sum of this variable by groups.}
 }
 \value{
 data.table
 }
 \description{
-Additional functions
+\itemize{
+\item{dt_count, dt_add_count}{ calculate number of cases by groups, possibly
+weighted. \code{dt_add_count} add number of cases to existing dataset}
+}
 }
 \examples{
-1
+
+data(mtcars)
+
+# dt_count
+dt_count(mtcars, am, vs)
+dt_add_count(mtcars, am, vs, name = "am_vs")[] # [] for autoprinting
+
 }
