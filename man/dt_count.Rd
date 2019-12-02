@@ -3,11 +3,14 @@
 \name{dt_count}
 \alias{dt_count}
 \alias{dt_add_count}
+\alias{dt_top_n}
 \title{Additional useful functions}
 \usage{
 dt_count(data, ..., weight = NULL, sort = FALSE, name = "n")
 
 dt_add_count(data, ..., weight = NULL, sort = FALSE, name = "n")
+
+dt_top_n(data, n, by, order_by = NULL)
 }
 \arguments{
 \item{data}{data.table/data.frame data.frame will be automatically converted
@@ -20,14 +23,22 @@ to data.table.}
 \item{sort}{logical. If TRUE result will be sorted in desending order by resulting variable.}
 
 \item{name}{character. Name of resulting variable.}
+
+\item{n}{numeric. number of top cases. If n is negative then bottom values will be returned.}
+
+\item{by}{list or vector of grouping variables}
+
+\item{order_by}{unquoted variable name by which result will be sorted. If not
+specified, defaults to the last variable in the dataset.}
 }
 \value{
 data.table
 }
 \description{
 \itemize{
-\item{dt_count, dt_add_count}{ calculate number of cases by groups, possibly
-weighted. \code{dt_add_count} add number of cases to existing dataset}
+\item{dt_count}{ calculate number of cases by groups, possibly
+weighted. \code{dt_add_count} adds number of cases to existing dataset}
+\item{dt_top_n}{ returns top n rows from each group.}
 }
 }
 \examples{
@@ -38,4 +49,7 @@ data(mtcars)
 dt_count(mtcars, am, vs)
 dt_add_count(mtcars, am, vs, name = "am_vs")[] # [] for autoprinting
 
+# dt_top_n
+dt_top_n(mtcars, 2, by  = list(am, vs))
+dt_top_n(mtcars, 2, order_by = mpg, by  = list(am, vs))
 }

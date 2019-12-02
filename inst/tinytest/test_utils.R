@@ -84,3 +84,30 @@ expect_equal(
     dt_add_count(mtcars,  weight = mpg, sort = TRUE, name = "total"),
     let_if(mtcars, !is.na(mpg), total = sum(mpg)) %>% sort_by(-total)
 )
+
+cat("\nContext:","dt_top_n", "\n")
+
+data(mtcars)
+
+expect_equal(
+    dt_top_n(mtcars, 2),
+    head(take_if(mtcars, order(-carb)), 2)
+)
+
+
+expect_equal(
+    dt_top_n(mtcars, -2),
+    tail(take_if(mtcars, order(-carb)), 2)
+)
+
+
+expect_equal(
+    dt_top_n(mtcars, 2, order_by = mpg, by = list(am, vs)),
+    query_if(mtcars, order(-mpg), head(.SD, 2), by = list(am, vs))
+)
+
+
+expect_equal(
+    dt_top_n(mtcars, -2, order_by = mpg, by = list(am, vs)),
+    query_if(mtcars, order(-mpg), tail(.SD, 2), by = list(am, vs))
+)

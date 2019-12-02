@@ -1,3 +1,12 @@
+0.6.3 (2019-12-03)
+================
+* 'let' and 'take' now generics (issue #8)
+* add functions 'dt_count', 'dt_add_count', 'dt_top_n' (issue #5)
+* bumped requried data.table version
+* move tests from testthat to tinytest
+* bugfixes
+
+
 0.6.2 (2019-06-09)
 ================
 * add 'sort_by'
