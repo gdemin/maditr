@@ -28,17 +28,17 @@ mtcars2$mpg[1:4] = NA
 
 expect_equal(
     dt_count(mtcars2, am, vs, weight = mpg, name = "total"),
-    take_if(mtcars2, !is.na(mpg), total = sum(mpg), by =.(am, vs))
+    take(mtcars2, total = sum(mpg, na.rm = TRUE), by =.(am, vs))
 )
 
 expect_equal(
     dt_count(mtcars2,weight = mpg, sort = TRUE, name = "total"),
-    take_if(mtcars2, !is.na(mpg), total = sum(mpg)) %>% sort_by(-total)
+    take(mtcars2, total = sum(mpg, na.rm = TRUE)) %>% sort_by(-total)
 )
 
 expect_equal(
     dt_count(mtcars2, am, vs, weight = mpg, sort = TRUE, name = "total"),
-    take_if(mtcars2, !is.na(mpg), total = sum(mpg), by =.(am, vs)) %>% sort_by(-total)
+    take(mtcars2, total = sum(mpg, na.rm = TRUE), by =.(am, vs)) %>% sort_by(-total)
 )
 
 ############
@@ -66,23 +66,25 @@ expect_equal(
     let(mtcars, total = .N, by =.(am, vs)) %>% sort_by(-total)
 )
 
+
+data(mtcars)
 mtcars2 = mtcars
 
 mtcars2$mpg[1:4] = NA
 
 expect_equal(
-    dt_add_count(mtcars, am, vs, weight = mpg, name = "total"),
-    let_if(mtcars, !is.na(mpg), total = sum(mpg), by =.(am, vs))
+    dt_add_count(mtcars2, am, vs, weight = mpg, name = "total"),
+    let(mtcars2, total = sum(mpg, na.rm = TRUE), by =.(am, vs))
 )
 
 expect_equal(
-    dt_add_count(mtcars, am, vs, weight = mpg, sort = TRUE, name = "total"),
-    let_if(mtcars, !is.na(mpg), total = sum(mpg), by =.(am, vs)) %>% sort_by(-total)
+    dt_add_count(mtcars2, am, vs, weight = mpg, sort = TRUE, name = "total"),
+    let(mtcars2, total = sum(mpg, na.rm = TRUE), by =.(am, vs)) %>% sort_by(-total)
 )
 
 expect_equal(
-    dt_add_count(mtcars,  weight = mpg, sort = TRUE, name = "total"),
-    let_if(mtcars, !is.na(mpg), total = sum(mpg)) %>% sort_by(-total)
+    dt_add_count(mtcars2,  weight = mpg, sort = TRUE, name = "total"),
+    let(mtcars2, total = sum(mpg, na.rm = TRUE)) %>% sort_by(-total)
 )
 
 cat("\nContext:","dt_top_n", "\n")

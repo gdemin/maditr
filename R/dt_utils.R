@@ -36,7 +36,7 @@ dt_count = function(data, ..., weight = NULL, sort = FALSE, name = "n"){
     if(is.null(weight_expr)){
         res = eval.parent(substitute(take(data, name := .N, by = .(...))))
     } else {
-        res = eval.parent(substitute(take_if(data, !is.na(weight), name := sum(weight), by = .(...))))
+        res = eval.parent(substitute(take(data, name := sum(weight, na.rm = TRUE), by = .(...))))
     }
     if(sort) {
         res = eval(substitute(sort_by(res, -name), list(name = name)))
@@ -53,7 +53,7 @@ dt_add_count = function(data, ..., weight = NULL, sort = FALSE, name = "n"){
     if(is.null(weight_expr)){
         res = eval.parent(substitute(let(data, name := .N, by = .(...))))
     } else {
-        res = eval.parent(substitute(let_if(data, !is.na(weight), name := sum(weight), by = .(...))))
+        res = eval.parent(substitute(let(data, name := sum(weight, na.rm = TRUE), by = .(...))))
     }
     if(sort) {
         res = eval(substitute(sort_by(res, -name), list(name = name)))
