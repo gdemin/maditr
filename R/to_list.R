@@ -23,8 +23,14 @@ to_list = function(data, expr = NULL, skip_null = TRUE){
     ._names = names(data)
     names(._indexes) = ._names
     if(is.null(._names)) ._names = rep("", length(data))
-    fun = eval(substitute_symbols(quote(function(.index) expr), list(expr = expr)))
-    res = lapply(._indexes, fun)
+    if(is.symbol(expr) && !identical(expr, quote(.index))){
+        fun = match.fun(eval(expr))
+        res = lapply(data, fun)
+    } else {
+        fun = eval(substitute_symbols(quote(function(.index) expr), list(expr = expr)))
+        res = lapply(._indexes, fun)
+    }
+
     if(skip_null){
         nulls = vapply(res, is.null, FUN.VALUE = logical(1), USE.NAMES = FALSE)
         res = res[!nulls]
@@ -60,10 +66,5 @@ to_dfc = function(data, expr = NULL){
     as.data.table(res)
 }
 
-# expr - expression as after 'substitute'
-# symbols - named list  - names will be substituted with values
-substitute_symbols = function(substitute_result, symbols) {
-    eval(bquote(substitute(.(substitute_result), symbols)))
-}
 
 

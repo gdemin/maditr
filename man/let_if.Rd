@@ -6,6 +6,7 @@
 \alias{take}
 \alias{let}
 \alias{let.default}
+\alias{take_all}
 \alias{sort_by}
 \title{Modify, aggregate, select or filter data.frame/data.table}
 \usage{
@@ -108,6 +109,17 @@ let(
   allow.cartesian = getOption("datatable.allow.cartesian"),
   drop = NULL,
   on = NULL
+)
+
+take_all(
+  data,
+  expr,
+  by,
+  keyby,
+  .SDcols,
+  verbose = getOption("datatable.verbose"),
+  prefix = NULL,
+  i
 )
 
 sort_by(data, ..., na.last = FALSE)

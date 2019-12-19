@@ -368,6 +368,10 @@ take_if.default = function(data,
     j_expr = substitute(list(...))
     j_length = length(j_expr) - 1
     i_position = 3
+    # somedays...
+    # if(!missing(fun)){
+    #     .Deprecated(msg = "'take'/'take_if': 'fun' argument is deprecated. Use 'take_all(data, fun)' instead.")
+    # }
     if(j_length>0){
 
         ## parse ':=' expression
@@ -515,6 +519,79 @@ let.default = function(data,
     eval.parent(call_expr)
 }
 
+
+
+
+###################### take_all #################
+
+#' @export
+#' @rdname let_if
+take_all = function(data,
+                    expr,
+                    by,
+                    keyby,
+                    .SDcols,
+                    verbose = getOption("datatable.verbose"),                   # default: FALSE
+                    prefix = NULL,
+                    i
+){
+    UseMethod("take_all")
+}
+
+#' @export
+take_all.default = function(data,
+                           expr,
+                           by,
+                           ...,
+                           keyby,
+                           .SDcols,
+                           verbose = getOption("datatable.verbose"),                   # default: FALSE
+                           prefix = NULL,
+                           i
+){
+    is.data.frame(data) || stop("'take_all': 'data' should be data.frame or data.table")
+    ...length()>0 && stop("'take_all': unknown arguments - ", safe_deparse(substitute(list(...))))
+    call_expr = sys.call()
+    if(!is.data.table(data)){
+        call_expr[[2]] = substitute(as.data.table(data))
+    }
+    call_expr[[1]] = as.symbol("[")
+    if(is.null(prefix)) {
+        name_expr = quote(names(.SD))
+    } else  if(is.function(prefix)) {
+        name_expr = substitute(prefix(names(.SD)))
+    } else {
+        name_expr = substitute(paste0(prefix, names(.SD)))
+    }
+    ### remove prefix argument
+    if(any("prefix" %in% names(call_expr))) call_expr[["prefix"]] = NULL
+
+    expr = substitute(expr)
+    expr = substitute_symbols(expr, list(
+        '.item' = quote(.SD[[.name]]),
+        '.x' = quote(.SD[[.name]])
+    ))
+
+    if(is.symbol(expr) && !identical(expr, quote(.name))){
+        expr = substitute(expr(.SD[[.name]]))
+    }
+    j_expr = substitute({
+        res = lapply(names(.SD), function(.name) expr)
+        names(res) = name_expr
+        res = res[lengths(res)>0]
+        res
+    })
+
+    ####
+    call_expr = insert_empty_i(call_expr)
+    call_expr = add_brackets_to_i(call_expr)
+    call_expr[[4]] = j_expr
+    eval.parent(call_expr)
+}
+
+
+#######################################
+
 #' @rdname let_if
 #' @export
 sort_by = function(data, ..., na.last = FALSE){
@@ -534,9 +611,3 @@ sort_by.default = function(data, ..., na.last = FALSE){
     data
 }
 
-add_brackets_to_i = function(expr){
-    if(is.symbol(expr[[3]]) && !identical(expr[[3]], substitute())){
-        expr[[3]] = bquote((.(expr[[3]])))
-    }
-    expr
-}
