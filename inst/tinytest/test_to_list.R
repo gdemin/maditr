@@ -36,8 +36,8 @@ expect_identical(
 
 
 expect_identical(
-    to_list(1:5, sqrt),
-    lapply(1:5, sqrt)
+    to_list((1:5)*100, sqrt),
+    lapply((1:5)*100, sqrt)
 )
 
 expect_identical(
@@ -57,7 +57,7 @@ expect_identical(
 
 expect_identical(
     to_list(iris, if(grepl("Sepal", .name)) .item),
-    as.list(iris)
+    as.list(iris[,c("Sepal.Length", "Sepal.Width")])
 
 )
 
@@ -73,6 +73,10 @@ expect_identical(
     unname(c(colMeans(iris[1:4]), Species = uniqueN(iris$Species)))
 )
 
+expect_identical(
+    to_vec(iris, is.numeric),
+    sapply(iris, is.numeric)
+)
 
 cat("\nContext:","to_df", "\n")
 
