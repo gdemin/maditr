@@ -66,10 +66,5 @@ to_dfc = function(data, expr = NULL){
     as.data.table(res)
 }
 
-# expr - expression as after 'substitute'
-# symbols - named list  - names will be substituted with values
-substitute_symbols = function(substitute_result, symbols) {
-    eval(bquote(substitute(.(substitute_result), symbols)))
-}
 
 

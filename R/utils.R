@@ -1,6 +1,13 @@
 insert_empty_i = function(expr){
     call_list = as.list(expr)
-    call_list =  c(call_list[1:2], list(substitute()), call_list[-(1:2)])
+    i_position = which(names(call_list) %in% "i")
+    if(length(i_position)>0){
+        call_list =  c(call_list[1:2], call_list[i_position], call_list[-c(1:2, i_position)])
+    } else {
+        call_list =  c(call_list[1:2], list(substitute()), call_list[-(1:2)])
+    }
+
+
     as.call(call_list)
 }
 
@@ -22,4 +29,18 @@ add_names_to_quoted_list = function(expr){
         }
     }
     as.call(expr_list)
+}
+
+
+# expr - expression as after 'substitute'
+# symbols - named list  - names will be substituted with values
+substitute_symbols = function(substitute_result, symbols) {
+    eval(bquote(substitute(.(substitute_result), symbols)))
+}
+
+add_brackets_to_i = function(expr){
+    if(!identical(expr[[3]], substitute())){
+        expr[[3]] = bquote((.(expr[[3]])))
+    }
+    expr
 }
