@@ -35,6 +35,25 @@ expect_identical(
 )
 
 
+expect_identical(
+    to_list(1:5, sqrt),
+    lapply(1:5, sqrt)
+)
+
+expect_identical(
+    to_list((1:5)*10, .index),
+    as.list(1:5)
+)
+
+expect_identical(
+    to_list((1:5)*10, .i),
+    as.list(1:5)
+)
+
+expect_identical(
+    to_list((1:5)*10, .name),
+    as.list(rep("", 5))
+)
 
 expect_identical(
     to_list(iris, if(grepl("Sepal", .name)) .item),
