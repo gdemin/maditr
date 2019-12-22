@@ -369,9 +369,9 @@ take_if.default = function(data,
     j_length = length(j_expr) - 1
     i_position = 3
     # somedays...
-    # if(!missing(fun)){
-    #     .Deprecated(msg = "'take'/'take_if': 'fun' argument is deprecated. Use 'take_all(data, fun)' instead.")
-    # }
+    if(!missing(fun)){
+        .Deprecated(msg = "'take'/'take_if': 'fun' argument is deprecated. Use 'take_all(data, fun)' instead.")
+    }
     if(j_length>0){
 
         ## parse ':=' expression
