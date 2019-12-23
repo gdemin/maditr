@@ -15,7 +15,7 @@ to_list = function(data, expr = NULL, skip_null = TRUE,
                    pb_step = 1
                    ){
     expr = substitute(expr)
-    (pb && info) && stop("'to_list': both 'pb' and 'info' are set to TRUE. We can show only one of them - progress bar or info.")
+    (pb && !is.null(info)) && stop("'to_list': both 'pb' and 'info' are set to TRUE. We can show only one of them - progress bar or info.")
     if(is.null(expr)) return(as.list(data))
 
     expr = substitute_symbols(expr, list(
@@ -28,26 +28,54 @@ to_list = function(data, expr = NULL, skip_null = TRUE,
     ._names = names(data)
     names(._indexes) = ._names
     if(is.null(._names)) ._names = rep("", length(data))
+
     ## progress bar and info
+    info_expr = NULL
     if(isTRUE(pb)){
-        pbar = txtProgressBar(min = 0, max = length(data), style = 3)
+        ._data_length = length(data)
+        pbar = txtProgressBar(min = 0, max = ._data_length, style = 3)
         ._counter = 0
         on.exit(close(pbar))
+        # progress bar, step
+        if(pb_step>1){
+            info_expr = quote({
+                if(._counter %% pb_step == 0){
+                    setTxtProgressBar(pbar, min(._counter, ._data_length))
+                }
+                ._counter <<- ._counter + pb_step
+            })
+        } else {
+        # progress bar, unspecified step
+            info_expr = quote({
+                setTxtProgressBar(pbar, min(._counter, ._data_length))
+                ._counter <<- ._counter + 1
+            })
+        }
+
     }
     if(!is.null(info)){
         if(isTRUE(info)){
+        # progress bar, step
+        if(pb_step>1){
+
+        } else {
             info_expr = quote(cat(Sys.time(), ": ",
                                   .index, ": ",
                                   .name, " ",
                                   if(is.atomic(.item) && length(.item)==1 && object.size(.item)<400) .item,
                                   "\n", sep = ""))
-        }
+        }}
     }
+
+
+
+
     if(is.symbol(expr) && !identical(expr, quote(.index))){
         fun = eval(substitute_symbols(quote(function(.index)
         {
             expr(data[[.index]])
-        })), list(expr = expr))
+        })),
+        list(expr = expr))
     } else {
         fun = eval(substitute_symbols(quote(function(.index) expr), list(expr = expr)))
 
