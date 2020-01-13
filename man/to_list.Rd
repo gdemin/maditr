@@ -8,15 +8,49 @@
 \alias{to_dfc}
 \title{Title}
 \usage{
-to_list(data, expr = NULL, skip_null = TRUE)
+to_list(
+  data,
+  expr = NULL,
+  ...,
+  skip_null = TRUE,
+  pb = FALSE,
+  info = NULL,
+  pb_step = 1
+)
 
-to_vec(data, expr = NULL, skip_null = TRUE, recursive = TRUE, use.names = TRUE)
+to_vec(
+  data,
+  expr = NULL,
+  ...,
+  skip_null = TRUE,
+  pb = FALSE,
+  info = NULL,
+  pb_step = 1,
+  recursive = TRUE,
+  use.names = TRUE
+)
 
-to_df(data, expr = NULL, idcol = NULL)
+to_df(
+  data,
+  expr = NULL,
+  ...,
+  pb = FALSE,
+  info = NULL,
+  pb_step = 1,
+  idcol = NULL
+)
 
-to_dfr(data, expr = NULL, idcol = NULL)
+to_dfr(
+  data,
+  expr = NULL,
+  ...,
+  pb = FALSE,
+  info = NULL,
+  pb_step = 1,
+  idcol = NULL
+)
 
-to_dfc(data, expr = NULL)
+to_dfc(data, expr = NULL, ..., pb = FALSE, info = NULL, pb_step = 1)
 }
 \arguments{
 \item{data}{data.frame/list/vector}

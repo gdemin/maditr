@@ -29,24 +29,14 @@
 #'   columns of the result, for convenience. It is common practice to use
 #'   'keyby=' routinely when you wish the result to be sorted. For details see
 #'   \link[data.table]{data.table}.
-#' @param with logical. For details see \link[data.table]{data.table}.
-#' @param nomatch Same as nomatch in match. For details see
-#'   \link[data.table]{data.table}.
-#' @param mult For details see \link[data.table]{data.table}.
-#' @param roll For details see \link[data.table]{data.table}.
-#' @param rollends For details see \link[data.table]{data.table}.
-#' @param which For details see \link[data.table]{data.table}.
 #' @param .SDcols Specifies the columns of x to be included in the special
 #'   symbol .SD which stands for Subset of data.table. May be character column
 #'   names or numeric positions. For details see \link[data.table]{data.table}.
-#' @param verbose logical. For details see \link[data.table]{data.table}.
-#' @param allow.cartesian For details see \link[data.table]{data.table}.
-#' @param drop For details see \link[data.table]{data.table}.
-#' @param on For details see \link[data.table]{data.table}.
 #' @param autoname logical. TRUE by default. Should we create names for  unnamed expressions in \code{take}?
-#' @param fun function which will be applied to all variables in \code{take}. If
-#'   there are no variables in \code{take} then it will be applied to all non-grouping
-#'   variables in the \code{data}.
+#' @param fun Deprecated. Use \link{take_all} instead. function which will be
+#'   applied to all variables in \code{take}. If there are no variables in
+#'   \code{take} then it will be applied to all non-grouping variables in the
+#'   \code{data}.
 #' @param na.last logical. FALSE by default. If TRUE, missing values in the data
 #'   are put last; if FALSE, they are put first.
 #' @return data.table. \code{let} returns its result invisibly.
@@ -220,20 +210,7 @@ let_if = function(data,
                   i,
                   ...,
                   by,
-                  keyby,
-                  with = TRUE,
-                  nomatch = getOption("datatable.nomatch"),
-                  mult = "all",
-                  roll = FALSE,
-                  rollends = if (roll=="nearest") c(TRUE,TRUE)
-                  else if (roll>=0) c(FALSE,TRUE)
-                  else c(TRUE,FALSE),
-                  which = FALSE,
-                  .SDcols,
-                  verbose = getOption("datatable.verbose"),                   # default: FALSE
-                  allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
-                  drop = NULL,
-                  on = NULL
+                  keyby
 ){
     UseMethod("let_if")
 }
@@ -243,20 +220,7 @@ let_if.default = function(data,
                   i,
                   ...,
                   by,
-                  keyby,
-                  with = TRUE,
-                  nomatch = getOption("datatable.nomatch"),
-                  mult = "all",
-                  roll = FALSE,
-                  rollends = if (roll=="nearest") c(TRUE,TRUE)
-                  else if (roll>=0) c(FALSE,TRUE)
-                  else c(TRUE,FALSE),
-                  which = FALSE,
-                  .SDcols,
-                  verbose = getOption("datatable.verbose"),                   # default: FALSE
-                  allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
-                  drop = NULL,
-                  on = NULL
+                  keyby
 ){
     is.data.frame(data) || stop("let/let_if: 'data' should be data.frame or data.table")
     call_expr = sys.call()
@@ -311,19 +275,7 @@ take_if = function(data,
                    ...,
                    by,
                    keyby,
-                   with = TRUE,
-                   nomatch = getOption("datatable.nomatch"),
-                   mult = "all",
-                   roll = FALSE,
-                   rollends = if (roll=="nearest") c(TRUE,TRUE)
-                   else if (roll>=0) c(FALSE,TRUE)
-                   else c(TRUE,FALSE),
-                   which = FALSE,
                    .SDcols,
-                   verbose = getOption("datatable.verbose"),                   # default: FALSE
-                   allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
-                   drop = NULL,
-                   on = NULL,
                    autoname = TRUE,
                    fun = NULL
 ){
@@ -336,19 +288,7 @@ take_if.default = function(data,
                    ...,
                    by,
                    keyby,
-                   with = TRUE,
-                   nomatch = getOption("datatable.nomatch"),
-                   mult = "all",
-                   roll = FALSE,
-                   rollends = if (roll=="nearest") c(TRUE,TRUE)
-                   else if (roll>=0) c(FALSE,TRUE)
-                   else c(TRUE,FALSE),
-                   which = FALSE,
                    .SDcols,
-                   verbose = getOption("datatable.verbose"),                   # default: FALSE
-                   allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
-                   drop = NULL,
-                   on = NULL,
                    autoname = TRUE,
                    fun = NULL
 ){
@@ -369,9 +309,9 @@ take_if.default = function(data,
     j_length = length(j_expr) - 1
     i_position = 3
     # somedays...
-    if(!missing(fun)){
-        .Deprecated(msg = "'take'/'take_if': 'fun' argument is deprecated. Use 'take_all(data, fun)' instead.")
-    }
+    # if(!missing(fun)){
+    #     .Deprecated(msg = "'take'/'take_if': 'fun' argument is deprecated. Use 'take_all(data, fun)' instead.")
+    # }
     if(j_length>0){
 
         ## parse ':=' expression
@@ -424,19 +364,7 @@ take = function(data,
                 ...,
                 by,
                 keyby,
-                with = TRUE,
-                nomatch = getOption("datatable.nomatch"),
-                mult = "all",
-                roll = FALSE,
-                rollends = if (roll=="nearest") c(TRUE,TRUE)
-                else if (roll>=0) c(FALSE,TRUE)
-                else c(TRUE,FALSE),
-                which = FALSE,
                 .SDcols,
-                verbose = getOption("datatable.verbose"),                   # default: FALSE
-                allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
-                drop = NULL,
-                on = NULL,
                 autoname = TRUE,
                 fun = NULL
 ){
@@ -448,19 +376,7 @@ take.default = function(data,
                 ...,
                 by,
                 keyby,
-                with = TRUE,
-                nomatch = getOption("datatable.nomatch"),
-                mult = "all",
-                roll = FALSE,
-                rollends = if (roll=="nearest") c(TRUE,TRUE)
-                else if (roll>=0) c(FALSE,TRUE)
-                else c(TRUE,FALSE),
-                which = FALSE,
                 .SDcols,
-                verbose = getOption("datatable.verbose"),                   # default: FALSE
-                allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
-                drop = NULL,
-                on = NULL,
                 autoname = TRUE,
                 fun = NULL
 ){
@@ -475,20 +391,7 @@ take.default = function(data,
 let = function(data,
                ...,
                by,
-               keyby,
-               with = TRUE,
-               nomatch = getOption("datatable.nomatch"),
-               mult = "all",
-               roll = FALSE,
-               rollends = if (roll=="nearest") c(TRUE,TRUE)
-               else if (roll>=0) c(FALSE,TRUE)
-               else c(TRUE,FALSE),
-               which = FALSE,
-               .SDcols,
-               verbose = getOption("datatable.verbose"),                   # default: FALSE
-               allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
-               drop = NULL,
-               on = NULL
+               keyby
 ){
     UseMethod("let")
 }
@@ -498,20 +401,7 @@ let = function(data,
 let.default = function(data,
                ...,
                by,
-               keyby,
-               with = TRUE,
-               nomatch = getOption("datatable.nomatch"),
-               mult = "all",
-               roll = FALSE,
-               rollends = if (roll=="nearest") c(TRUE,TRUE)
-               else if (roll>=0) c(FALSE,TRUE)
-               else c(TRUE,FALSE),
-               which = FALSE,
-               .SDcols,
-               verbose = getOption("datatable.verbose"),                   # default: FALSE
-               allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
-               drop = NULL,
-               on = NULL
+               keyby
 ){
     call_expr = sys.call()
     call_expr[[1]] = as.symbol("let_if")
@@ -527,12 +417,11 @@ let.default = function(data,
 #' @export
 #' @rdname let_if
 take_all = function(data,
-                    expr,
+                    ...,
                     by,
                     keyby,
                     .SDcols,
-                    verbose = getOption("datatable.verbose"),                   # default: FALSE
-                    prefix = NULL,
+                    suffix = TRUE,
                     i
 ){
     UseMethod("take_all")
@@ -540,46 +429,95 @@ take_all = function(data,
 
 #' @export
 take_all.default = function(data,
-                           expr,
-                           by,
-                           ...,
-                           keyby,
-                           .SDcols,
-                           verbose = getOption("datatable.verbose"),                   # default: FALSE
-                           prefix = NULL,
-                           i
+                            ...,
+                            by,
+                            keyby,
+                            .SDcols,
+                            suffix = TRUE,
+                            i
 ){
     is.data.frame(data) || stop("'take_all': 'data' should be data.frame or data.table")
-    ...length()>0 && stop("'take_all': unknown arguments - ", safe_deparse(substitute(list(...))))
     call_expr = sys.call()
     if(!is.data.table(data)){
         call_expr[[2]] = substitute(as.data.table(data))
     }
     call_expr[[1]] = as.symbol("[")
+
+    j_expr = substitute(list(...))
+    j_expr = as.list(j_expr)[-1]
+    j_length = length(j_expr)
+    (j_length == 0) && stop("'take_all' - missing expressions. You should provide at least one expression.")
+
+    ## parse ':=' expression
+
+    if(is.null(names(j_expr))){
+        names(j_expr) = rep("", j_length)
+    }
+    for(i in seq_len(j_length)){
+        if(is.call(j_expr[[i]]) && identical(j_expr[[i]][[1]], as.symbol(":="))){
+            name_expr = j_expr[[i]][[2]]
+            j_expr[[i]] = j_expr[[i]][[3]]
+            if(is.call(name_expr)){
+                names(j_expr)[i] = eval.parent(name_expr)
+            } else {
+                if(is.character(name_expr)){
+                    names(j_expr)[i] = name_expr
+                } else {
+                    names(j_expr)[i] = safe_deparse(name_expr)
+                }
+            }
+        }
+    }
+
+    # add names from symbols
+    if(j_length>1){
+        for(i in seq_len(j_length)){
+            if(names(j_expr)[i]=="" && is.symbol(j_expr[[i]])){
+                names(j_expr)[i] = as.character(j_expr[[i]])
+            }
+        }
+    }
+
+    #################
+    ## naming
+    ## suffix = FALSE - prefix, if TRUE it will be suffix
+    ## no names
+    ## if single symbol expr all names will be left as is
+    ## if multiple symbol expr names will be prefixed/suffixed with this symbol "_"
+    ## if complex expr and there is no names then original names will be left as is
+    ## duplicated names will be made unique (??)
+
+
     if(is.null(prefix)) {
         name_expr = quote(names(.SD))
-    } else  if(is.function(prefix)) {
+    } else if(is.function(prefix)) {
         name_expr = substitute(prefix(names(.SD)))
     } else {
         name_expr = substitute(paste0(prefix, names(.SD)))
     }
     ### remove prefix argument
-    if(any("prefix" %in% names(call_expr))) call_expr[["prefix"]] = NULL
 
-    expr = substitute(expr)
-    expr = substitute_symbols(expr, list(
-        '.item' = quote(.SD[[.name]]),
-        '.x' = quote(.SD[[.name]])
-    ))
+    ._all_names = names(data)
+    j_expr = lapply(seq_along(j_expr), function(expr){
+        expr = substitute_symbols(expr, list(
+            '.value' = quote(.SD[[.name]]),
+            '.j' = quote(.SD[[.name]]),
+            '.index' = quote(match(.name, ._all_names))
+        ))
 
-    if(is.symbol(expr) && !identical(expr, quote(.name))){
-        expr = substitute(expr(.SD[[.name]]))
-    }
-    j_expr = substitute({
-        res = lapply(names(.SD), function(.name) expr)
-        names(res) = name_expr
-        res = res[lengths(res)>0]
-        res
+        if((is.symbol(expr) && !identical(expr, quote(.name))) ||
+           (length(expr)>1 && as.character(expr[[1]]) == "function")){
+            expr = substitute(lapply(.SD, expr))
+        } else {
+            expr = substitute(lapply(names(.SD), function(.name) expr))
+        }
+        substitute({
+            res = expr
+            names(res) = name_expr
+            res = res[lengths(res)>0]
+            res
+        })
+
     })
 
     ####

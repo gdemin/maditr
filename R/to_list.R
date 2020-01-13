@@ -9,7 +9,10 @@
 #'
 #' @examples
 #' 1
-to_list = function(data, expr = NULL, skip_null = TRUE,
+to_list = function(data,
+                   expr = NULL,
+                   ...,
+                   skip_null = TRUE,
                    pb = FALSE,
                    info = NULL,
                    pb_step = 1
@@ -20,6 +23,7 @@ to_list = function(data, expr = NULL, skip_null = TRUE,
 
     expr = substitute_symbols(expr, list(
         '.item' = quote(data[[.index]]),
+        '.value' = quote(data[[.index]]),
         '.x' = quote(data[[.index]]),
         '.name' = quote(._names[[.index]]),
         '.i' = quote(.index)
@@ -90,7 +94,10 @@ to_list = function(data, expr = NULL, skip_null = TRUE,
 
 #' @rdname to_list
 #' @export
-to_vec = function(data, expr = NULL, skip_null = TRUE,
+to_vec = function(data,
+                  expr = NULL,
+                  ...,
+                  skip_null = TRUE,
                   pb = FALSE,
                   info = NULL,
                   pb_step = 1,
@@ -104,7 +111,9 @@ to_vec = function(data, expr = NULL, skip_null = TRUE,
 
 #' @rdname to_list
 #' @export
-to_df = function(data, expr = NULL,
+to_df = function(data,
+                 expr = NULL,
+                 ...,
                  pb = FALSE,
                  info = NULL,
                  pb_step = 1,
@@ -120,7 +129,9 @@ to_dfr = to_df
 
 #' @rdname to_list
 #' @export
-to_dfc = function(data, expr = NULL,
+to_dfc = function(data,
+                  expr = NULL,
+                  ...,
                   pb = FALSE,
                   info = NULL,
                   pb_step = 1){

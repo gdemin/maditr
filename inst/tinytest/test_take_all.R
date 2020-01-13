@@ -5,7 +5,7 @@ data(iris)
 data(mtcars)
 dt_iris = as.data.table(iris)
 expect_equal(
-    take_all(iris, if(is.numeric(.x)) mean(.x)),
+    take_all(iris, if(is.numeric(.j)) mean(.j)),
     dt_iris[,lapply(.SD, mean), .SDcols = -5]
 )
 expect_equal(
@@ -21,6 +21,17 @@ expect_equal(
         res
     }
 )
+
+expect_equal(
+    take_all(iris, function(x) 2*mean(x), by = Species, prefix = "mean_"),
+    {
+        res = dt_iris[,lapply(.SD, function(x) 2*mean(x)), by = Species]
+        names(res)[-1] = paste0("mean_", names(res)[-1])
+        res
+    }
+)
+
+
 
 new_names = gsub("\\.", "_", names(iris)[-5])
 

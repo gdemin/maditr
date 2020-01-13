@@ -10,117 +10,17 @@
 \alias{sort_by}
 \title{Modify, aggregate, select or filter data.frame/data.table}
 \usage{
-let_if(
-  data,
-  i,
-  ...,
-  by,
-  keyby,
-  with = TRUE,
-  nomatch = getOption("datatable.nomatch"),
-  mult = "all",
-  roll = FALSE,
-  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE)
-    else c(TRUE, FALSE),
-  which = FALSE,
-  .SDcols,
-  verbose = getOption("datatable.verbose"),
-  allow.cartesian = getOption("datatable.allow.cartesian"),
-  drop = NULL,
-  on = NULL
-)
+let_if(data, i, ..., by, keyby, .SDcols)
 
-take_if(
-  data,
-  i,
-  ...,
-  by,
-  keyby,
-  with = TRUE,
-  nomatch = getOption("datatable.nomatch"),
-  mult = "all",
-  roll = FALSE,
-  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE)
-    else c(TRUE, FALSE),
-  which = FALSE,
-  .SDcols,
-  verbose = getOption("datatable.verbose"),
-  allow.cartesian = getOption("datatable.allow.cartesian"),
-  drop = NULL,
-  on = NULL,
-  autoname = TRUE,
-  fun = NULL
-)
+take_if(data, i, ..., by, keyby, .SDcols, autoname = TRUE, fun = NULL)
 
-take(
-  data,
-  ...,
-  by,
-  keyby,
-  with = TRUE,
-  nomatch = getOption("datatable.nomatch"),
-  mult = "all",
-  roll = FALSE,
-  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE)
-    else c(TRUE, FALSE),
-  which = FALSE,
-  .SDcols,
-  verbose = getOption("datatable.verbose"),
-  allow.cartesian = getOption("datatable.allow.cartesian"),
-  drop = NULL,
-  on = NULL,
-  autoname = TRUE,
-  fun = NULL
-)
+take(data, ..., by, keyby, .SDcols, autoname = TRUE, fun = NULL)
 
-let(
-  data,
-  ...,
-  by,
-  keyby,
-  with = TRUE,
-  nomatch = getOption("datatable.nomatch"),
-  mult = "all",
-  roll = FALSE,
-  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE)
-    else c(TRUE, FALSE),
-  which = FALSE,
-  .SDcols,
-  verbose = getOption("datatable.verbose"),
-  allow.cartesian = getOption("datatable.allow.cartesian"),
-  drop = NULL,
-  on = NULL
-)
+let(data, ..., by, keyby, .SDcols)
 
-\method{let}{default}(
-  data,
-  ...,
-  by,
-  keyby,
-  with = TRUE,
-  nomatch = getOption("datatable.nomatch"),
-  mult = "all",
-  roll = FALSE,
-  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE)
-    else c(TRUE, FALSE),
-  which = FALSE,
-  .SDcols,
-  verbose = getOption("datatable.verbose"),
-  allow.cartesian = getOption("datatable.allow.cartesian"),
-  drop = NULL,
-  on = NULL
-)
+\method{let}{default}(data, ..., by, keyby, .SDcols)
 
-take_all(
-  data,
-  expr,
-  by,
-  keyby,
-  .SDcols,
-  verbose = getOption("datatable.verbose"),
-  prefix = NULL,
-  i
-)
+take_all(data, expr, by, ..., keyby, .SDcols, prefix = NULL, i)
 
 sort_by(data, ..., na.last = FALSE)
 }
@@ -147,36 +47,16 @@ columns of the result, for convenience. It is common practice to use
 'keyby=' routinely when you wish the result to be sorted. For details see
 \link[data.table]{data.table}.}
 
-\item{with}{logical. For details see \link[data.table]{data.table}.}
-
-\item{nomatch}{Same as nomatch in match. For details see
-\link[data.table]{data.table}.}
-
-\item{mult}{For details see \link[data.table]{data.table}.}
-
-\item{roll}{For details see \link[data.table]{data.table}.}
-
-\item{rollends}{For details see \link[data.table]{data.table}.}
-
-\item{which}{For details see \link[data.table]{data.table}.}
-
 \item{.SDcols}{Specifies the columns of x to be included in the special
 symbol .SD which stands for Subset of data.table. May be character column
 names or numeric positions. For details see \link[data.table]{data.table}.}
 
-\item{verbose}{logical. For details see \link[data.table]{data.table}.}
-
-\item{allow.cartesian}{For details see \link[data.table]{data.table}.}
-
-\item{drop}{For details see \link[data.table]{data.table}.}
-
-\item{on}{For details see \link[data.table]{data.table}.}
-
 \item{autoname}{logical. TRUE by default. Should we create names for  unnamed expressions in \code{take}?}
 
-\item{fun}{function which will be applied to all variables in \code{take}. If
-there are no variables in \code{take} then it will be applied to all non-grouping
-variables in the \code{data}.}
+\item{fun}{Deprecated. Use \link{take_all} instead. function which will be
+applied to all variables in \code{take}. If there are no variables in
+\code{take} then it will be applied to all non-grouping variables in the
+\code{data}.}
 
 \item{na.last}{logical. FALSE by default. If TRUE, missing values in the data
 are put last; if FALSE, they are put first.}
