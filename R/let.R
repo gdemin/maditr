@@ -471,13 +471,21 @@ take_all.default = function(data,
 
     # add names from symbols
     if(j_length>1){
+        call_expr = call_expr[-(seq_len(j_length - 1) + 3)]
         for(i in seq_len(j_length)){
             if(names(j_expr)[i]=="" && is.symbol(j_expr[[i]])){
-                names(j_expr)[i] = as.character(j_expr[[i]])
+                if(suffix){
+                    names(j_expr)[i] = paste0("_", as.character(j_expr[[i]]))
+                } else {
+                    names(j_expr)[i] = paste0(as.character(j_expr[[i]]), "_")
+                }
             }
         }
     }
 
+    if(any(c("suffix") %in% names(call_expr))) {
+        call_expr = call_expr[!(names(call_expr) %in% c("suffix"))]
+    }
     #################
     ## naming
     ## suffix = FALSE - prefix, if TRUE it will be suffix
@@ -488,17 +496,12 @@ take_all.default = function(data,
     ## duplicated names will be made unique (??)
 
 
-    if(is.null(prefix)) {
-        name_expr = quote(names(.SD))
-    } else if(is.function(prefix)) {
-        name_expr = substitute(prefix(names(.SD)))
-    } else {
-        name_expr = substitute(paste0(prefix, names(.SD)))
-    }
+
     ### remove prefix argument
 
     ._all_names = names(data)
-    j_expr = lapply(seq_along(j_expr), function(expr){
+    j_expr = lapply(seq_along(j_expr), function(j){
+        expr = j_expr[[j]]
         expr = substitute_symbols(expr, list(
             '.value' = quote(.SD[[.name]]),
             '.j' = quote(.SD[[.name]]),
@@ -511,6 +514,12 @@ take_all.default = function(data,
         } else {
             expr = substitute(lapply(names(.SD), function(.name) expr))
         }
+        curr_name = names(j_expr)[j]
+        if(suffix){
+            name_expr = substitute(paste0(names(.SD), curr_name))
+        } else {
+            name_expr = substitute(paste0(curr_name, names(.SD)))
+        }
         substitute({
             res = expr
             names(res) = name_expr
@@ -519,11 +528,16 @@ take_all.default = function(data,
         })
 
     })
-
+    if(length(j_expr)>1){
+        j_expr = as.call(c(list(quote(c)), j_expr))
+    } else {
+        j_expr = j_expr[[1]]
+    }
     ####
     call_expr = insert_empty_i(call_expr)
     call_expr = add_brackets_to_i(call_expr)
     call_expr[[4]] = j_expr
+    names(call_expr)[4] = ""
     eval.parent(call_expr)
 }
 

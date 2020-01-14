@@ -10,17 +10,17 @@
 \alias{sort_by}
 \title{Modify, aggregate, select or filter data.frame/data.table}
 \usage{
-let_if(data, i, ..., by, keyby, .SDcols)
+let_if(data, i, ..., by, keyby)
 
 take_if(data, i, ..., by, keyby, .SDcols, autoname = TRUE, fun = NULL)
 
 take(data, ..., by, keyby, .SDcols, autoname = TRUE, fun = NULL)
 
-let(data, ..., by, keyby, .SDcols)
+let(data, ..., by, keyby)
 
-\method{let}{default}(data, ..., by, keyby, .SDcols)
+\method{let}{default}(data, ..., by, keyby)
 
-take_all(data, expr, by, ..., keyby, .SDcols, prefix = NULL, i)
+take_all(data, ..., by, keyby, .SDcols, suffix = TRUE, i)
 
 sort_by(data, ..., na.last = FALSE)
 }
