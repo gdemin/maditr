@@ -185,10 +185,12 @@ dt_select.default = function(data, ...){
         data = as.data.table(data)
     }
     var_list = substitute(list(...))
-    var_list = expand_selectors(var_list, colnames(data))
+
     all_indexes = as.list(seq_along(data))
     names(all_indexes) = colnames(data)
-    var_indexes = unique(unlist(eval(var_list, all_indexes, parent.frame())))
+    var_indexes = eval(var_list, all_indexes, parent.frame())
+    var_indexes = expand_selectors(var_indexes, colnames(data))
+    var_indexes = unique(unlist(var_indexes, use.names = FALSE))
     data[, var_indexes, with = FALSE, drop = FALSE]
 }
 

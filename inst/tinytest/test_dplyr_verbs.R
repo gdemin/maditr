@@ -142,6 +142,10 @@ data(iris)
 dt_iris = as.data.table(iris)
 res1 = dt_select(dt_iris, Species, "^Sepal")
 expect_identical(res1, dt_iris[,.(Species, Sepal.Length, Sepal.Width)])
+my_sepal = "^Sepal"
+res1 = dt_select(dt_iris, Species, my_sepal)
+expect_identical(res1, dt_iris[,.(Species, Sepal.Length, Sepal.Width)])
+
 res1 = dt_select(dt_iris, Species, "^.")
 expect_identical(res1, dt_iris[,c(5, 1:4)])
 
