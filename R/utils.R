@@ -44,3 +44,21 @@ add_brackets_to_i = function(expr){
     }
     expr
 }
+
+is_regex = function(txt){
+    startsWith(txt, "^") | endsWith(txt, "$")
+}
+
+# @param lst list or vector
+# @param elem single number of replaced element
+# @param new_elems list or vector which should be inserted
+# substitute_list_elem = function(lst, elem, new_elems){
+#         c(
+#             lst[seq_len(elem - 1)],
+#             new_elems,
+#             lst[-seq_len(elem)]
+#         )
+# }
+
+
+

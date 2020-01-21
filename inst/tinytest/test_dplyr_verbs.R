@@ -5,6 +5,7 @@ data(mtcars)
 cat("\nContext:", "verbs errors", "\n")
 expect_error(dt_arrange(1:5, am))
 expect_error(dt_select(1:5, am))
+expect_error(dt_select(iris, "^aaa"))
 expect_error(dt_mutate(1:5, new := 1))
 expect_error(dt_summarise(1:5, new = mean(mpg)))
 expect_error(dt_summarise_all(1:5, by = cyl))
@@ -136,4 +137,20 @@ res2 = dt_select(mtcars, -(cyl:wt), -am)
 res3 = mt_dt[, -c(2:6, 9), with = FALSE]
 expect_identical(res1, res3)
 expect_identical(res2, res3)
+
+data(iris)
+dt_iris = as.data.table(iris)
+res1 = dt_select(dt_iris, Species, "^Sepal")
+expect_identical(res1, dt_iris[,.(Species, Sepal.Length, Sepal.Width)])
+res1 = dt_select(dt_iris, Species, "^.")
+expect_identical(res1, dt_iris[,c(5, 1:4)])
+
+res1 = dt_select(dt_iris, Species, "^Sepal", "Width$")
+expect_identical(res1, dt_iris[,c(5, 1:2, 4)])
+res1 = dt_select(dt_iris,  "^.+\\.")
+expect_identical(res1, dt_iris[,c(1:4)])
+
+res1 = dt_select(dt_iris,  Species, Species)
+expect_identical(res1, dt_iris[,c(5)])
+
 

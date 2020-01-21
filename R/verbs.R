@@ -185,9 +185,10 @@ dt_select.default = function(data, ...){
         data = as.data.table(data)
     }
     var_list = substitute(list(...))
+    var_list = expand_selectors(var_list, colnames(data))
     all_indexes = as.list(seq_along(data))
     names(all_indexes) = colnames(data)
-    var_indexes = unlist(eval(var_list, all_indexes, parent.frame()))
+    var_indexes = unique(unlist(eval(var_list, all_indexes, parent.frame())))
     data[, var_indexes, with = FALSE, drop = FALSE]
 }
 
@@ -228,3 +229,20 @@ dt_arrange = sort_by
 
 
 
+expand_selectors = function(selected, df_names){
+    to_expand = which(vapply(selected, function(x) is.character(x) && is_regex(x), FUN.VALUE = TRUE))
+    if(length(to_expand)==0) return(selected)
+    expanded = get_names_by_regex(selected[to_expand], df_names)
+    not_found = lengths(expanded)==0
+    any(not_found) && stop(paste("'dt_select' - there are no variables which match regex(-s): ",
+                                 paste(selected[to_expand][not_found], collapse = ", ")
+    )
+    )
+    selected[to_expand] = expanded
+    unlist(selected, recursive = TRUE, use.names = TRUE)
+}
+
+
+get_names_by_regex = function(regex, df_names){
+    lapply(regex, grep, x = df_names, perl = TRUE)
+}
