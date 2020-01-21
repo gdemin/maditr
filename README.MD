@@ -213,7 +213,8 @@ verb - use `by` or `keyby` argument when needed.
 - `dt_summarize` computes summary statistics. Splits the data into subsets, computes summary statistics for each, and returns the result in the "data.table" form.
 - `dt_summarize_all` the same as `dt_summarize` but work over all non-grouping variables.
 - `dt_filter` Selects rows/cases where conditions are true. Rows where the condition evaluates to NA are dropped.
-- `dt_select` Selects column/variables from the data.set.
+- `dt_select` Selects column/variables from the data set. Range of variables are supported, e. g. vs:carb. Characters which start with '^' or end with '$' considered as Perl-style regular expression patterns. For example, '^Petal'
+returns all variables started with 'Petal'. 'Width$' returns all variables which end with 'Width'. Pattern '^.' matches all variables and pattern '^.*my_str' is equivalent to `contains "my_str"`. See examples.
 - `dt_arrange` sorts dataset by variable(-s). Use '-' to sort in desending order. If data is data.table then it modifies in-place.
 
 ```R
@@ -284,6 +285,16 @@ mtcars %>%
 # select
 mtcars %>% dt_select(vs:carb, cyl)
 mtcars %>% dt_select(-am, -cyl)
+
+# regular expression pattern
+dt_select(iris, "^Petal") # variables which start from 'Petal'
+dt_select(iris, "Width$") # variables which end with 'Width'
+# move Species variable to the front
+# pattern "^." matches all variables
+dt_select(iris, Species, "^.")
+# pattern "^.*al" means "contains 'al'"
+dt_select(iris, "^.*al")
+dt_select(iris, 1:4) # numeric indexing - all variables except Species
 
 # sorting
 dt_arrange(mtcars, cyl, disp)

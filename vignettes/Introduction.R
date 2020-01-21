@@ -1,18 +1,18 @@
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #       mtcars %>%
 #          let(mpg_hp = mpg/hp) %>%
 #          take(mean(mpg_hp), by = am)
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #        mtcars %>%
 #           let(new_var = 42,
 #               new_var2 = new_var*hp) %>%
 #           head()
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #      new_var = "my_var"
 #      old_var = "mpg"
 #      mtcars %>%
@@ -29,7 +29,7 @@ knitr::opts_chunk$set(echo = TRUE)
 #      by_var = "vs,am"
 #      take(mtcars, (new_var) := eval(expr), by = by_var)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(maditr)
 
 data(mtcars)
@@ -123,7 +123,7 @@ take(mtcars, (new_var) := eval(var))
 
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 workers = fread("
     name company
     Nick Acme
@@ -141,7 +141,7 @@ positions = fread("
 workers
 positions
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 workers %>% dt_inner_join(positions)
 workers %>% dt_left_join(positions)
 workers %>% dt_right_join(positions)
@@ -151,14 +151,14 @@ workers %>% dt_full_join(positions)
 workers %>% dt_anti_join(positions)
 workers %>% dt_semi_join(positions)
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  workers %>% dt_left_join(positions, by = "name")
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  positions2 = setNames(positions, c("worker", "position")) # rename first column in 'positions'
 #  workers %>% dt_inner_join(positions2, by = c("name" = "worker"))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # examples from 'dplyr'
 # newly created variables are available immediately
 mtcars  %>%
@@ -226,6 +226,16 @@ mtcars %>%
 # select
 mtcars %>% dt_select(vs:carb, cyl)
 mtcars %>% dt_select(-am, -cyl)
+
+# regular expression pattern
+dt_select(iris, "^Petal") # variables which start from 'Petal'
+dt_select(iris, "Width$") # variables which end with 'Width'
+# move Species variable to the front
+# pattern "^." matches all variables
+dt_select(iris, Species, "^.")
+# pattern "^.*al" means "contains 'al'"
+dt_select(iris, "^.*al")
+dt_select(iris, 1:4) # numeric indexing - all variables except Species
 
 # sorting
 dt_arrange(mtcars, cyl, disp)

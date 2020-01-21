@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
 
@@ -268,7 +268,6 @@ code {
 }
 img {
   max-width:100%;
-  height: auto;
 }
 .tabbed-pane {
   padding-top: 12px;
@@ -330,6 +329,7 @@ summary {
   border: none;
   display: inline-block;
   border-radius: 4px;
+  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -341,18 +341,6 @@ summary {
   display: none;
 }
 </style>
-
-<script>
-$(document).ready(function () {
-  window.buildTabsets("TOC");
-});
-
-$(document).ready(function () {
-  $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
-  });
-});
-</script>
 
 <!-- code folding -->
 
@@ -688,7 +676,7 @@ workers %&gt;% dt_inner_join(positions2, by = c(&quot;name&quot; = &quot;worker&
 <li><code>dt_summarize</code> computes summary statistics. Splits the data into subsets, computes summary statistics for each, and returns the result in the “data.table” form.</li>
 <li><code>dt_summarize_all</code> the same as <code>dt_summarize</code> but work over all non-grouping variables.</li>
 <li><code>dt_filter</code> Selects rows/cases where conditions are true. Rows where the condition evaluates to NA are dropped.</li>
-<li><code>dt_select</code> Selects column/variables from the data.set.</li>
+<li><code>dt_select</code> Selects column/variables from the data set. Range of variables are supported, e. g. vs:carb. Characters which start with ‘^’ or end with ‘<span class="math inline">\(' considered as Perl-style regular expression patterns. For example, '^Petal' returns all variables started with 'Petal'. 'Width\)</span>’ returns all variables which end with ‘Width’. Pattern ‘^.’ matches all variables and pattern ’^.*my_str’ is equivalent to <code>contains &quot;my_str&quot;</code>. See examples.</li>
 <li><code>dt_arrange</code> sorts dataset by variable(-s). Use ‘-’ to sort in desending order. If data is data.table then it modifies in-place.</li>
 </ul>
 <p>The same examples with ‘dplyr’-verbs:</p>
@@ -915,6 +903,75 @@ mtcars %&gt;% dt_select(vs:carb, cyl)</code></pre>
 ## 31: 15.0 301.0 335 3.54 3.570 14.60  0    5    8
 ## 32: 21.4 121.0 109 4.11 2.780 18.60  1    4    2
 ##      mpg  disp  hp drat    wt  qsec vs gear carb</code></pre>
+<pre class="r"><code># regular expression pattern
+dt_select(iris, &quot;^Petal&quot;) # variables which start from 'Petal'</code></pre>
+<pre><code>##      Petal.Length Petal.Width
+##   1:          1.4         0.2
+##   2:          1.4         0.2
+##   3:          1.3         0.2
+##   4:          1.5         0.2
+##   5:          1.4         0.2
+##  ---                         
+## 146:          5.2         2.3
+## 147:          5.0         1.9
+## 148:          5.2         2.0
+## 149:          5.4         2.3
+## 150:          5.1         1.8</code></pre>
+<pre class="r"><code>dt_select(iris, &quot;Width$&quot;) # variables which end with 'Width'</code></pre>
+<pre><code>##      Sepal.Width Petal.Width
+##   1:         3.5         0.2
+##   2:         3.0         0.2
+##   3:         3.2         0.2
+##   4:         3.1         0.2
+##   5:         3.6         0.2
+##  ---                        
+## 146:         3.0         2.3
+## 147:         2.5         1.9
+## 148:         3.0         2.0
+## 149:         3.4         2.3
+## 150:         3.0         1.8</code></pre>
+<pre class="r"><code># move Species variable to the front
+# pattern &quot;^.&quot; matches all variables
+dt_select(iris, Species, &quot;^.&quot;)</code></pre>
+<pre><code>##        Species Sepal.Length Sepal.Width Petal.Length Petal.Width
+##   1:    setosa          5.1         3.5          1.4         0.2
+##   2:    setosa          4.9         3.0          1.4         0.2
+##   3:    setosa          4.7         3.2          1.3         0.2
+##   4:    setosa          4.6         3.1          1.5         0.2
+##   5:    setosa          5.0         3.6          1.4         0.2
+##  ---                                                            
+## 146: virginica          6.7         3.0          5.2         2.3
+## 147: virginica          6.3         2.5          5.0         1.9
+## 148: virginica          6.5         3.0          5.2         2.0
+## 149: virginica          6.2         3.4          5.4         2.3
+## 150: virginica          5.9         3.0          5.1         1.8</code></pre>
+<pre class="r"><code># pattern &quot;^.*al&quot; means &quot;contains 'al'&quot;
+dt_select(iris, &quot;^.*al&quot;)</code></pre>
+<pre><code>##      Sepal.Length Sepal.Width Petal.Length Petal.Width
+##   1:          5.1         3.5          1.4         0.2
+##   2:          4.9         3.0          1.4         0.2
+##   3:          4.7         3.2          1.3         0.2
+##   4:          4.6         3.1          1.5         0.2
+##   5:          5.0         3.6          1.4         0.2
+##  ---                                                  
+## 146:          6.7         3.0          5.2         2.3
+## 147:          6.3         2.5          5.0         1.9
+## 148:          6.5         3.0          5.2         2.0
+## 149:          6.2         3.4          5.4         2.3
+## 150:          5.9         3.0          5.1         1.8</code></pre>
+<pre class="r"><code>dt_select(iris, 1:4) # numeric indexing - all variables except Species</code></pre>
+<pre><code>##      Sepal.Length Sepal.Width Petal.Length Petal.Width
+##   1:          5.1         3.5          1.4         0.2
+##   2:          4.9         3.0          1.4         0.2
+##   3:          4.7         3.2          1.3         0.2
+##   4:          4.6         3.1          1.5         0.2
+##   5:          5.0         3.6          1.4         0.2
+##  ---                                                  
+## 146:          6.7         3.0          5.2         2.3
+## 147:          6.3         2.5          5.0         1.9
+## 148:          6.5         3.0          5.2         2.0
+## 149:          6.2         3.4          5.4         2.3
+## 150:          5.9         3.0          5.1         1.8</code></pre>
 <pre class="r"><code># sorting
 dt_arrange(mtcars, cyl, disp)</code></pre>
 <pre><code>##      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
@@ -1005,6 +1062,23 @@ $(document).ready(function () {
 
 
 </script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

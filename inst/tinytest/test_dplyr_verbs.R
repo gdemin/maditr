@@ -157,4 +157,7 @@ expect_identical(res1, dt_iris[,c(1:4)])
 res1 = dt_select(dt_iris,  Species, Species)
 expect_identical(res1, dt_iris[,c(5)])
 
+res1 = dt_select(dt_iris,  "Species")
+expect_identical(res1, dt_iris[,c(5)])
+
 

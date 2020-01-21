@@ -1,3 +1,7 @@
+0.7.1 (2020-01-27)
+================
+* 'dt_select' now can match variables by Perl-style regular expression, e. g. '^Petal' returns all variables which start with 'Petal'.
+
 0.6.3 (2019-12-03)
 ================
 * 'let' and 'take' now generics (issue #8)
