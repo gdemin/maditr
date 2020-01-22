@@ -52,13 +52,22 @@ is_regex = function(txt){
 # @param lst list or vector
 # @param elem single number of replaced element
 # @param new_elems list or vector which should be inserted
-# substitute_list_elem = function(lst, elem, new_elems){
-#         c(
-#             lst[seq_len(elem - 1)],
-#             new_elems,
-#             lst[-seq_len(elem)]
-#         )
-# }
+substitute_list_elem = function(lst, elem, new_elems){
+        c(
+            lst[seq_len(elem - 1)],
+            new_elems,
+            lst[-seq_len(elem)]
+        )
+}
 
-
+# @param lst list or vector
+# @param elem single number of replaced element
+# @param new_elems list or vector which should be inserted
+insert_list_elem_after = function(lst, elem, new_elems){
+    c(
+        lst[seq_len(elem)],
+        new_elems,
+        lst[-seq_len(elem)]
+    )
+}
 

@@ -439,9 +439,9 @@ take_all.default = function(data,
     is.data.frame(data) || stop("'take_all': 'data' should be data.frame or data.table")
     call_expr = sys.call()
     if(!is.data.table(data)){
-        call_expr[[2]] = substitute(as.data.table(data))
+        call_expr[[2]] = substitute(as.data.table(data)) # replace data argument
     }
-    call_expr[[1]] = as.symbol("[")
+    call_expr[[1]] = as.symbol("[") # replace take_all
 
     j_expr = substitute(list(...))
     j_expr = as.list(j_expr)[-1]
@@ -471,7 +471,7 @@ take_all.default = function(data,
 
     # add names from symbols
     if(j_length>1){
-        call_expr = call_expr[-(seq_len(j_length - 1) + 3)]
+        call_expr = call_expr[-(seq_len(j_length - 1) + 3)] # remove ... from call
         for(i in seq_len(j_length)){
             if(names(j_expr)[i]=="" && is.symbol(j_expr[[i]])){
                 if(suffix){
@@ -504,14 +504,18 @@ take_all.default = function(data,
         expr = j_expr[[j]]
         expr = substitute_symbols(expr, list(
             '.value' = quote(.SD[[.name]]),
-            '.j' = quote(.SD[[.name]]),
+            '.x' = quote(.SD[[.name]]),
+            # '.j' = quote(.SD[[.name]]),
             '.index' = quote(match(.name, ._all_names))
         ))
 
         if((is.symbol(expr) && !identical(expr, quote(.name))) ||
            (length(expr)>1 && as.character(expr[[1]]) == "function")){
+            # take_all(data, mean)
+            # take_all(data, function(x) mean(x, na.rm = TRUE))
             expr = substitute(lapply(.SD, expr))
         } else {
+            # take_all(data, mean(.x))
             expr = substitute(lapply(names(.SD), function(.name) expr))
         }
         curr_name = names(j_expr)[j]
@@ -534,7 +538,7 @@ take_all.default = function(data,
         j_expr = j_expr[[1]]
     }
     ####
-    call_expr = insert_empty_i(call_expr)
+    call_expr = insert_list_elem_after(call_expr, 2, substitute(i))
     call_expr = add_brackets_to_i(call_expr)
     call_expr[[4]] = j_expr
     names(call_expr)[4] = ""
