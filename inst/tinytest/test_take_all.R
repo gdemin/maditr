@@ -5,7 +5,7 @@ data(iris)
 data(mtcars)
 dt_iris = as.data.table(iris)
 expect_equal(
-    take_all(iris, if(is.numeric(.j)) mean(.j)),
+    take_all(iris, if(is.numeric(.x)) mean(.x)),
     dt_iris[,lapply(.SD, mean), .SDcols = -5]
 )
 expect_equal(
@@ -14,7 +14,7 @@ expect_equal(
 )
 
 expect_equal(
-    take_all(iris, mean, by = Species, prefix = "mean_"),
+    take_all(iris, mean_ = mean, by = Species, suffix = FALSE),
     {
         res = dt_iris[,lapply(.SD, mean), by = Species]
         names(res)[-1] = paste0("mean_", names(res)[-1])
@@ -23,7 +23,7 @@ expect_equal(
 )
 
 expect_equal(
-    take_all(iris, function(x) 2*mean(x), by = Species, prefix = "mean_"),
+    take_all(iris, mean_ = function(x) 2*mean(x), by = Species, suffix = FALSE),
     {
         res = dt_iris[,lapply(.SD, function(x) 2*mean(x)), by = Species]
         names(res)[-1] = paste0("mean_", names(res)[-1])
@@ -33,28 +33,19 @@ expect_equal(
 
 
 
-new_names = gsub("\\.", "_", names(iris)[-5])
+
 
 expect_equal(
-    take_all(iris, mean, by = Species, prefix = function(x) gsub("\\.", "_", x)),
-    {
-        res = dt_iris[,lapply(.SD, mean), by = Species]
-        names(res)[-1] = new_names
-        res
-    }
-)
-
-expect_equal(
-    take_all(iris, mean, by = Species, prefix = function(x) gsub("\\.", "_", x), i = Species!="setosa"),
+    take_all(iris, "_mean" = mean, by = Species, i = Species!="setosa"),
     {
         res = dt_iris[Species!="setosa", lapply(.SD, mean), by = Species]
-        names(res)[-1] = new_names
+        names(res)[-1] = paste0(names(res)[-1], "_mean")
         res
     }
 )
 
 expect_equal(
-    take_all(iris, mean, by = Species, prefix = "mean_", .SDcols = -(1:2)),
+    take_all(iris, "mean_" = mean, by = Species, suffix = FALSE, .SDcols = -(1:2)),
     {
         res = dt_iris[,lapply(.SD, mean), by = Species, .SDcols = -(1:2)]
         names(res)[-1] = paste0("mean_", names(res)[-1])

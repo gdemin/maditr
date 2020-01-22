@@ -442,7 +442,6 @@ take_all.default = function(data,
         call_expr[[2]] = substitute(as.data.table(data)) # replace data argument
     }
     call_expr[[1]] = as.symbol("[") # replace take_all
-
     j_expr = substitute(list(...))
     j_expr = as.list(j_expr)[-1]
     j_length = length(j_expr)
@@ -453,17 +452,17 @@ take_all.default = function(data,
     if(is.null(names(j_expr))){
         names(j_expr) = rep("", j_length)
     }
-    for(i in seq_len(j_length)){
-        if(is.call(j_expr[[i]]) && identical(j_expr[[i]][[1]], as.symbol(":="))){
-            name_expr = j_expr[[i]][[2]]
-            j_expr[[i]] = j_expr[[i]][[3]]
+    for(k in seq_len(j_length)){
+        if(is.call(j_expr[[k]]) && identical(j_expr[[k]][[1]], as.symbol(":="))){
+            name_expr = j_expr[[k]][[2]]
+            j_expr[[k]] = j_expr[[k]][[3]]
             if(is.call(name_expr)){
-                names(j_expr)[i] = eval.parent(name_expr)
+                names(j_expr)[k] = eval.parent(name_expr)
             } else {
                 if(is.character(name_expr)){
-                    names(j_expr)[i] = name_expr
+                    names(j_expr)[k] = name_expr
                 } else {
-                    names(j_expr)[i] = safe_deparse(name_expr)
+                    names(j_expr)[k] = safe_deparse(name_expr)
                 }
             }
         }
@@ -538,9 +537,9 @@ take_all.default = function(data,
         j_expr = j_expr[[1]]
     }
     ####
-    call_expr = insert_list_elem_after(call_expr, 2, substitute(i))
+    call_expr = insert_empty_i(call_expr)
     call_expr = add_brackets_to_i(call_expr)
-    call_expr[[4]] = j_expr
+    call_expr[[4]] = j_expr # не все старые аругменты удаляет - непонятно, как исправить
     names(call_expr)[4] = ""
     eval.parent(call_expr)
 }
