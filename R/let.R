@@ -433,15 +433,11 @@ take_all.default = function(data,
                             by,
                             keyby,
                             .SDcols,
-                            suffix = TRUE,
+                            suffix = FALSE,
                             i
 ){
     is.data.frame(data) || stop("'take_all': 'data' should be data.frame or data.table")
-    call_expr = sys.call()
-    if(!is.data.table(data)){
-        call_expr[[2]] = substitute(as.data.table(data)) # replace data argument
-    }
-    call_expr[[1]] = as.symbol("[") # replace take_all
+
     j_expr = substitute(list(...))
     j_expr = as.list(j_expr)[-1]
     j_length = length(j_expr)
@@ -470,21 +466,18 @@ take_all.default = function(data,
 
     # add names from symbols
     if(j_length>1){
-        call_expr = call_expr[-(seq_len(j_length - 1) + 3)] # remove ... from call
-        for(i in seq_len(j_length)){
-            if(names(j_expr)[i]=="" && is.symbol(j_expr[[i]])){
+        for(k in seq_len(j_length)){
+            if(names(j_expr)[k]=="" && is.symbol(j_expr[[k]])){
                 if(suffix){
-                    names(j_expr)[i] = paste0("_", as.character(j_expr[[i]]))
+                    names(j_expr)[k] = paste0("_", as.character(j_expr[[k]]))
                 } else {
-                    names(j_expr)[i] = paste0(as.character(j_expr[[i]]), "_")
+                    names(j_expr)[k] = paste0(as.character(j_expr[[k]]), "_")
                 }
             }
         }
     }
 
-    if(any(c("suffix") %in% names(call_expr))) {
-        call_expr = call_expr[!(names(call_expr) %in% c("suffix"))]
-    }
+
     #################
     ## naming
     ## suffix = FALSE - prefix, if TRUE it will be suffix
@@ -493,8 +486,6 @@ take_all.default = function(data,
     ## if multiple symbol expr names will be prefixed/suffixed with this symbol "_"
     ## if complex expr and there is no names then original names will be left as is
     ## duplicated names will be made unique (??)
-
-
 
     ### remove prefix argument
 
@@ -537,11 +528,20 @@ take_all.default = function(data,
         j_expr = j_expr[[1]]
     }
     ####
-    call_expr = insert_empty_i(call_expr)
-    call_expr = add_brackets_to_i(call_expr)
-    call_expr[[4]] = j_expr # не все старые аругменты удаляет - непонятно, как исправить
-    names(call_expr)[4] = ""
-    eval.parent(call_expr)
+
+    if(is.data.table(data)){
+        expr = substitute(data[i, j_expr,
+                               by = by,
+                               keyby = keyby,
+                               .SDcols = .SDcols])
+    } else {
+        expr = substitute(as.data.table(data)[i, j_expr,
+                               by = by,
+                               keyby = keyby,
+                               .SDcols = .SDcols])
+
+    }
+    eval.parent(expr)
 }
 
 

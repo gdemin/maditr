@@ -14,25 +14,49 @@ expect_equal(
 )
 
 expect_equal(
-    take_all(iris, mean_ = mean, by = Species, suffix = FALSE),
+    take_all(dt_iris, mean, sd, by = Species),
+    dt_iris[,c(
+        setNames(
+        lapply(.SD, mean),
+        paste0("mean_", colnames(.SD))
+        ),
+        setNames(
+            lapply(.SD, sd),
+            paste0("sd_", colnames(.SD))
+        )), by = Species]
+)
+
+
+expect_equal(
+    take_all(dt_iris, mean, sd, by = Species, suffix = TRUE),
+    dt_iris[,c(
+        setNames(
+            lapply(.SD, mean),
+            paste0(colnames(.SD), "_mean")
+        ),
+        setNames(
+            lapply(.SD, sd),
+            paste0(colnames(.SD), "_sd")
+        )), by = Species]
+)
+
+expect_equal(
+    take_all(iris, stat_ = mean, by = Species, suffix = FALSE),
     {
         res = dt_iris[,lapply(.SD, mean), by = Species]
-        names(res)[-1] = paste0("mean_", names(res)[-1])
+        names(res)[-1] = paste0("stat_", names(res)[-1])
         res
     }
 )
 
 expect_equal(
-    take_all(iris, mean_ = function(x) 2*mean(x), by = Species, suffix = FALSE),
+    take_all(iris, stat_ = function(x) 2*mean(x), by = Species, suffix = FALSE),
     {
         res = dt_iris[,lapply(.SD, function(x) 2*mean(x)), by = Species]
-        names(res)[-1] = paste0("mean_", names(res)[-1])
+        names(res)[-1] = paste0("stat_", names(res)[-1])
         res
     }
 )
-
-
-
 
 
 expect_equal(
@@ -53,6 +77,11 @@ expect_equal(
     }
 )
 
-expect_error(
-    take_all(iris, mean, by = Species, prefix = function(x) gsub("\\.", "_", x), Species!="setosa")
+expect_equal(
+    take_all(iris, "mean_" = mean, keyby = Species, suffix = FALSE, .SDcols = -(1:2)),
+    {
+        res = dt_iris[,lapply(.SD, mean), keyby = Species, .SDcols = -(1:2)]
+        names(res)[-1] = paste0("mean_", names(res)[-1])
+        res
+    }
 )
