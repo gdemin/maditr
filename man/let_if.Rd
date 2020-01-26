@@ -7,6 +7,7 @@
 \alias{let}
 \alias{let.default}
 \alias{take_all}
+\alias{let_all}
 \alias{sort_by}
 \title{Modify, aggregate, select or filter data.frame/data.table}
 \usage{
@@ -21,6 +22,8 @@ let(data, ..., by, keyby)
 \method{let}{default}(data, ..., by, keyby)
 
 take_all(data, ..., by, keyby, .SDcols, suffix = TRUE, i)
+
+let_all(data, ..., by, keyby, .SDcols, suffix = TRUE, i)
 
 sort_by(data, ..., na.last = FALSE)
 }

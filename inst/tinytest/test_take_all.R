@@ -14,6 +14,11 @@ expect_equal(
 )
 
 expect_equal(
+    take_all(iris, if(is.numeric(.x)) scale(.x)),
+    dt_iris[,lapply(.SD, scale), .SDcols = -5]
+)
+
+expect_equal(
     take_all(dt_iris, mean, sd, by = Species),
     dt_iris[,c(
         setNames(
@@ -83,5 +88,16 @@ expect_equal(
         res = dt_iris[,lapply(.SD, mean), keyby = Species, .SDcols = -(1:2)]
         names(res)[-1] = paste0("mean_", names(res)[-1])
         res
+    }
+)
+
+
+expect_equal(
+    take_all(iris,
+             if(startsWith(.name, "Sepal")) mean(.x),
+             if(startsWith(.name, "Petal")) uniqueN(.x),
+             by = Species),
+    {
+        dt_iris[,lapply(.SD, mean), .SDcols = -5]
     }
 )
