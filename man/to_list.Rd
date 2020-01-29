@@ -13,9 +13,8 @@ to_list(
   expr = NULL,
   ...,
   skip_null = TRUE,
-  pb = FALSE,
-  info = NULL,
-  pb_step = 1
+  trace = FALSE,
+  trace_step = 1L
 )
 
 to_vec(
@@ -23,34 +22,17 @@ to_vec(
   expr = NULL,
   ...,
   skip_null = TRUE,
-  pb = FALSE,
-  info = NULL,
-  pb_step = 1,
+  trace = FALSE,
+  trace_step = 1L,
   recursive = TRUE,
   use.names = TRUE
 )
 
-to_df(
-  data,
-  expr = NULL,
-  ...,
-  pb = FALSE,
-  info = NULL,
-  pb_step = 1,
-  idcol = NULL
-)
+to_df(data, expr = NULL, ..., trace = FALSE, trace_step = 1L, idcol = NULL)
 
-to_dfr(
-  data,
-  expr = NULL,
-  ...,
-  pb = FALSE,
-  info = NULL,
-  pb_step = 1,
-  idcol = NULL
-)
+to_dfr(data, expr = NULL, ..., trace = FALSE, trace_step = 1L, idcol = NULL)
 
-to_dfc(data, expr = NULL, ..., pb = FALSE, info = NULL, pb_step = 1)
+to_dfc(data, expr = NULL, ..., trace = FALSE, trace_step = 1)
 }
 \arguments{
 \item{data}{data.frame/list/vector}

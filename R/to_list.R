@@ -13,78 +13,98 @@ to_list = function(data,
                    expr = NULL,
                    ...,
                    skip_null = TRUE,
-                   pb = FALSE,
-                   info = NULL,
-                   pb_step = 1
-                   ){
-    expr = substitute(expr)
-    (pb && !is.null(info)) && stop("'to_list': both 'pb' and 'info' are set to TRUE. We can show only one of them - progress bar or info.")
-    if(is.null(expr)) return(as.list(data))
-
-    expr = substitute_symbols(expr, list(
-        '.item' = quote(data[[.index]]),
+                   trace = FALSE,
+                   trace_step = 1L
+){
+    expr_expr = substitute(expr)
+    if(is.null(expr_expr)) return(as.list(data))
+    is.numeric(trace_step) || stop("'to_list': non-numeric 'trace_step' argument.")
+    trace_step>=1 || stop("'to_list': 'trace_step' argument should be greater or equal to one.")
+    expr_expr = substitute_symbols(expr_expr, list(
         '.value' = quote(data[[.index]]),
         '.x' = quote(data[[.index]]),
-        '.name' = quote(._names[[.index]]),
-        '.i' = quote(.index)
+        '.name' = quote(._names[[.index]])
     ))
     ._indexes = seq_along(data)
     ._names = names(data)
     names(._indexes) = ._names
     if(is.null(._names)) ._names = rep("", length(data))
 
-    ## progress bar and info
-    info_expr = NULL
-    if(isTRUE(pb)){
+    ## progress bar and trace
+    if(identical(trace, "pb")){
+        # progress bar
         ._data_length = length(data)
         pbar = txtProgressBar(min = 0, max = ._data_length, style = 3)
-        ._counter = 0
         on.exit(close(pbar))
-        # progress bar, step
-        if(pb_step>1){
-            info_expr = quote({
-                if(._counter %% pb_step == 0){
-                    setTxtProgressBar(pbar, min(._counter, ._data_length))
-                }
-                ._counter <<- ._counter + pb_step
-            })
-        } else {
-        # progress bar, unspecified step
-            info_expr = quote({
-                setTxtProgressBar(pbar, min(._counter, ._data_length))
-                ._counter <<- ._counter + 1
-            })
-        }
 
-    }
-    if(!is.null(info)){
-        if(isTRUE(info)){
-        # progress bar, step
-        if(pb_step>1){
-
-        } else {
-            info_expr = quote(cat(Sys.time(), ": ",
-                                  .index, ": ",
-                                  .name, " ",
-                                  if(is.atomic(.item) && length(.item)==1 && object.size(.item)<400) .item,
-                                  "\n", sep = ""))
-        }}
-    }
+        # progress bar
+        trace_expr = quote({
+            setTxtProgressBar(pbar, min(.index, ._data_length))
+        })
 
 
+    } else if(isTRUE(trace)){
+        # info
+        trace_expr = quote(cat(Sys.time(), ": ",
+                               .index, ": ",
+                               .name, " ",
+                               if(is.atomic(.item) && length(.item)==1 && object.size(.item)<400) .item,
+                               "\n", sep = ""))
 
+    } else if(is.null(trace) || isFALSE(trace)){
 
-    if(is.symbol(expr) && !identical(expr, quote(.index))){
-        fun = eval(substitute_symbols(quote(function(.index)
-        {
-            expr(data[[.index]])
-        })),
-        list(expr = expr))
+        # no tracing
+        trace_expr = NULL
+
     } else {
-        fun = eval(substitute_symbols(quote(function(.index) expr), list(expr = expr)))
-
+        # custom tracing
+        trace_expr = trace
     }
-    res = lapply(._indexes, fun)
+
+    if(!is.null(trace_expr)){
+        trace_expr = substitute_symbols(trace_expr, list(
+            '.value' = quote(data[[.index]]),
+            '.x' = quote(data[[.index]]),
+            '.name' = quote(._names[[.index]])
+        ))
+        if(trace_step>1)
+            trace_expr = substitute({
+                if(.index %% trace_step == 0) trace_expr
+            },
+            list(trace_expr = trace_expr, trace_step = trace_step)
+            )
+    }
+    print(trace_expr)
+
+    ### main expression
+    if(is.symbol(expr_expr) ||
+       (length(expr_expr)>1 && identical(as.character(expr_expr[[1]]), "function"))
+       ){
+        if(is.null(trace_expr)){
+            # simple lapply case
+            res = lapply(data, expr, ...)
+        } else {
+            # simple lapply case with trace
+            expr_expr = eval(substitute({function(.index, ...)
+            {
+                trace_expr
+                expr(data[[.index]], ...)
+            }}))
+            res = lapply(._indexes, expr_expr, ...)
+
+        }
+    } else {
+        # expression
+        print(expr_expr)
+        expr_expr = eval(substitute({function(.index, ...)
+        {
+            trace_expr
+            expr_expr
+        }}))
+        res = lapply(._indexes, expr_expr, ...)
+    }
+
+    #######
     if(skip_null){
         nulls = vapply(res, is.null, FUN.VALUE = logical(1), USE.NAMES = FALSE)
         res = res[!nulls]
@@ -98,13 +118,12 @@ to_vec = function(data,
                   expr = NULL,
                   ...,
                   skip_null = TRUE,
-                  pb = FALSE,
-                  info = NULL,
-                  pb_step = 1,
+                  trace = FALSE,
+                  trace_step = 1L,
                   recursive = TRUE,
                   use.names = TRUE){
-     res = eval.parent(substitute(to_list(data, expr, skip_null = skip_null, pb = pb, info = info, pb_step = pb_step)))
-     unlist(res, recursive = recursive, use.names = use.names)
+    res = eval.parent(substitute(to_list(data, expr, ..., skip_null = skip_null, trace = trace, trace_step = trace_step)))
+    unlist(res, recursive = recursive, use.names = use.names)
 
 }
 
@@ -114,11 +133,11 @@ to_vec = function(data,
 to_df = function(data,
                  expr = NULL,
                  ...,
-                 pb = FALSE,
-                 info = NULL,
-                 pb_step = 1,
+                 trace = FALSE,
+                 trace_step = 1L,
                  idcol = NULL){
-    res = eval.parent(substitute(to_list(data, expr, skip_null = TRUE, pb = pb, info = info, pb_step = pb_step)))
+    res = eval.parent(substitute(to_list(data, expr, ..., trace = trace, trace_step = trace_step)))
+    # TODO need to think about assigning id_col for case of reading multiple files
     rbindlist(res, use.names=TRUE, fill=TRUE, idcol = idcol)
 
 }
@@ -132,10 +151,9 @@ to_dfr = to_df
 to_dfc = function(data,
                   expr = NULL,
                   ...,
-                  pb = FALSE,
-                  info = NULL,
-                  pb_step = 1){
-    res = eval.parent(substitute(to_list(data, expr, skip_null = TRUE, pb = pb, info = info, pb_step = pb_step)))
+                  trace = FALSE,
+                  trace_step = 1){
+    res = eval.parent(substitute(to_list(data, expr, ..., trace = trace, trace_step = trace_step)))
     as.data.table(res)
 }
 

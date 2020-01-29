@@ -7,13 +7,13 @@ expect_identical(
 
 data(iris)
 expect_identical(
-    to_list(iris, if(is.numeric(.item)) .item),
+    to_list(iris, if(is.numeric(.value)) .value),
     as.list(iris[1:4])
 )
 
 
 expect_identical(
-    to_list(iris, if(is.numeric(.item)) .item, skip_null = FALSE),
+    to_list(iris, if(is.numeric(.value)) .value, skip_null = FALSE),
     c(as.list(iris[1:4]), list(Species = NULL))
 )
 
@@ -24,12 +24,12 @@ expect_identical(
 )
 
 expect_identical(
-    to_list(iris, if(is.numeric(.item)) mean(.item) else uniqueN(.item)),
+    to_list(iris, if(is.numeric(.value)) mean(.value) else uniqueN(.value)),
     c(as.list(colMeans(iris[1:4])), list(Species = uniqueN(iris$Species)))
 )
 
 expect_identical(
-    to_list(1:5, .i^2 + .index),
+    to_list(1:5, .index^2 + .index),
     as.list((1:5)^2 + 1:5)
 
 )
@@ -40,15 +40,15 @@ expect_identical(
     lapply((1:5)*100, sqrt)
 )
 
-expect_identical(
-    to_list((1:5)*10, .index),
-    as.list(1:5)
+expect_error(
+    to_list((1:5)*10, .index)
 )
 
 expect_identical(
-    to_list((1:5)*10, .i),
+    to_list((1:5)*10, (.index)),
     as.list(1:5)
 )
+
 
 expect_identical(
     to_list((1:5)*10, .name),
@@ -56,20 +56,21 @@ expect_identical(
 )
 
 expect_identical(
-    to_list(iris, if(grepl("Sepal", .name)) .item),
+    to_list(iris, if(grepl("Sepal", .name)) .value),
     as.list(iris[,c("Sepal.Length", "Sepal.Width")])
-
 )
 
+
+########
 cat("\nContext:","to_vec", "\n")
 expect_identical(
-    to_vec(iris, if(is.numeric(.item)) mean(.item) else uniqueN(.item)),
+    to_vec(iris, if(is.numeric(.value)) mean(.value) else uniqueN(.value)),
     c(colMeans(iris[1:4]), Species = uniqueN(iris$Species))
 )
 
 
 expect_identical(
-    to_vec(iris, if(is.numeric(.item)) mean(.item) else uniqueN(.item), use.names = FALSE),
+    to_vec(iris, if(is.numeric(.value)) mean(.value) else uniqueN(.value), use.names = FALSE),
     unname(c(colMeans(iris[1:4]), Species = uniqueN(iris$Species)))
 )
 
