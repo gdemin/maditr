@@ -1,5 +1,3 @@
-
-
 data(mtcars)
 
 cat("\nContext:", "errors", "\n")
@@ -43,14 +41,14 @@ expect_identical(new_dt2, mt_dt2)
 mt_dt = as.data.table(mtcars)
 mt_dt2 = data.table::copy(mt_dt)
 let(mt_dt, filt = am==0)
-let_if(mt_dt, filt, counter = 5)
+let_if(mt_dt, (filt), counter = 5)
 
 
 mt_dt2[, filt:= am==0]
 mt_dt2[(filt), counter :=5]
 
 expect_identical(mt_dt, mt_dt2)
-expect_identical(take_if(mt_dt, filt), mt_dt[filt==TRUE,])
+expect_identical(take_if(mt_dt, (filt)), mt_dt[filt==TRUE,])
 
 ###############
 cat("\nContext:", "take/take_if", "\n")

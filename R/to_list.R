@@ -95,7 +95,6 @@ to_list = function(data,
         }
     } else {
         # expression
-        print(expr_expr)
         expr_expr = eval(substitute({function(.index, ...)
         {
             .res = expr_expr

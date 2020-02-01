@@ -38,12 +38,6 @@ substitute_symbols = function(substitute_result, symbols) {
     eval(bquote(substitute(.(substitute_result), symbols)))
 }
 
-add_brackets_to_i = function(expr){
-    if(!identical(expr[[3]], substitute())){
-        expr[[3]] = bquote((.(expr[[3]])))
-    }
-    expr
-}
 
 is_regex = function(txt){
     startsWith(txt, "^") | endsWith(txt, "$")
