@@ -45,10 +45,10 @@ to_list = function(data,
 
     } else if(isTRUE(trace)){
         # info
-        trace_expr = quote(cat(Sys.time(), ": ",
+        trace_expr = quote(cat(as.character(Sys.time()), " ",
                                .index, ": ",
                                .name, " ",
-                               if(is.atomic(.item) && length(.item)==1 && object.size(.item)<400) .item,
+                               if(is.atomic(.x) && length(.x)==1 && object.size(.x)<400) .x,
                                "\n", sep = ""))
 
     } else if(is.null(trace) || isFALSE(trace)){
@@ -74,7 +74,6 @@ to_list = function(data,
             list(trace_expr = trace_expr, trace_step = trace_step)
             )
     }
-    print(trace_expr)
 
     ### main expression
     if(is.symbol(expr_expr) ||
@@ -87,8 +86,9 @@ to_list = function(data,
             # simple lapply case with trace
             expr_expr = eval(substitute({function(.index, ...)
             {
+                .res = expr(data[[.index]], ...)
                 trace_expr
-                expr(data[[.index]], ...)
+                .res
             }}))
             res = lapply(._indexes, expr_expr, ...)
 
@@ -98,8 +98,9 @@ to_list = function(data,
         print(expr_expr)
         expr_expr = eval(substitute({function(.index, ...)
         {
+            .res = expr_expr
             trace_expr
-            expr_expr
+            .res
         }}))
         res = lapply(._indexes, expr_expr, ...)
     }
