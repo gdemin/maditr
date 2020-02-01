@@ -97,3 +97,60 @@ expect_identical(
     to_dfc(mtcars, c( mean(.x), sd(.x))),
     as.data.table(rbind(colMeans(mtcars), sd = sapply(mtcars, sd)))
 )
+
+
+
+if(getOption("covr", FALSE)){
+    cat("\nContext:","progress_bars", "\n")
+    expect_equal(
+        to_list(1:100, identity, trace = TRUE),
+        as.list(1:100)
+    )
+    expect_equal(
+        to_vec(setNames(1:26, letters), identity, trace = TRUE),
+        setNames(1:26, letters)
+    )
+    expect_equal(
+        to_vec(setNames(1:26, letters), identity, trace = quote(cat("current name:", .name, "\n"))),
+        setNames(1:26, letters)
+    )
+    expect_equal(
+        to_list(1:100, function(x) {
+            Sys.sleep(.01)
+            x^2
+            }, trace = "pb"),
+        as.list((1:100)^2)
+    )
+    expect_equal(
+        to_vec(1:100, function(x) {
+            Sys.sleep(.01)
+            x^2
+        }, trace = "pb", trace_step = 10),
+        ((1:100)^2)
+    )
+    expect_equal(
+        to_vec(1:100, function(x) {
+            Sys.sleep(.01)
+            x^2
+        }, trace = quote(cat(.x, "^ 2 =", .res, "\n")), trace_step = 10),
+        ((1:100)^2)
+    )
+    expect_equal(
+        to_list(1:100, function(x) {
+            Sys.sleep(.01)
+            x^2
+        }, trace = TRUE, trace_step = 10),
+        as.list((1:100)^2)
+    )
+    expect_equal(
+        to_dfc(mtcars, `+`, 1, trace = TRUE),
+        as.data.table(mtcars + 1)
+
+    )
+
+    expect_equal(
+        to_list(iris, grepl, pattern = "versi", trace = "pb"),
+        lapply(iris, grepl, pattern = "versi")
+
+    )
+}
