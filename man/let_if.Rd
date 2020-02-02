@@ -21,9 +21,9 @@ let(data, ..., by, keyby)
 
 \method{let}{default}(data, ..., by, keyby)
 
-take_all(data, ..., by, keyby, .SDcols, suffix = TRUE, i)
+take_all(data, ..., by, keyby, .SDcols, suffix = TRUE, sep = "_", i)
 
-let_all(data, ..., by, keyby, .SDcols, suffix = TRUE, i)
+let_all(data, ..., by, keyby, .SDcols, suffix = TRUE, sep = "_", i)
 
 sort_by(data, ..., na.last = FALSE)
 }

@@ -420,6 +420,7 @@ take_all = function(data,
                     keyby,
                     .SDcols,
                     suffix = TRUE,
+                    sep = "_",
                     i
 ){
     UseMethod("take_all")
@@ -432,10 +433,10 @@ take_all.default = function(data,
                             keyby,
                             .SDcols,
                             suffix = FALSE,
+                            sep = "_",
                             i
 ){
     is.data.frame(data) || stop("'take_all': 'data' should be data.frame or data.table")
-
     j_expr = substitute(list(...))
     j_expr = as.list(j_expr)[-1]
     j_length = length(j_expr)
@@ -466,11 +467,7 @@ take_all.default = function(data,
     if(j_length>1){
         for(k in seq_len(j_length)){
             if(names(j_expr)[k]=="" && is.symbol(j_expr[[k]])){
-                if(suffix){
-                    names(j_expr)[k] = paste0("_", as.character(j_expr[[k]]))
-                } else {
-                    names(j_expr)[k] = paste0(as.character(j_expr[[k]]), "_")
-                }
+                names(j_expr)[k] = as.character(j_expr[[k]])
             }
         }
     }
@@ -485,7 +482,6 @@ take_all.default = function(data,
     ## if complex expr and there is no names then original names will be left as is
     ## duplicated names will be made unique (??)
 
-    ### remove prefix argument
 
     ._all_names = names(data)
     j_expr = lapply(seq_along(j_expr), function(j){
@@ -493,7 +489,6 @@ take_all.default = function(data,
         expr = substitute_symbols(expr, list(
             '.value' = quote(.SD[[.name]]),
             '.x' = quote(.SD[[.name]]),
-            # '.j' = quote(.SD[[.name]]),
             '.index' = quote(match(.name, ._all_names))
         ))
 
@@ -507,10 +502,11 @@ take_all.default = function(data,
             expr = substitute(lapply(names(.SD), function(.name) expr))
         }
         curr_name = names(j_expr)[j]
+        spr = sep # to avoid strange behavior of 'substitute'
         if(suffix){
-            name_expr = substitute(paste0(names(.SD), curr_name))
+            name_expr = substitute(paste(names(.SD), curr_name, sep = spr))
         } else {
-            name_expr = substitute(paste0(curr_name, names(.SD)))
+            name_expr = substitute(paste(curr_name, names(.SD), sep = spr))
         }
         # we need to get something like this:
         # c({
@@ -548,9 +544,9 @@ take_all.default = function(data,
                                .SDcols = .SDcols])
     } else {
         expr = substitute(as.data.table(data)[i, j_expr,
-                               by = by,
-                               keyby = keyby,
-                               .SDcols = .SDcols])
+                                              by = by,
+                                              keyby = keyby,
+                                              .SDcols = .SDcols])
 
     }
     print(expr)
@@ -566,24 +562,26 @@ take_all.default = function(data,
 #' @export
 #' @rdname let_if
 let_all = function(data,
-                    ...,
-                    by,
-                    keyby,
-                    .SDcols,
-                    suffix = TRUE,
-                    i
+                   ...,
+                   by,
+                   keyby,
+                   .SDcols,
+                   suffix = TRUE,
+                   sep = "_",
+                   i
 ){
     UseMethod("let_all")
 }
 
 #' @export
 let_all.default = function(data,
-                            ...,
-                            by,
-                            keyby,
-                            .SDcols,
-                            suffix = FALSE,
-                            i
+                           ...,
+                           by,
+                           keyby,
+                           .SDcols,
+                           suffix = FALSE,
+                           sep = "_",
+                           i
 ){
     is.data.frame(data) || stop("'let_all': 'data' should be data.frame or data.table")
 
@@ -618,11 +616,7 @@ let_all.default = function(data,
     if(j_length>1){
         for(k in seq_len(j_length)){
             if(names(j_expr)[k]=="" && is.symbol(j_expr[[k]])){
-                if(suffix){
-                    names(j_expr)[k] = paste0("_", as.character(j_expr[[k]]))
-                } else {
-                    names(j_expr)[k] = paste0(as.character(j_expr[[k]]), "_")
-                }
+                names(j_expr)[k] = as.character(j_expr[[k]])
             }
         }
     }
@@ -644,9 +638,9 @@ let_all.default = function(data,
                                                  ]))[["._res_names"]]
     ._all_names = lapply(names(j_expr), function(curr_name){
         if(suffix){
-            paste0(._all_names, curr_name)
+            paste(._all_names, curr_name, sep = sep)
         } else {
-            paste0(curr_name, ._all_names)
+            paste(curr_name, ._all_names, sep = sep)
         }
     })
     ._all_names = make.unique(unlist(._all_names, use.names = FALSE, recursive = TRUE))
