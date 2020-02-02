@@ -222,48 +222,31 @@ let_if.data.frame = function(data,
                   by,
                   keyby
 ){
-    is.data.frame(data) || stop("let/let_if: 'data' should be data.frame or data.table")
-    call_expr = sys.call()
-    if(!is.data.table(data)){
-        data = as.data.table(data)
-        call_expr[[2]] = as.symbol("data")
-        curr_eval = eval
-    } else {
-        curr_eval = eval.parent
-    }
-    call_expr[[1]] = as.symbol("[")
-    call_list = as.list(call_expr)
     j_list = as.list(substitute(list(...)))[-1]
     j_length = length(j_list)
     j_length>0 || stop("let/let_if: please, provide at least one expression.")
-    if(is.null(names(j_list))){
-        names(j_list) = rep("", j_length )
-    }
+
     # check for names
     all_names = names(j_list)
-    for(i in seq_along(j_list)){
-        if(all_names[i] == ""){
-            if(!is.call(j_list[[i]]) || !identical(j_list[[i]][[1]], as.symbol(":="))){
-                stop(sprintf("let/let_if: '%s' - incorrect expression. All expressions should be
-                             in the form  'var_name = expression' or 'var_name := expression'.", safe_deparse(j_list[[i]])))
-            }
-        }
+    if(is.null(all_names)){
+        all_names = rep("", j_length)
     }
-    i_position = 3
-    call_list = call_list[-(seq_len(j_length) + i_position)]
-    call_list = c(call_list[1:3], list(NULL), call_list[-(1:i_position)]) # reserve position for j
-    for(i in seq_along(j_list)){
-        if(all_names[i]==""){
-            call_list[[i_position + 1]] = j_list[[i]]
-        } else {
-            curr_name = all_names[i]
-            curr_expr = j_list[[i]]
-            call_list[[i_position + 1]] = substitute(`:=`(curr_name, curr_expr))
-        }
-        call_expr = as.call(call_list)
-        curr_eval(call_expr)
-    }
+    for(each in seq_along(all_names)){
+        (all_names[each] == "") &&
+            !(is.call(j_list[[each]]) && identical(j_list[[each]][[1]], as.symbol(":="))) &&
+            stop(sprintf("let/let_if: '%s' - incorrect expression. All expressions should be
+                             in the form  'var_name = expression' or 'var_name := expression'.", safe_deparse(j_list[[each]])))
 
+        if(all_names[each]!=""){
+            curr_name = all_names[each]
+            curr_expr = j_list[[each]]
+            j_list[[each]] = substitute(`:=`(curr_name, curr_expr))
+        }
+    }
+    ####
+    for(expr in j_list){
+        data = eval(substitute(query_if(data, i, expr, by = by, keyby = keyby), list(expr = expr)))
+    }
     data
 }
 

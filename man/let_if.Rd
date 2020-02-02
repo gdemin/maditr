@@ -19,7 +19,7 @@ take(data, ..., by, keyby, .SDcols, autoname = TRUE, fun = NULL)
 
 let(data, ..., by, keyby)
 
-\method{let}{data.frame}(data, ..., by, keyby)
+\method{let}{data.frame}(data, ..., by, keyby, i)
 
 sort_by(data, ..., na.last = FALSE)
 
