@@ -16,19 +16,19 @@ safe_deparse = function(expr){
     do.call(paste0, as.list(res))
 }
 
-add_names_to_quoted_list = function(expr){
-    expr_list = as.list(expr)
+add_names_to_quoted_list = function(expr_list){
     all_names = names(expr_list)
     if(is.null(all_names)){
         names(expr_list) = c("", vapply(expr_list[-1], safe_deparse, FUN.VALUE = character(1)))
-    } else {
-        for(i in seq_along(expr_list)[-1]){
-            if(all_names[i]==""){
-                names(expr_list)[i] = safe_deparse(expr_list[[i]])
-            }
+        return(expr_list)
+    }
+    for(i in seq_along(expr_list)){
+        if(all_names[i]==""){
+            names(expr_list)[i] = safe_deparse(expr_list[[i]])
         }
     }
-    as.call(expr_list)
+
+    expr_list
 }
 
 
@@ -41,6 +41,44 @@ substitute_symbols = function(substitute_result, symbols) {
 
 is_regex = function(txt){
     startsWith(txt, "^") | endsWith(txt, "$")
+}
+
+# j_expr - list from j-expression
+# envir - environement where we will evaluate lhs of :=
+add_names_from_walrus_assignement = function(j_expr, envir){
+    j_length = length(j_expr)
+    if(is.null(names(j_expr))){
+        names(j_expr) = rep("", j_length)
+    }
+    # parse walrus (a := b) assignement
+    for(k in seq_len(j_length)){
+        if(is.call(j_expr[[k]]) && identical(j_expr[[k]][[1]], as.symbol(":="))){
+            name_expr = j_expr[[k]][[2]]
+            j_expr[[k]] = j_expr[[k]][[3]]
+            if(is.call(name_expr)){
+                names(j_expr)[k] = eval(name_expr, envir = envir)
+            } else {
+                if(is.character(name_expr)){
+                    names(j_expr)[k] = name_expr
+                } else {
+                    names(j_expr)[k] = safe_deparse(name_expr)
+                }
+            }
+        }
+    }
+
+    j_expr
+}
+
+add_names_from_single_symbol = function(j_expr){
+    if(length(j_expr)>1){
+        for(k in seq_along(j_expr)){
+            if(names(j_expr)[k]=="" && is.symbol(j_expr[[k]])){
+                names(j_expr)[k] = as.character(j_expr[[k]])
+            }
+        }
+    }
+    j_expr
 }
 
 # @param lst list or vector
