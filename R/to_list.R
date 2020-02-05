@@ -8,7 +8,41 @@
 #' @export
 #'
 #' @examples
-#' 1
+#' 1:10 %>%
+#'     to_list(rnorm, n = 10) %>%
+#'     to_vec(mean)
+#'
+#' # Or use an anonymous function
+#' 1:10 %>%
+#'     to_list(function(x) rnorm(10, x))
+#'
+#' # Or an expression
+#' 1:10 %>%
+#'     to_list(rnorm(10, .x))
+#'
+#' # Using set_names() with character vectors is handy to keep track
+#' # of the original inputs:
+#' c(foo = "foo", bar = "bar") %>% to_vec(paste0, ":suffix")
+#'
+#'
+#' # A more realistic example: split a data frame into pieces, fit a
+#' # model to each piece, summarise and extract R^2
+#' mtcars %>%
+#'     split(.$cyl) %>%
+#'     to_list(lm(mpg ~ wt, data = .x)) %>%
+#'     to_list(summary) %>%
+#'     to_vec(.x$r.squared)
+#'
+#' # Use map_lgl(), map_dbl(), etc to reduce output to a vector instead
+#' # of a list:
+#' mtcars %>% to_vec(sum)
+#'
+#' # If each element of the output is a data frame, use
+#' # map_dfr to row-bind them together:
+#' mtcars %>%
+#'     split(.$cyl) %>%
+#'     to_list(lm(mpg ~ wt, data = .x)) %>%
+#'     to_dfr(t(as.matrix(coef(.x))))
 to_list = function(data,
                    expr = NULL,
                    ...,
@@ -138,7 +172,11 @@ to_df = function(data,
                  idcol = NULL){
     res = eval.parent(substitute(to_list(data, expr, ..., trace = trace, trace_step = trace_step)))
     # TODO need to think about assigning id_col for case of reading multiple files
-    rbindlist(res, use.names=TRUE, fill=TRUE, idcol = idcol)
+    if(length(res)>1 && !is.list(res[[1]])){
+        as.data.frame(do.call(rbind, res), stringsAsFactors = FALSE, check.names = FALSE)
+    } else  {
+        rbindlist(res, use.names=TRUE, fill=TRUE, idcol = idcol)
+    }
 
 }
 
