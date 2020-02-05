@@ -244,8 +244,12 @@ let_if.data.frame = function(data,
         }
     }
     ####
+    first_expr_part  = as.list(substitute(query_if(data, i, by = by, keyby = keyby)))
+    first_expr_part[[2]] = quote(data)
     for(expr in j_list){
-        data = eval(substitute(query_if(data, i, expr, by = by, keyby = keyby), list(expr = expr)))
+        all_expr = as.call(c(first_expr_part, list(j = expr)))
+        # print(all_expr)
+        data = eval(all_expr)
     }
     data
 }
