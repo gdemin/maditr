@@ -20,10 +20,6 @@
 #' 1:10 %>%
 #'     to_list(rnorm(10, .x))
 #'
-#' # Using set_names() with character vectors is handy to keep track
-#' # of the original inputs:
-#' c(foo = "foo", bar = "bar") %>% to_vec(paste0, ":suffix")
-#'
 #'
 #' # A more realistic example: split a data frame into pieces, fit a
 #' # model to each piece, summarise and extract R^2
@@ -33,9 +29,9 @@
 #'     to_list(summary) %>%
 #'     to_vec(.x$r.squared)
 #'
-#' # Use map_lgl(), map_dbl(), etc to reduce output to a vector instead
+#' # Use to_vec() to reduce output to a vector instead
 #' # of a list:
-#' mtcars %>% to_vec(sum)
+#' mtcars %>% to_vec(mean)
 #'
 #' # If each element of the output is a data frame, use
 #' # map_dfr to row-bind them together:

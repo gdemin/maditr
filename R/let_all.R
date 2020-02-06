@@ -155,16 +155,15 @@ take_all = function(data,
 }
 
 #' @export
-take_all.default = function(data,
-                            ...,
-                            by,
-                            keyby,
-                            .SDcols,
-                            suffix = FALSE,
-                            sep = "_",
-                            i
+take_all.data.frame = function(data,
+                               ...,
+                               by,
+                               keyby,
+                               .SDcols,
+                               suffix = TRUE,
+                               sep = "_",
+                               i
 ){
-    is.data.frame(data) || stop("'take_all': 'data' should be data.frame or data.table")
     j_expr = substitute(list(...))
     j_expr = as.list(j_expr)[-1]
     (length(j_expr) == 0) && stop("'take_all' - missing expressions. You should provide at least one expression.")
@@ -185,12 +184,14 @@ take_all.default = function(data,
 
 
     ._all_names = names(data)
-    j_expr = lapply(seq_along(j_expr), function(j){
+    j_names = names(j_expr)
+    names(j_expr) = NULL
+    for(j in seq_along(j_expr)){
         expr = j_expr[[j]]
         expr = substitute_symbols(expr, list(
             '.value' = quote(.SD[[.name]]),
             '.x' = quote(.SD[[.name]]),
-            '.index' = quote(match(.name, ._all_names))
+            '.index' = substitute(match(.name, ._all_names))
         ))
 
         if((is.symbol(expr) && !identical(expr, quote(.name))) ||
@@ -202,12 +203,17 @@ take_all.default = function(data,
             # take_all(data, mean(.x))
             expr = substitute(lapply(names(.SD), function(.name) expr))
         }
-        curr_name = names(j_expr)[j]
-        if(suffix){
-            name_expr = substitute(paste(names(.SD), curr_name, sep = spr))
+        curr_name = j_names[j]
+        if(curr_name != ""){
+            if(suffix){
+                name_expr = substitute(paste(names(.SD), curr_name, sep = sep))
+            } else {
+                name_expr = substitute(paste(curr_name, names(.SD), sep = sep))
+            }
         } else {
-            name_expr = substitute(paste(curr_name, names(.SD), sep = spr))
+            name_expr = substitute(names(.SD))
         }
+        #########################
         # we need to get something like this:
         # c({
         #     res = lapply(names(.SD), function(.name) if (startsWith(.name,
@@ -222,14 +228,15 @@ take_all.default = function(data,
         #     res = res[lengths(res) > 0]
         #     res
         # })
-        substitute({
+        ##########################
+        j_expr[[j]] = substitute({
             res = expr
             names(res) = name_expr
             res = res[lengths(res)>0]
             res
         })
 
-    })
+    }
     if(length(j_expr)>1){
         j_expr = as.call(c(list(quote(c)), j_expr))
     } else {
@@ -237,19 +244,12 @@ take_all.default = function(data,
     }
     ####
 
-    if(is.data.table(data)){
-        expr = substitute(data[i, j_expr,
+    expr = substitute(query_if(data, i, j_expr,
                                by = by,
                                keyby = keyby,
-                               .SDcols = .SDcols])
-    } else {
-        expr = substitute(as.data.table(data)[i, j_expr,
-                                              by = by,
-                                              keyby = keyby,
-                                              .SDcols = .SDcols])
-
-    }
-    print(expr)
+                               .SDcols = .SDcols)
+    )
+    # print(expr)
     res = eval.parent(expr)
     setnames(res, make.unique(names(res)))
     res
