@@ -244,14 +244,21 @@ let_if.data.frame = function(data,
         }
     }
     ####
-    first_expr_part  = as.list(substitute(query_if(data, i, by = by, keyby = keyby)))
-    first_expr_part[[2]] = quote(data)
-    for(expr in j_list){
-        all_expr = as.call(c(first_expr_part, list(j = expr)))
-        # print(all_expr)
-        data = eval(all_expr)
+    if(is.data.table(data)){
+        first_expr_part = substitute(data)
+    } else {
+        first_expr_part = substitute(as.data.table(data))
     }
-    data
+    curr_expr = substitute(data[i, , by = by, keyby = keyby])
+    curr_expr[[2]] =  first_expr_part
+    curr_expr[[4]] = j_list[[1]]
+    for(expr in j_list[-1]){
+        new_expr = curr_expr
+        new_expr[[2]] = curr_expr
+        new_expr[[4]] = expr
+        curr_expr = new_expr
+    }
+    eval.parent(curr_expr)
 }
 
 #' @rdname let_if
