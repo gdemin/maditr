@@ -309,9 +309,10 @@ query.data.frame = function(data,
                  allow.cartesian = getOption("datatable.allow.cartesian"),   # default: FALSE
                  drop = NULL,
                  on = NULL){
-    call_expr = sys.call()
+    call_expr = as.list(sys.call())
     call_expr[[1]] = as.symbol("query_if")
-    call_expr = insert_empty_i(call_expr)
+    # insert empty i
+    call_expr =  as.call(c(call_expr[1:2], list(substitute()), call_expr[-(1:2)]))
     eval.parent(call_expr)
 }
 

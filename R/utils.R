@@ -1,15 +1,4 @@
-insert_empty_i = function(expr){
-    call_list = as.list(expr)
-    i_position = which(names(call_list) %in% "i")
-    if(length(i_position)>0){
-        call_list =  c(call_list[1:2], call_list[i_position], call_list[-c(1:2, i_position)])
-    } else {
-        call_list =  c(call_list[1:2], list(substitute()), call_list[-(1:2)])
-    }
 
-
-    as.call(call_list)
-}
 
 safe_deparse = function(expr){
     res = deparse(expr, width.cutoff = 500)
