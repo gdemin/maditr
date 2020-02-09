@@ -1,7 +1,13 @@
-#' Title
+#' Apply an expression to each element of a list or vector
 #'
+#' \itemize{
+#' \item{to_list}{ always returns a list, each element of which is the
+#' result of expression \code{expr} to the corresponding element of data. By default NULL's will be removed from the result.
+#'  You can change this behaviour with \code{skip_null} argument.}
+#'
+#' }
 #' @param data data.frame/list/vector
-#' @param expr expression
+#' @param expr expression or function
 #' @param skip_null logical Should we skip NULL's from result? Default is TRUE
 #'
 #' @return list
@@ -9,17 +15,16 @@
 #'
 #' @examples
 #' 1:10 %>%
+#'     to_list(rnorm(10, .x))
+#'
+#' # or in 'lapply' style
+#' 1:10 %>%
 #'     to_list(rnorm, n = 10) %>%
 #'     to_vec(mean)
 #'
-#' # Or use an anonymous function
+#' # or use an anonymous function
 #' 1:10 %>%
 #'     to_list(function(x) rnorm(10, x))
-#'
-#' # Or an expression
-#' 1:10 %>%
-#'     to_list(rnorm(10, .x))
-#'
 #'
 #' # A more realistic example: split a data frame into pieces, fit a
 #' # model to each piece, summarise and extract R^2
@@ -34,11 +39,11 @@
 #' mtcars %>% to_vec(mean)
 #'
 #' # If each element of the output is a data frame, use
-#' # map_dfr to row-bind them together:
+#' # map_df to row-bind them together:
 #' mtcars %>%
 #'     split(.$cyl) %>%
 #'     to_list(lm(mpg ~ wt, data = .x)) %>%
-#'     to_dfr(t(as.matrix(coef(.x))))
+#'     to_df(data.table(cyl = .name, t(coef(.x))))
 to_list = function(data,
                    expr = NULL,
                    ...,
@@ -169,7 +174,7 @@ to_df = function(data,
     res = eval.parent(substitute(to_list(data, expr, ..., trace = trace, trace_step = trace_step)))
     # TODO need to think about assigning id_col for case of reading multiple files
     if(length(res)>1 && !is.list(res[[1]])){
-        as.data.frame(do.call(rbind, res), stringsAsFactors = FALSE, check.names = FALSE)
+        as.data.table(do.call(rbind, res))
     } else  {
         rbindlist(res, use.names=TRUE, fill=TRUE, idcol = idcol)
     }

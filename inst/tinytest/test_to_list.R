@@ -94,13 +94,18 @@ expect_identical(
 )
 
 expect_identical(
+    to_dfr(mtcars, c(num = .index, mean = mean(.x), sd = sd(.x))),
+    data.table(num = as.double(seq_along(mtcars)), mean = colMeans(mtcars), sd = sapply(mtcars, sd))
+)
+
+expect_identical(
     to_dfc(mtcars, c( mean(.x), sd(.x))),
     as.data.table(rbind(colMeans(mtcars), sd = sapply(mtcars, sd)))
 )
 
 
 
-if(getOption("covr", FALSE)){
+if(getOption("covr", TRUE)){
     cat("\nContext:","progress_bars", "\n")
     expect_equal(
         to_list(1:100, identity, trace = TRUE),
@@ -122,10 +127,24 @@ if(getOption("covr", FALSE)){
         as.list((1:100)^2)
     )
     expect_equal(
+        to_list(1:100,{
+            Sys.sleep(.01)
+            .x^2
+        }, trace = "pb"),
+        as.list((1:100)^2)
+    )
+    expect_equal(
         to_vec(1:100, function(x) {
             Sys.sleep(.01)
             x^2
         }, trace = "pb", trace_step = 10),
+        ((1:100)^2)
+    )
+    expect_equal(
+        to_vec(1:100, {
+            Sys.sleep(.01)
+            .x^2
+        }, trace = TRUE, trace_step = 10),
         ((1:100)^2)
     )
     expect_equal(
