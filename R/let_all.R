@@ -15,18 +15,15 @@ let_all = function(data,
 }
 
 #' @export
-let_all.default = function(data,
+let_all.data.frame = function(data,
                            ...,
                            by,
                            keyby,
                            .SDcols,
-                           suffix = FALSE,
+                           suffix = TRUE,
                            sep = "_",
                            i
 ){
-    is.data.frame(data) || stop("'let_all': 'data' should be data.frame or data.table")
-
-
     j_expr = substitute(list(...))
     j_expr = as.list(j_expr)[-1]
     (length(j_expr) == 0) && stop("'let_all' - missing expressions. You should provide at least one expression.")
@@ -35,6 +32,8 @@ let_all.default = function(data,
     j_expr = add_names_from_walrus_assignement(j_expr, envir = parent.frame())
     j_expr = add_names_from_single_symbol(j_expr)
 
+    # magic number which will mark column for deletion
+    TO_DROP = 0.1613655083347111940384
 
     #################
     ## naming
@@ -47,28 +46,29 @@ let_all.default = function(data,
     # we need to know resulting names
     # this is simplest method to escape complexities with by, keyby and SDCols interaction
     one_row = as.data.table(data[1,, drop = FALSE])
-    ._all_names = eval.parent(substitute(one_row[, list(._res_names = names(.SD)),
+    ._orig_names = eval.parent(substitute(one_row[, list(._res_names = names(.SD)),
                                                  by = by,
                                                  keyby = keyby,
                                                  .SDcols = .SDcols
                                                  ]))[["._res_names"]]
     ._all_names = lapply(names(j_expr), function(curr_name){
+        if(curr_name == "") return(._orig_names)
         if(suffix){
-            paste(._all_names, curr_name, sep = sep)
+            paste(._orig_names, curr_name, sep = sep)
         } else {
-            paste(curr_name, ._all_names, sep = sep)
+            paste(curr_name, ._orig_names, sep = sep)
         }
     })
-    ._all_names = make.unique(unlist(._all_names, use.names = FALSE, recursive = TRUE))
+
 
 
     ###
     j_expr = lapply(seq_along(j_expr), function(j){
+        TO_DROP = TO_DROP
         expr = j_expr[[j]]
         expr = substitute_symbols(expr, list(
             '.value' = quote(.SD[[.name]]),
             '.x' = quote(.SD[[.name]]),
-            # '.j' = quote(.SD[[.name]]),
             '.index' = quote(match(.name, ._all_names))
         ))
 
@@ -82,6 +82,7 @@ let_all.default = function(data,
             expr = substitute(lapply(names(.SD), function(.name) expr))
         }
 
+        # for let_all(iris, if(startsWith(.name, "Sepal")) mean(.x), if (startsWith(.name, "Petal")) uniqueN(.x))
         # we need to get something like this:
         # all_names := c({
         #     res = lapply(names(.SD), function(.name) if (startsWith(.name,
@@ -100,18 +101,34 @@ let_all.default = function(data,
         #     }
         #     res
         # })
-        substitute({
-            res = expr
+        if(identical(._all_names[[j]], ._orig_names)){
+            substitute({
+                res = expr
 
-            # if expression return NULL we leave this variable unchanged
-            empty_results = lengths(res)==0
-            if(any(empty_results)){
-                res[empty_results] = .SD[,empty_results, with = FALSE]
-            }
-            res
-        })
+                # if expression return NULL we leave this variable unchanged
+                empty_results = which(vapply(res, is.null, FUN.VALUE = logical(1)))
+                if(length(empty_results)>0){
+                    res[empty_results] = .SD[,empty_results, with = FALSE]
+                }
+                res
+            })
+        } else {
+            substitute({
+                res = expr
+
+                # if expression return NULL we leave this variable unchanged
+                empty_results = which(vapply(res, is.null, FUN.VALUE = logical(1)))
+                if(length(empty_results)>0){
+                    # empty = ""
+                    #class(empty) = "to_drop"
+                    res[empty_results] = TO_DROP
+                }
+                res
+            })
+        }
 
     })
+
     ####
     if(length(j_expr)>1){
         j_expr = as.call(c(list(quote(c)), j_expr))
@@ -119,21 +136,27 @@ let_all.default = function(data,
         j_expr = j_expr[[1]]
     }
     ####
-
+    ._all_names = make.unique(unlist(._all_names, use.names = FALSE, recursive = TRUE))
     if(is.data.table(data)){
-        expr = substitute(data[i, ._all_names := j_expr,
+        expr = substitute(data[i, (._all_names) := j_expr,
                                by = by,
                                keyby = keyby,
                                .SDcols = .SDcols])
     } else {
-        expr = substitute(as.data.table(data)[i, ._all_names := j_expr,
+        expr = substitute(as.data.table(data)[i, (._all_names) := j_expr,
                                               by = by,
                                               keyby = keyby,
                                               .SDcols = .SDcols])
 
     }
     print(expr)
-    eval.parent(expr)
+    res = eval.parent(expr)
+    to_drop = numeric(0)
+    to_drop = which(vapply(seq_along(res), function(i) identical(res[[i]][1], TO_DROP), FUN.VALUE = logical(1)))
+    if(length(to_drop)>0){
+        res[,(to_drop):=NULL]
+    }
+    res
 }
 
 
@@ -232,7 +255,8 @@ take_all.data.frame = function(data,
         j_expr[[j]] = substitute({
             res = expr
             names(res) = name_expr
-            res = res[lengths(res)>0]
+            empty_results = which(vapply(res, is.null, FUN.VALUE = logical(1)))
+            if(length(empty_results)>0) res[,(empty_results):=NULL]
             res
         })
 
