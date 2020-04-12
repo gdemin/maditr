@@ -32,8 +32,7 @@ let_all.data.frame = function(data,
     j_expr = add_names_from_walrus_assignement(j_expr, envir = parent.frame())
     j_expr = add_names_from_single_symbol(j_expr)
 
-    # magic number which will mark column for deletion
-    TO_DROP = 0.1613655083347111940384
+
 
     #################
     ## naming
@@ -51,7 +50,9 @@ let_all.data.frame = function(data,
                                                  keyby = keyby,
                                                  .SDcols = .SDcols
                                                  ]))[["._res_names"]]
-    ._all_names = lapply(names(j_expr), function(curr_name){
+    j_expr_names = names(j_expr)
+    j_expr_names[!(j_expr_names %in% "")] = make.unique(j_expr_names[!(j_expr_names %in% "")])
+    ._all_names = lapply(j_expr_names, function(curr_name){
         if(curr_name == "") return(._orig_names)
         if(suffix){
             paste(._orig_names, curr_name, sep = sep)
@@ -61,11 +62,15 @@ let_all.data.frame = function(data,
     })
 
 
-
+    to_drop = new.env()
     ###
-    j_expr = lapply(seq_along(j_expr), function(j){
-        TO_DROP = TO_DROP
-        expr = j_expr[[j]]
+    j_expr = lapply(seq_along(j_expr), function(._j_expr_index){
+        # for further substitution
+        ._all_names = ._all_names
+        to_drop = to_drop
+        ._j_expr_index_internal = ._j_expr_index
+        ####################
+        expr = j_expr[[._j_expr_index]]
         expr = substitute_symbols(expr, list(
             '.value' = quote(.SD[[.name]]),
             '.x' = quote(.SD[[.name]]),
@@ -101,7 +106,7 @@ let_all.data.frame = function(data,
         #     }
         #     res
         # })
-        if(identical(._all_names[[j]], ._orig_names)){
+        if(identical(._all_names[[._j_expr_index]], ._orig_names)){
             substitute({
                 res = expr
 
@@ -121,7 +126,8 @@ let_all.data.frame = function(data,
                 if(length(empty_results)>0){
                     # empty = ""
                     #class(empty) = "to_drop"
-                    res[empty_results] = TO_DROP
+                    res[empty_results] = NA
+                    lapply(._all_names[[._j_expr_index_internal]][empty_results], assign, value = NA, envir = to_drop)
                 }
                 res
             })
@@ -151,10 +157,8 @@ let_all.data.frame = function(data,
     }
     print(expr)
     res = eval.parent(expr)
-    to_drop = numeric(0)
-    to_drop = which(vapply(seq_along(res), function(i) identical(res[[i]][1], TO_DROP), FUN.VALUE = logical(1)))
     if(length(to_drop)>0){
-        res[,(to_drop):=NULL]
+        res[,(names(to_drop)):=NULL]
     }
     res
 }
