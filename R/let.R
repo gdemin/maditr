@@ -402,11 +402,9 @@ sort_by = function(data, ..., na.last = FALSE){
 #' @export
 sort_by.data.frame = function(data, ..., na.last = FALSE){
     if(!is.data.table(data)){
-        data = as.data.table(data)
-        setorder(data, ..., na.last = na.last)
+        eval.parent(substitute(setorder(as.data.table(data), ..., na.last = na.last)))
     } else {
         eval.parent(substitute(setorder(data, ..., na.last = na.last)))
     }
-    data
 }
 
