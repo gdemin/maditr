@@ -1,21 +1,55 @@
 cat("\nContext:","let_all", "\n")
 
+scale2 = function(x) c(scale(x))
 data(iris)
 data(mtcars)
 dt_iris = as.data.table(iris)
 expect_equal(
-    let_all(iris, if(is.numeric(.x)) scale(.x)),
-    dt_iris[, names(dt_iris[,-5]) := lapply(.SD, scale), .SDcols = -5]
+    let_all(iris, if(is.numeric(.x)) scale2(.x)),
+    dt_iris[, names(dt_iris[,-5]) := lapply(.SD, scale2), .SDcols = -5]
 )
 dt_iris = as.data.table(iris)
 expect_equal(
-    let_all(iris, scaled = if(is.numeric(.x)) scale(.x)),
-    dt_iris[, paste0(names(dt_iris[,-5]), "_scaled") := lapply(.SD, scale), .SDcols = -5]
+    let_all(iris, scaled = if(is.numeric(.x)) scale2(.x)),
+    dt_iris[, paste0(names(dt_iris[,-5]), "_scaled") := lapply(.SD, scale2), .SDcols = -5]
 )
 dt_iris = as.data.table(iris)
 expect_equal(
-    let_all(iris[FALSE, ], scaled = if(is.numeric(.x)) scale(.x)),
-    dt_iris[FALSE, ][,paste0(names(dt_iris[,-5]), "_scaled") := lapply(.SD, scale), .SDcols = -5]
+    let_all(iris, scaled = if(is.numeric(.x)) c(scale2(.x)), by = Species),
+    dt_iris[, paste0(names(dt_iris[,-5]), "_scaled") := lapply(.SD, function(x) c(scale2(x))), by = Species]
+)
+dt_iris = as.data.table(iris)
+res = dt_iris[, paste0(names(dt_iris[,-5]), "_scaled") := lapply(.SD, function(x) c(scale2(x))), by = Species]
+dt_iris = as.data.table(iris)
+expect_equal(
+    let_all(dt_iris, scaled = if(is.numeric(.x)) c(scale2(.x)), by = Species),
+    res
+)
+dt_iris = as.data.table(iris)
+expect_equal(
+    let_all(iris[FALSE, ], scaled = if(is.numeric(.x)) scale2(.x)),
+    dt_iris[FALSE, ][,paste0(names(dt_iris[,-5]), "_scaled") := lapply(.SD, scale2), .SDcols = -5]
+)
+dt_iris = as.data.table(iris)
+expect_equal(
+    let_all(iris, scaled = if(is.numeric(.x)) scale2(.x), uniqueN, by = Species),
+    dt_iris[, c(paste0(names(dt_iris[,-5]), "_scaled"), paste0(names(dt_iris[,-5]), "_uniqueN")) := c(lapply(.SD, scale2), lapply(.SD, uniqueN)),
+            by = Species]
+)
+dt_iris = as.data.table(iris)
+expect_equal(
+    let_all(dt_iris, scaled = if(is.numeric(.x)) scale2(.x), uniqueN, by = Species),
+    dt_iris
+)
+dt_iris = as.data.table(iris)
+expect_equal(
+    let_all(iris, scaled = if(is.numeric(.x)) scale2(.x), uniqueN),
+    dt_iris[, c(paste0(names(dt_iris[,-5]), "_scaled"), paste0(names(dt_iris), "_uniqueN")) := c(lapply(.SD[,-5], scale2), lapply(.SD, uniqueN))]
+)
+dt_iris = as.data.table(iris)
+expect_equal(
+    let_all(iris, scaled = if(is.numeric(.x)) scale2(.x), i = FALSE),
+    dt_iris[FALSE, paste0(names(dt_iris[,-5]), "_scaled") := lapply(.SD, scale2), .SDcols = -5]
 )
 dt_iris = as.data.table(iris)
 expect_equal(

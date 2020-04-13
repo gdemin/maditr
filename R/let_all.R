@@ -66,9 +66,7 @@ let_all.data.frame = function(data,
     ###
     j_expr = lapply(seq_along(j_expr), function(._j_expr_index){
         # for further substitution
-        ._all_names = ._all_names
         to_drop = to_drop
-        ._j_expr_index_internal = ._j_expr_index
         ####################
         expr = j_expr[[._j_expr_index]]
         expr = substitute_symbols(expr, list(
@@ -77,61 +75,42 @@ let_all.data.frame = function(data,
             '.index' = quote(match(.name, ._all_names))
         ))
 
+        # let_all(data, scale)
+        # let_all(data, function(x) scale(x))
         if((is.symbol(expr) && !identical(expr, quote(.name))) ||
            (length(expr)>1 && as.character(expr[[1]]) == "function")){
-            # let_all(data, scale)
-            # let_all(data, function(x) scale(x))
-            expr = substitute(lapply(.SD, expr))
-        } else {
-            # let_all(data, scale(.x))
-            expr = substitute(lapply(names(.SD), function(.name) expr))
+            return(
+                substitute(lapply(.SD, expr))
+            )
         }
 
-        # for let_all(iris, if(startsWith(.name, "Sepal")) mean(.x), if (startsWith(.name, "Petal")) uniqueN(.x))
-        # we need to get something like this:
-        # all_names := c({
-        #     res = lapply(names(.SD), function(.name) if (startsWith(.name,
-        #                                                             "Sepal")) mean(.SD[[.name]]))
-        #     empty_results = lengths(res)==0
-        #     if(any(empty_results)){
-        #         res[empty_results] = .SD[empty_results]
-        #     }
-        #     res
-        # }, {
-        #     res = lapply(names(.SD), function(.name) if (startsWith(.name,
-        #                                                             "Petal")) uniqueN(.SD[[.name]]))
-        #     empty_results = lengths(res)==0
-        #     if(any(empty_results)){
-        #         res[empty_results] = .SD[empty_results]
-        #     }
-        #     res
-        # })
+        # let_all(data, scale(.x))
         if(identical(._all_names[[._j_expr_index]], ._orig_names)){
-            substitute({
-                res = expr
-
-                # if expression return NULL we leave this variable unchanged
-                empty_results = which(vapply(res, is.null, FUN.VALUE = logical(1)))
-                if(length(empty_results)>0){
-                    res[empty_results] = .SD[,empty_results, with = FALSE]
-                }
-                res
-            })
-        } else {
-            substitute({
-                res = expr
-
-                # if expression return NULL we leave this variable unchanged
-                empty_results = which(vapply(res, is.null, FUN.VALUE = logical(1)))
-                if(length(empty_results)>0){
-                    # empty = ""
-                    #class(empty) = "to_drop"
-                    res[empty_results] = NA
-                    lapply(._all_names[[._j_expr_index_internal]][empty_results], assign, value = NA, envir = to_drop)
-                }
-                res
-            })
+            res = substitute(
+                lapply(names(.SD), function(.name){
+                    res = expr
+                    # if expression returns NULL we leave this variable unchanged
+                    if(is.null(res)) return(.SD[[.name]])
+                    res
+                })
+            )
+            return(res)
         }
+
+        ##################
+        ._new_names = setNames(._all_names[[._j_expr_index]], ._orig_names)
+        # let_all(data, my_new_name = scale(.x))
+        substitute(
+            lapply(names(.SD), function(.name){
+                res = expr
+                # if expression returns NULL we should skip this variable
+                if(is.null(res)){
+                    lapply(._new_names[.name], assign, value = NA, envir = to_drop)
+                    return(NA)
+                }
+                res
+            })
+        )
 
     })
 
@@ -142,7 +121,7 @@ let_all.data.frame = function(data,
         j_expr = j_expr[[1]]
     }
     ####
-    ._all_names = make.unique(unlist(._all_names, use.names = FALSE, recursive = TRUE))
+    ._all_names = unlist(._all_names, recursive = TRUE, use.names = FALSE)
     if(is.data.table(data)){
         expr = substitute(data[i, (._all_names) := j_expr,
                                by = by,
@@ -155,7 +134,6 @@ let_all.data.frame = function(data,
                                               .SDcols = .SDcols])
 
     }
-    print(expr)
     res = eval.parent(expr)
     if(length(to_drop)>0){
         res[,(names(to_drop)):=NULL]
@@ -259,9 +237,8 @@ take_all.data.frame = function(data,
         j_expr[[j]] = substitute({
             res = expr
             names(res) = name_expr
-            empty_results = which(vapply(res, is.null, FUN.VALUE = logical(1)))
-            if(length(empty_results)>0) res[,(empty_results):=NULL]
-            res
+            not_empty = which(!vapply(res, is.null, FUN.VALUE = logical(1)))
+            res[not_empty]
         })
 
     }
