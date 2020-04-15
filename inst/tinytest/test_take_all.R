@@ -152,3 +152,35 @@ expect_equal(
     }
 )
 
+data(iris)
+dt_iris = as.data.table(iris)
+my_fun = function(x){
+    if(is.numeric(x)){
+        mean(x)
+    } else {
+        NULL
+    }
+}
+
+expect_equal(
+    take_all(iris, mean = my_fun),
+    dt_iris[,setNames(lapply(.SD, mean), paste0(names(dt_iris)[-5], "_mean")), .SDcols = -"Species"]
+)
+
+dt_iris = as.data.table(iris)
+expect_equal(
+    take_all(iris, mean = function(x){
+        if(is.numeric(x)){
+            mean(x)
+        } else {
+            NULL
+        }
+    }),
+    dt_iris[,setNames(lapply(.SD, mean), paste0(names(dt_iris)[-5], "_mean")), .SDcols = -"Species"]
+)
+
+dt_iris = as.data.table(iris)
+expect_equal(
+    take_all(iris, mean = mean, .SDcols = -"Species"),
+    dt_iris[,setNames(lapply(.SD, mean), paste0(names(dt_iris)[-5], "_mean")), .SDcols = -"Species"]
+)
