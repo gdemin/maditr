@@ -12,9 +12,9 @@ Package provides pipe-style interface for [data.table](https://cran.r-project.or
 - To select rows from data: `take_if(mtcars, am==0)`
 - To select columns from data: `take(mtcars, am, vs, mpg)`
 - To aggregate data: `take(mtcars, mean_mpg = mean(mpg), by = am)`
-- To aggregate all non-grouping columns: `take(mtcars, fun = mean, by = am)`
+- To aggregate all non-grouping columns: `take_all(mtcars, mean, by = am)`
 - To aggregate several columns with one summary: `take(mtcars, mpg, hp, fun = mean, by = am)`
-- To get total summary skip `by` argument: `take(mtcars, fun = mean)`
+- To get total summary skip `by` argument: `take_all(mtcars, mean)`
 - Use magrittr pipe `%>%` to chain several operations: 
 ```R
      mtcars %>%
@@ -26,9 +26,26 @@ Package provides pipe-style interface for [data.table](https://cran.r-project.or
       mtcars %>%
          let(new_var = 42,
              new_var2 = new_var*hp) %>%
-          head()
+         head()
 ```          
 - To drop variable assign NULL: `let(mtcars, am = NULL) %>% head()`
+- To modify all non-grouping variables:
+```R
+    iris %>%
+      let_all(
+          scaled = (.x - mean(.x))/sd(.x),
+          by = Species) %>%
+       head()
+``` 
+- To aggregate all variables conditionally on name:
+```R
+    iris %>%
+      take_all(
+          mean = if(startsWith(.name, "Sepal")) mean(.x),
+          median = if(startsWith(.name, "Petal")) median(.x),
+          by = Species
+      )
+```
 - For parametric assignment use `:=`: 
 ```R
     new_var = "my_var"
@@ -46,7 +63,7 @@ Package provides pipe-style interface for [data.table](https://cran.r-project.or
     # the same with `take` 
     by_var = "vs,am"
     take(mtcars, (new_var) := eval(expr), by = by_var)
-```         
+```      
 
 `query_if` function translates its arguments one-to-one to `[.data.table` method. Additionally there are some conveniences such as automatic `data.frame` conversion to `data.table`.
 
@@ -104,7 +121,8 @@ mtcars %>%
 
 # keeps only the variables you create
 mtcars %>%
-    take(displ_l = disp / 61.0237)
+    take(displ_l = disp / 61.0237) %>% 
+    head()
 
 
 # can refer to both contextual variables and variable names:
@@ -115,7 +133,8 @@ mtcars %>%
 
 # filter by condition
 mtcars %>%
-    take_if(am==0)
+    take_if(am==0) %>% 
+    head()
 
 # filter by compound condition
 mtcars %>%
@@ -133,12 +152,52 @@ mtcars %>%
 # grouping by multiple variables
 mtcars %>%
     take(mean = mean(disp), n = .N, by = list(am, vs))
-    
+
 # You can group by expressions:
 mtcars %>%
-    take(
-        fun = mean,
+    take_all(
+        mean,
         by = list(vsam = vs + am)
+    )
+
+# modify all non-grouping variables in-place
+mtcars %>%
+    let_all((.x - mean(.x))/sd(.x), by = am) %>%
+    head()
+
+# modify all non-grouping variables to new variables
+mtcars %>%
+    let_all(scaled = (.x - mean(.x))/sd(.x), by = am) %>%
+    head()
+
+# conditionally modify all variables
+iris %>%
+    let_all(mean = if(is.numeric(.x)) mean(.x)) %>%
+    head()
+
+# modify all variables conditionally on name
+iris %>%
+    let_all(
+        mean = if(startsWith(.name, "Sepal")) mean(.x),
+        median = if(startsWith(.name, "Petal")) median(.x),
+        by = Species
+    ) %>%
+    head()
+
+# aggregation with 'take_all'
+mtcars %>%
+    take_all(mean = mean(.x), sd = sd(.x), n = .N, by = am)
+
+# conditionally aggregate all variables
+iris %>%
+    take_all(mean = if(is.numeric(.x)) mean(.x))
+
+# aggregate all variables conditionally on name
+iris %>%
+    take_all(
+        mean = if(startsWith(.name, "Sepal")) mean(.x),
+        median = if(startsWith(.name, "Petal")) median(.x),
+        by = Species
     )
 
 # parametric evaluation:
