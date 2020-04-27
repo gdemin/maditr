@@ -228,7 +228,7 @@ to_df = function(data,
     )
     for(i in seq_along(res)){
         if(!is.null(res[[i]]) && !is.list(res[[i]])){
-            res[[i]] = as.list(res[[i]])
+            res[[i]] = as.data.table(as.list(res[[i]]))
         }
     }
     idvalue_expr = substitute(idvalue)

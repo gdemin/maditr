@@ -83,6 +83,11 @@ expect_identical(
 cat("\nContext:","to_df", "\n")
 
 data("mtcars")
+
+expect_identical(
+    to_df(list(1:2, 2:3, 3:4)),
+    data.table(V1 = 1:3, V2 = 2:4)
+)
 expect_identical(
     to_df(mtcars, list(var = .name, mean = mean(.x), sd = sd(.x))),
     data.table(var = names(mtcars), mean = colMeans(mtcars), sd = sapply(mtcars, sd))
