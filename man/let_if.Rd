@@ -40,7 +40,10 @@ functions. The name will be the name of the variable in the result. In the
 b} notation. Advantages of \code{:=} is parametric assignment, e. g.
 \code{(a) := 2} create variable with name which are stored in \code{a}. In
 \code{let} \code{:=} can be used for multiassignment (\code{c("a", "b")  :=
-list(1,2)})}
+list(1,2)}). Expression in the 'take_all' and 'let_all' can use predefined
+variables: '.x' is a value of current variable, '.name' is a name of
+the variable and '.index' is sequential number of the variable. '.value' is
+is an alias to '.x'.}
 
 \item{by}{unquoted name of grouping variable of list of unquoted names of
 grouping variables. For details see \link[data.table]{data.table}}
@@ -56,28 +59,52 @@ names or numeric positions. For details see \link[data.table]{data.table}.}
 
 \item{autoname}{logical. TRUE by default. Should we create names for  unnamed expressions in \code{take}?}
 
-\item{fun}{Deprecated. Use \link{take_all} instead. function which will be
-applied to all variables in \code{take}. If there are no variables in
-\code{take} then it will be applied to all non-grouping variables in the
-\code{data}.}
+\item{fun}{Function which will be applied to all variables in \code{take}. If
+there are no variables in \code{take} then it will be applied to all
+non-grouping variables in the \code{data}.}
 
 \item{na.last}{logical. FALSE by default. If TRUE, missing values in the data
 are put last; if FALSE, they are put first.}
+
+\item{suffix}{logical TRUE by default. For 'let_all'/'take_all'. If TRUE than
+we append summary name to the end of the variable name. If FALSE summary
+name will be added at the begining of the variable name.}
+
+\item{sep}{character. "_" by default. Separator between the old variables
+name and prefix or suffix for 'let_all' and 'take_all'.}
 }
 \value{
 data.table. \code{let} returns its result invisibly.
 }
 \description{
-\code{let} adds new variables or modify existing variables. \code{let_if}
-make the same thing conditionally. \code{take} aggregates data or select
-subset of the data by rows or columns. Both functions return
-\code{data.table}.
+\itemize{
+\item{let}{ adds new variables or modify existing variables. 'let_if' make
+the same thing on the subset of rows.}
+\item{take/take_if}{ aggregates data or select subset of the data by rows or
+columns.}
+\item{let_all}{ apply expressions to all variables in the dataset. It is also
+possible to modify the subset of the variables.}
+\item{take_all}{ aggregate all variables in the dataset. It is also possible
+to aggregate the subset of the variables.}
+}
+All functions return \code{data.table}. Expression in the 'take_all' and
+'let_all' can use predefined variables: '.x' is a value of current variable ,
+'.name' is a name of the variable and '.index' is sequential number of the
+variable. '.value' is is an alias to '.x'.
 \itemize{
 \item{Add new variables: }{\code{let(mtcars, new_var = 42, new_var2 = new_var*hp)}}
 \item{Filter data: }{\code{take_if(mtcars, am==0)}}
 \item{Select variables: }{\code{take(mtcars, am, vs, mpg)}}
 \item{Aggregate data: }{\code{take(mtcars, mean_mpg = mean(mpg), by = am)}}
-\item{Aggregate all non-grouping columns: }{\code{take(mtcars, fun = mean, by = am)}}
+\item{Aggregate all non-grouping columns: }{\code{take_all(mtcars, mean = mean(.x), sd = sd(.x), n = .N, by = am)}}
+\item{Aggregate all numeric columns: }{\code{take_all(iris, if(is.numeric(.x)) mean(.x))}}
+\item{To modify all non-grouping variables: }{\preformatted{
+      iris \%>\%
+         let_all(
+             scaled = (.x - mean(.x))/sd(.x),
+             by = Species) \%>\%
+          head()}}
+\item{Aggregate specific columns: }{\code{take_all(iris, if(startsWith(.name, "Sepal")) mean(.x))}}
 }
 }
 \examples{
@@ -144,8 +171,47 @@ mtcars \%>\%
 
 # You can group by expressions:
 mtcars \%>\%
-    take(fun = mean, by = list(vsam = vs + am))
+    take_all(mean, by = list(vsam = vs + am))
 
+# modify all non-grouping variables in-place
+mtcars \%>\%
+    let_all((.x - mean(.x))/sd(.x), by = am) \%>\%
+    head()
+
+# modify all non-grouping variables to new variables
+mtcars \%>\%
+    let_all(scaled = (.x - mean(.x))/sd(.x), by = am) \%>\%
+    head()
+
+# conditionally modify all variables
+iris \%>\%
+    let_all(mean = if(is.numeric(.x)) mean(.x)) \%>\%
+    head()
+
+# modify all variables conditionally on name
+iris \%>\%
+    let_all(
+        mean = if(startsWith(.name, "Sepal")) mean(.x),
+        median = if(startsWith(.name, "Petal")) median(.x),
+        by = Species
+    ) \%>\%
+    head()
+
+# aggregation with 'take_all'
+mtcars \%>\%
+    take_all(mean = mean(.x), sd = sd(.x), n = .N, by = am)
+
+# conditionally aggregate all variables
+iris \%>\%
+    take_all(mean = if(is.numeric(.x)) mean(.x))
+
+# aggregate all variables conditionally on name
+iris \%>\%
+    take_all(
+        mean = if(startsWith(.name, "Sepal")) mean(.x),
+        median = if(startsWith(.name, "Petal")) median(.x),
+        by = Species
+    )
 
 # parametric evaluation:
 var = quote(mean(cyl))
@@ -196,7 +262,6 @@ take(dat, sum(v), keyby = x)          # same, but order the result on by cols
 
 # all together now
 take_if(dat, x!="a", sum(v), by=x)                       # get sum(v) by "x" for each x != "a"
-take_if(dat, c("b", "c"), sum(v), by = .EACHI, on="x")   # same
 
 # more on special symbols, see also ?"data.table::special-symbols"
 take_if(dat, .N)                           # last row
@@ -225,7 +290,7 @@ dat = data.table(x=rep(c("b","a","c"), each=3),
 
 take(dat, sum(v), by=list(y\%\%2))              # expressions in by
 take(dat, sum(v), by=list(bool = y\%\%2))       # same, using a named list to change by column name
-take(dat, fun = sum, by=x)                    # sum of all (other) columns for each group
+take_all(dat, sum, by=x)                      # sum of all (other) columns for each group
 take(dat,
      MySum=sum(v),
      MyMin=min(v),
