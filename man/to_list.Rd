@@ -6,7 +6,7 @@
 \alias{to_df}
 \alias{to_dfr}
 \alias{to_dfc}
-\title{Title}
+\title{Apply an expression to each element of a list or vector}
 \usage{
 to_list(
   data,
@@ -28,55 +28,120 @@ to_vec(
   use.names = TRUE
 )
 
-to_df(data, expr = NULL, ..., trace = FALSE, trace_step = 1L, idcol = NULL)
+to_df(
+  data,
+  expr = NULL,
+  ...,
+  trace = FALSE,
+  trace_step = 1L,
+  idvalue = NULL,
+  idname = "item_id"
+)
 
-to_dfr(data, expr = NULL, ..., trace = FALSE, trace_step = 1L, idcol = NULL)
+to_dfr(
+  data,
+  expr = NULL,
+  ...,
+  trace = FALSE,
+  trace_step = 1L,
+  idvalue = NULL,
+  idname = "item_id"
+)
 
 to_dfc(data, expr = NULL, ..., trace = FALSE, trace_step = 1)
 }
 \arguments{
 \item{data}{data.frame/list/vector}
 
-\item{expr}{expression}
+\item{expr}{expression or function. Expression can use predefined variables:
+'.x' is a value of current list element, '.name' is a name of the element
+and '.index' is sequential number of the element.}
 
 \item{skip_null}{logical Should we skip NULL's from result? Default is TRUE}
+
+\item{trace}{FALSE by default. Should we report progress during execution?
+Possible values are TRUE, FALSE, "pb" (progress bar) or custom expression in 'quote', e. g. 'quote(print(.x))'.
+Expression can contain '.x', '.name', '.res' and '.index' variables.}
+
+\item{trace_step}{integer. 1 by default.  Step for reporting progress. Ignored if 'trace' argument is equal to FALSE.}
+
+\item{recursive}{logical. Should unlisting be applied to list components of x? For details see \link[base]{unlist}.}
+
+\item{use.names}{logical. TRUE by default. Should names of source list be
+preserved? Setting it to FALSE in some cases can greatly increase
+performance. For details see \link[base]{unlist}.}
+
+\item{idvalue}{expression for calculation id column. Usually it is just
+unquoted symbols: one of the '.name', '.index' or '.x'.}
+
+\item{idname}{character, 'item_id' by default. Name for the id column.}
 }
 \value{
-list
+'to_list' returns list, 'to_vec' tries to return vector and other functions return data.table
 }
 \description{
-Title
+\itemize{
+\item{to_list}{ always returns a list, each element of which is the
+result of expression \code{expr} on the elements of data. By
+default, NULL's will be removed from the result. You can change this behavior
+with \code{skip_null} argument.}
+\item{to_vec}{ is the same as \code{to_list} but tries to convert its result
+to vector via \link[base]{unlist}.}
+\item{to_df and to_dfr}{ try to combine its results to data.table by rows.}
+\item{to_dfc}{ try to combine its result to data.table by columns.}
+}
+Expression can use predefined variables: '.x' is a value of current list
+element, '.name' is a name of the element and '.index' is sequential number
+of the element.
 }
 \examples{
-1:10 \%>\%
-    to_list(rnorm, n = 10) \%>\%
+1:5 \%>\%
+    to_list(rnorm(n = 3, .x))
+
+# or in 'lapply' style
+1:5 \%>\%
+    to_list(rnorm, n = 3) \%>\%
     to_vec(mean)
 
-# Or use an anonymous function
-1:10 \%>\%
-    to_list(function(x) rnorm(10, x))
+# or use an anonymous function
+1:5 \%>\%
+    to_list(function(x) rnorm(3, x))
 
-# Or an expression
-1:10 \%>\%
-    to_list(rnorm(10, .x))
+# Use to_vec() to reduce output to a vector instead
+# of a list:
+# filtering - return only even numbers
+to_vec(1:10, if(.x \%\% 2 == 0) .x)
 
+# filtering - mean only on the numeric columns
+to_vec(iris, if(is.numeric(.x)) mean(.x))
+
+# mean for numerics, number of distincts for others
+to_vec(iris, if(is.numeric(.x)) mean(.x) else uniqueN(.x))
+
+# means for Sepal
+to_vec(iris, if(startsWith(.name, "Sepal")) mean(.x))
 
 # A more realistic example: split a data frame into pieces, fit a
 # model to each piece, summarise and extract R^2
 mtcars \%>\%
     split(.$cyl) \%>\%
-    to_list(lm(mpg ~ wt, data = .x)) \%>\%
-    to_list(summary) \%>\%
+    to_list(summary(lm(mpg ~ wt, data = .x))) \%>\%
     to_vec(.x$r.squared)
 
-# Use to_vec() to reduce output to a vector instead
-# of a list:
-mtcars \%>\% to_vec(mean)
-
 # If each element of the output is a data frame, use
-# map_dfr to row-bind them together:
+# to_df to row-bind them together:
 mtcars \%>\%
     split(.$cyl) \%>\%
     to_list(lm(mpg ~ wt, data = .x)) \%>\%
-    to_dfr(t(as.matrix(coef(.x))))
+    to_df(c(cyl = .name, coef(.x)))
+
+\dontrun{
+# read all csv files in "data" to data.frame
+all_files = dir("data", pattern = "csv$", full.names = TRUE) \%>\%
+    to_df(fread,
+          idvalue = basename(.x),
+          idname = "filename",
+          trace = TRUE
+          )
+}
 }

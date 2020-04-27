@@ -40,8 +40,9 @@ expect_identical(
     lapply((1:5)*100, sqrt)
 )
 
-expect_error(
-    to_list((1:5)*10, .index)
+expect_equal(
+    to_list((1:5)*10, .index),
+    as.list(1:5)
 )
 
 expect_identical(
@@ -87,15 +88,47 @@ expect_identical(
     data.table(var = names(mtcars), mean = colMeans(mtcars), sd = sapply(mtcars, sd))
 )
 
-
 expect_identical(
-    to_dfr(mtcars, list(mean = mean(.x), sd = sd(.x)), idcol = "var"),
-    data.table(var = names(mtcars), mean = colMeans(mtcars), sd = sapply(mtcars, sd))
+    to_df(mtcars, list(mean = mean(.x), sd = sd(.x)), idvalue = .name, idname = "var"),
+    data.table(mean = colMeans(mtcars), sd = sapply(mtcars, sd), var = names(mtcars))
 )
 
 expect_identical(
-    to_dfr(mtcars, c(num = .index, mean = mean(.x), sd = sd(.x))),
-    data.table(num = as.double(seq_along(mtcars)), mean = colMeans(mtcars), sd = sapply(mtcars, sd))
+    to_df(unname(as.list(mtcars)), list(mean = mean(.x), sd = sd(.x)), idvalue = .name, idname = "var"),
+    data.table(mean = colMeans(mtcars), sd = sapply(mtcars, sd), var = "")
+)
+
+expect_identical(
+    to_dfr(mtcars, list(mean = mean(.x), sd = sd(.x)), idvalue = .index),
+    data.table(mean = colMeans(mtcars), sd = sapply(mtcars, sd), item_id = seq_along(mtcars))
+)
+
+vec = c("a", "b", "c")
+expect_identical(
+    to_dfr(vec, paste0(.x, 1:3), idvalue = .value),
+    data.table(V1 = paste0(vec, 1),
+               V2 = paste0(vec, 2),
+               V3 = paste0(vec, 3),
+               item_id = vec)
+)
+
+
+
+expect_identical(
+    to_dfr(vec, paste0(.x, 1:3), idvalue = .x),
+    data.table(V1 = paste0(vec, 1),
+               V2 = paste0(vec, 2),
+               V3 = paste0(vec, 3),
+               item_id = vec)
+)
+
+
+expect_identical(
+    to_dfr(vec, paste0(.x, 1:3), idvalue = paste0(.x, .index)),
+    data.table(V1 = paste0(vec, 1),
+               V2 = paste0(vec, 2),
+               V3 = paste0(vec, 3),
+               item_id = paste0(vec, 1:3))
 )
 
 expect_identical(
