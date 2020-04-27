@@ -21,6 +21,7 @@
 #' @param trace FALSE by default. Should we report progress during execution?
 #'   Possible values are TRUE, FALSE, "pb" (progress bar) or custom expression in 'quote', e. g. 'quote(print(.x))'.
 #'   Expression can contain '.x', '.name', '.res' and '.index' variables.
+#' @param ... further arguments provided if 'expr' is function.
 #' @param trace_step integer. 1 by default.  Step for reporting progress. Ignored if 'trace' argument is equal to FALSE.
 #' @param recursive logical. Should unlisting be applied to list components of x? For details see \link[base]{unlist}.
 #' @param use.names logical. TRUE by default. Should names of source list be
@@ -99,12 +100,12 @@ to_list = function(data,
     if(identical(trace, "pb")){
         # progress bar
         ._data_length = length(data)
-        pbar = txtProgressBar(min = 0, max = ._data_length, style = 3)
+        pbar = utils::txtProgressBar(min = 0, max = ._data_length, style = 3)
         on.exit(close(pbar))
 
         # progress bar
         trace_expr = quote({
-            setTxtProgressBar(pbar, min(.index, ._data_length))
+            utils::setTxtProgressBar(pbar, min(.index, ._data_length))
         })
 
 

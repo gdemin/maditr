@@ -57,6 +57,8 @@ to_dfc(data, expr = NULL, ..., trace = FALSE, trace_step = 1)
 '.x' is a value of current list element, '.name' is a name of the element
 and '.index' is sequential number of the element.}
 
+\item{...}{further arguments provided if 'expr' is function.}
+
 \item{skip_null}{logical Should we skip NULL's from result? Default is TRUE}
 
 \item{trace}{FALSE by default. Should we report progress during execution?

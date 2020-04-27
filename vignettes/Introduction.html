@@ -446,9 +446,10 @@ summary {
 <div id="some-examples" class="section level2">
 <h2>Some examples</h2>
 <p>We will use for demonstartion well-known <code>mtcars</code> dataset and some examples from <code>dplyr</code> package.</p>
-<pre class="r"><code>library(maditr)
-
-data(mtcars)
+<pre class="r"><code>library(maditr)</code></pre>
+<pre><code>## 
+## To aggregate several columns with one summary: take(mtcars, mpg, hp, fun = mean, by = am)</code></pre>
+<pre class="r"><code>data(mtcars)
 
 # Newly created variables are available immediately
 mtcars %&gt;%
