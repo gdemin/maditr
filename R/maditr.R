@@ -8,9 +8,10 @@
 #' \item{To select rows from data: }{\code{take_if(mtcars, am==0)}}
 #' \item{To select columns from data: }{\code{take(mtcars, am, vs, mpg)}}
 #' \item{To aggregate data: }{\code{take(mtcars, mean_mpg = mean(mpg), by = am)}}
-#' \item{To aggregate all non-grouping columns: }{\code{take(mtcars, fun = mean, by = am)}}
+#' \item{To aggregate all non-grouping columns: }{\code{take_all(mtcars, mean, by = am)}}
+#' \item{To conditionally aggregate all non-grouping columns: }{\code{take_all(iris, if(is.numeric(.x)) mean(.x))}}
 #' \item{To aggregate several columns with one summary: }{\code{take(mtcars, mpg, hp, fun = mean, by = am)}}
-#' \item{To get total summary skip 'by' argument: }{\code{take(mtcars, fun = mean)}}
+#' \item{To get total summary skip 'by' argument: }{\code{take_all(mtcars, mean)}}
 #' \item{Use magrittr pipe '\%>\%' to chain several operations: }{\preformatted{
 #'      mtcars \%>\%
 #'         let(mpg_hp = mpg/hp) \%>\%
@@ -21,7 +22,21 @@
 #'          let(new_var = 42,
 #'              new_var2 = new_var*hp) \%>\%
 #'           head()}}
+#' \item{To modify all non-grouping variables: }{\preformatted{
+#'       iris \%>\%
+#'          let_all(
+#'              scaled = (.x - mean(.x))/sd(.x),
+#'              by = Species) \%>\%
+#'           head()}}
 #' \item{To drop variable assign NULL: }{\code{let(mtcars, am = NULL) \%>\% head()}}
+#' \item{To aggregate all variables conditionally on name: }{\preformatted{
+#'       iris \%>\%
+#'           take_all(
+#'               mean = if(startsWith(.name, "Sepal")) mean(.x),
+#'               median = if(startsWith(.name, "Petal")) median(.x),
+#'               by = Species
+#'           )
+#'       }}
 #' \item{For parametric assignment use ':=': }{\preformatted{
 #'      new_var = "my_var"
 #'      old_var = "mpg"
@@ -61,9 +76,7 @@
 #'     head()
 #'
 #' # You can drop variables by setting them to NULL
-#' mtcars %>%
-#'     let(cyl = NULL) %>%
-#'     head()
+#' mtcars %>% let(cyl = NULL) %>% head()
 #'
 #' # keeps all existing variables
 #' mtcars %>%
@@ -96,23 +109,65 @@
 #'
 #' # Usually, you'll want to group first
 #' mtcars %>%
-#'     take(mean = mean(disp), n = .N, by = am)
-#'
-#' # grouping by multiple variables
-#' mtcars %>%
-#'     take(mean = mean(disp), n = .N, by = list(am, vs))
-#'
-#' # parametric evaluation:
-#' var = quote(mean(cyl))
-#' take(mtcars, eval(var))
-#'
+#'     take(mean = mean(disp), n = .N, by = cyl)
 #'
 #' # You can group by expressions:
 #' mtcars %>%
-#'     take(
-#'         fun = mean,
-#'         by = list(vsam = vs + am)
+#'     take_all(mean, by = list(vsam = vs + am))
+#'
+#' # modify all non-grouping variables in-place
+#' mtcars %>%
+#'     let_all((.x - mean(.x))/sd(.x), by = am) %>%
+#'     head()
+#'
+#' # modify all non-grouping variables to new variables
+#' mtcars %>%
+#'     let_all(scaled = (.x - mean(.x))/sd(.x), by = am) %>%
+#'     head()
+#'
+#' # conditionally modify all variables
+#' iris %>%
+#'     let_all(mean = if(is.numeric(.x)) mean(.x)) %>%
+#'     head()
+#'
+#' # modify all variables conditionally on name
+#' iris %>%
+#'     let_all(
+#'         mean = if(startsWith(.name, "Sepal")) mean(.x),
+#'         median = if(startsWith(.name, "Petal")) median(.x),
+#'         by = Species
+#'     ) %>%
+#'     head()
+#'
+#' # aggregation with 'take_all'
+#' mtcars %>%
+#'     take_all(mean = mean(.x), sd = sd(.x), n = .N, by = am)
+#'
+#' # conditionally aggregate all variables
+#' iris %>%
+#'     take_all(mean = if(is.numeric(.x)) mean(.x))
+#'
+#' # aggregate all variables conditionally on name
+#' iris %>%
+#'     take_all(
+#'         mean = if(startsWith(.name, "Sepal")) mean(.x),
+#'         median = if(startsWith(.name, "Petal")) median(.x),
+#'         by = Species
 #'     )
+#'
+#' # parametric evaluation:
+#' var = quote(mean(cyl))
+#' mtcars %>%
+#'     let(mean_cyl = eval(var)) %>%
+#'     head()
+#' take(mtcars, eval(var))
+#'
+#' # all together
+#' new_var = "mean_cyl"
+#' mtcars %>%
+#'     let((new_var) := eval(var)) %>%
+#'     head()
+#' take(mtcars, (new_var) := eval(var))
 #'
 #' @docType package
 #' @name maditr
