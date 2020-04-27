@@ -75,7 +75,9 @@ let_all.data.frame = function(data,
         ))
 
 
-        if((is.symbol(expr) && !identical(expr, quote(.name))) ||
+        if((is.symbol(expr) && !identical(expr, quote(.name)) &&
+            !identical(expr, quote(.N)) &&
+            !identical(expr, quote(.GRP))) ||
            (length(expr)>1 && as.character(expr[[1]]) == "function")){
             # let_all(data, scale)
             # let_all(data, function(x) scale(x))
@@ -203,7 +205,9 @@ take_all.data.frame = function(data,
             '.index' = substitute(match(.name, ._data_names))
         ))
 
-        if((is.symbol(expr) && !identical(expr, quote(.name))) ||
+        if((is.symbol(expr) && !identical(expr, quote(.name)) &&
+            !identical(expr, quote(.N)) &&
+            !identical(expr, quote(.GRP))) ||
            (length(expr)>1 && as.character(expr[[1]]) == "function")){
             # take_all(data, mean)
             # take_all(data, function(x) mean(x, na.rm = TRUE))
