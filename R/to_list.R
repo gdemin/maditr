@@ -12,7 +12,7 @@
 #' }
 #' Expression can use predefined variables: '.x' is a value of current list
 #' element, '.name' is a name of the element and '.index' is sequential number
-#' of the element.
+#' of the element. '.value' is an alias to '.x'.
 #' @param data data.frame/list/vector
 #' @param expr expression or function. Expression can use predefined variables:
 #'   '.x' is a value of current list element, '.name' is a name of the element
@@ -80,7 +80,7 @@
 #'     to_df(fread,
 #'           idvalue = basename(.x),
 #'           idname = "filename",
-#'           trace = TRUE
+#'           trace = "pb"
 #'           )
 #' }
 to_list = function(data,
