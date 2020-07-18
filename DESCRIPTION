@@ -7,7 +7,7 @@ Authors@R: person("Gregory", "Demin", email = "gdemin@gmail.com", role = c("aut"
 Depends: R (>= 3.3.0)
 Imports: data.table (>= 1.12.6), magrittr (>= 1.5)
 Suggests: knitr, tinytest, utils
-Description: Package provides pipe-style interface for 'data.table'. It preserves all 'data.table' features without
+Description: Provides pipe-style interface for 'data.table'. Package preserves all 'data.table' features without
               significant impact on performance. 'let' and 'take' functions are simplified interfaces for most common data
               manipulation tasks. For example, you can write 'take(mtcars, mean(mpg), by = am)' for aggregation or 
               'let(mtcars, hp_wt = hp/wt, hp_wt_mpg = hp_wt/mpg)' for modification. Use 'take_if/let_if' for conditional
@@ -19,4 +19,4 @@ BugReports: https://github.com/gdemin/maditr/issues
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
