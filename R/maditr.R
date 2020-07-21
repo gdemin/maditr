@@ -191,42 +191,14 @@ magrittr::`%T>%`
 
 #' @export
 data.table::data.table
-#' @export
-data.table::tables
-#' @export
-data.table::setkey
-#' @export
-data.table::setkeyv
-#' @export
-data.table::key
-#' @export
-data.table::`key<-`
-#' @export
-data.table::haskey
-#' @export
-data.table::CJ
-#' @export
-data.table::SJ
+
 #' @export
 data.table::copy
-#' @export
-data.table::set2key
-#' @export
-data.table::set2keyv
-#' @export
-data.table::key2
-#' @export
-data.table::setindex
-#' @export
-data.table::setindexv
-#' @export
-data.table::indices
+
 #' @export
 data.table::as.data.table
 #' @export
 data.table::is.data.table
-#' @export
-data.table::test.data.table
 #' @export
 data.table::last
 #' @export
@@ -244,15 +216,7 @@ data.table::inrange
 #' @export
 data.table::`%inrange%`
 #' @export
-data.table::timetaken
-#' @export
-data.table::truelength
-#' @export
-data.table::alloc.col
-#' @export
 data.table::`:=`
-#' @export
-data.table::setattr
 #' @export
 data.table::setnames
 #' @export
@@ -268,17 +232,13 @@ data.table::setorder
 #' @export
 data.table::setorderv
 #' @export
-data.table::setNumericRounding
+data.table::setkey
 #' @export
-data.table::getNumericRounding
+data.table::setkeyv
 #' @export
 data.table::chmatch
 #' @export
 data.table::`%chin%`
-#' @export
-data.table::chorder
-#' @export
-data.table::chgroup
 #' @export
 data.table::rbindlist
 #' @export
@@ -297,8 +257,6 @@ data.table::tstrsplit
 data.table::frank
 #' @export
 data.table::frankv
-#' @export
-data.table::address
 #' @export
 data.table::.SD
 #' @export
@@ -341,34 +299,6 @@ data.table::groupingsets
 data.table::cube
 #' @export
 data.table::rollup
-#' @export
-data.table::as.IDate
-#' @export
-data.table::as.ITime
-#' @export
-data.table::IDateTime
-#' @export
-data.table::second
-#' @export
-data.table::minute
-#' @export
-data.table::hour
-#' @export
-data.table::yday
-#' @export
-data.table::wday
-#' @export
-data.table::mday
-#' @export
-data.table::week
-#' @export
-data.table::isoweek
-#' @export
-data.table::month
-#' @export
-data.table::quarter
-#' @export
-data.table::year
 #' @export
 data.table::nafill
 #' @export

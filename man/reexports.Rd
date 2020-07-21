@@ -8,24 +8,9 @@
 \alias{\%$\%}
 \alias{\%T>\%}
 \alias{data.table}
-\alias{tables}
-\alias{setkey}
-\alias{setkeyv}
-\alias{key}
-\alias{key<-}
-\alias{haskey}
-\alias{CJ}
-\alias{SJ}
 \alias{copy}
-\alias{set2key}
-\alias{set2keyv}
-\alias{key2}
-\alias{setindex}
-\alias{setindexv}
-\alias{indices}
 \alias{as.data.table}
 \alias{is.data.table}
-\alias{test.data.table}
 \alias{last}
 \alias{first}
 \alias{like}
@@ -34,11 +19,7 @@
 \alias{\%between\%}
 \alias{inrange}
 \alias{\%inrange\%}
-\alias{timetaken}
-\alias{truelength}
-\alias{alloc.col}
 \alias{:=}
-\alias{setattr}
 \alias{setnames}
 \alias{setcolorder}
 \alias{set}
@@ -46,12 +27,10 @@
 \alias{setDF}
 \alias{setorder}
 \alias{setorderv}
-\alias{setNumericRounding}
-\alias{getNumericRounding}
+\alias{setkey}
+\alias{setkeyv}
 \alias{chmatch}
 \alias{\%chin\%}
-\alias{chorder}
-\alias{chgroup}
 \alias{rbindlist}
 \alias{fread}
 \alias{fwrite}
@@ -61,7 +40,6 @@
 \alias{tstrsplit}
 \alias{frank}
 \alias{frankv}
-\alias{address}
 \alias{.SD}
 \alias{.N}
 \alias{.I}
@@ -83,20 +61,6 @@
 \alias{groupingsets}
 \alias{cube}
 \alias{rollup}
-\alias{as.IDate}
-\alias{as.ITime}
-\alias{IDateTime}
-\alias{second}
-\alias{minute}
-\alias{hour}
-\alias{yday}
-\alias{wday}
-\alias{mday}
-\alias{week}
-\alias{isoweek}
-\alias{month}
-\alias{quarter}
-\alias{year}
 \alias{nafill}
 \alias{setnafill}
 \alias{frollmean}
@@ -111,7 +75,7 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{data.table}{\code{\link[data.table:between]{\%between\%}}, \code{\link[data.table:chmatch]{\%chin\%}}, \code{\link[data.table:between]{\%inrange\%}}, \code{\link[data.table:like]{\%like\%}}, \code{\link[data.table:special-symbols]{.BY}}, \code{\link[data.table:special-symbols]{.GRP}}, \code{\link[data.table:special-symbols]{.I}}, \code{\link[data.table:special-symbols]{.N}}, \code{\link[data.table:special-symbols]{.SD}}, \code{\link[data.table:assign]{:=}}, \code{\link[data.table:J]{CJ}}, \code{\link[data.table]{IDateTime}}, \code{\link[data.table:J]{SJ}}, \code{\link[data.table]{address}}, \code{\link[data.table:truelength]{alloc.col}}, \code{\link[data.table:IDateTime]{as.IDate}}, \code{\link[data.table:IDateTime]{as.ITime}}, \code{\link[data.table]{as.data.table}}, \code{\link[data.table]{between}}, \code{\link[data.table:chmatch]{chgroup}}, \code{\link[data.table]{chmatch}}, \code{\link[data.table:chmatch]{chorder}}, \code{\link[data.table]{copy}}, \code{\link[data.table:groupingsets]{cube}}, \code{\link[data.table]{data.table}}, \code{\link[data.table:coalesce]{fcoalesce}}, \code{\link[data.table]{fifelse}}, \code{\link[data.table:setops]{fintersect}}, \code{\link[data.table:last]{first}}, \code{\link[data.table]{foverlaps}}, \code{\link[data.table]{frank}}, \code{\link[data.table:frank]{frankv}}, \code{\link[data.table]{fread}}, \code{\link[data.table:froll]{frollapply}}, \code{\link[data.table:froll]{frollmean}}, \code{\link[data.table:froll]{frollsum}}, \code{\link[data.table:setops]{fsetdiff}}, \code{\link[data.table:setops]{fsetequal}}, \code{\link[data.table]{fsort}}, \code{\link[data.table:setops]{funion}}, \code{\link[data.table]{fwrite}}, \code{\link[data.table:openmp-utils]{getDTthreads}}, \code{\link[data.table:setNumericRounding]{getNumericRounding}}, \code{\link[data.table]{groupingsets}}, \code{\link[data.table:setkey]{haskey}}, \code{\link[data.table:IDateTime]{hour}}, \code{\link[data.table:setkey]{indices}}, \code{\link[data.table:between]{inrange}}, \code{\link[data.table:as.data.table]{is.data.table}}, \code{\link[data.table:IDateTime]{isoweek}}, \code{\link[data.table:setkey]{key}}, \code{\link[data.table:set2key]{key2}}, \code{\link[data.table:set2key]{key<-}}, \code{\link[data.table]{last}}, \code{\link[data.table]{like}}, \code{\link[data.table:IDateTime]{mday}}, \code{\link[data.table:IDateTime]{minute}}, \code{\link[data.table:IDateTime]{month}}, \code{\link[data.table]{nafill}}, \code{\link[data.table:IDateTime]{quarter}}, \code{\link[data.table]{rbindlist}}, \code{\link[data.table]{rleid}}, \code{\link[data.table:rleid]{rleidv}}, \code{\link[data.table:groupingsets]{rollup}}, \code{\link[data.table]{rowid}}, \code{\link[data.table:rowid]{rowidv}}, \code{\link[data.table:IDateTime]{second}}, \code{\link[data.table:assign]{set}}, \code{\link[data.table]{set2key}}, \code{\link[data.table:set2key]{set2keyv}}, \code{\link[data.table]{setDF}}, \code{\link[data.table]{setDT}}, \code{\link[data.table:openmp-utils]{setDTthreads}}, \code{\link[data.table]{setNumericRounding}}, \code{\link[data.table]{setattr}}, \code{\link[data.table]{setcolorder}}, \code{\link[data.table:setkey]{setindex}}, \code{\link[data.table:setkey]{setindexv}}, \code{\link[data.table]{setkey}}, \code{\link[data.table:setkey]{setkeyv}}, \code{\link[data.table:nafill]{setnafill}}, \code{\link[data.table:setattr]{setnames}}, \code{\link[data.table]{setorder}}, \code{\link[data.table:setorder]{setorderv}}, \code{\link[data.table]{shift}}, \code{\link[data.table]{shouldPrint}}, \code{\link[data.table]{tables}}, \code{\link[data.table]{test.data.table}}, \code{\link[data.table]{timetaken}}, \code{\link[data.table]{transpose}}, \code{\link[data.table]{truelength}}, \code{\link[data.table]{tstrsplit}}, \code{\link[data.table:duplicated]{uniqueN}}, \code{\link[data.table:IDateTime]{wday}}, \code{\link[data.table:IDateTime]{week}}, \code{\link[data.table:IDateTime]{yday}}, \code{\link[data.table:IDateTime]{year}}}
+  \item{data.table}{\code{\link[data.table:between]{\%between\%}}, \code{\link[data.table:chmatch]{\%chin\%}}, \code{\link[data.table:between]{\%inrange\%}}, \code{\link[data.table:like]{\%like\%}}, \code{\link[data.table:special-symbols]{.BY}}, \code{\link[data.table:special-symbols]{.GRP}}, \code{\link[data.table:special-symbols]{.I}}, \code{\link[data.table:special-symbols]{.N}}, \code{\link[data.table:special-symbols]{.SD}}, \code{\link[data.table:assign]{:=}}, \code{\link[data.table]{as.data.table}}, \code{\link[data.table]{between}}, \code{\link[data.table]{chmatch}}, \code{\link[data.table]{copy}}, \code{\link[data.table:groupingsets]{cube}}, \code{\link[data.table]{data.table}}, \code{\link[data.table:coalesce]{fcoalesce}}, \code{\link[data.table]{fifelse}}, \code{\link[data.table:setops]{fintersect}}, \code{\link[data.table:last]{first}}, \code{\link[data.table]{foverlaps}}, \code{\link[data.table]{frank}}, \code{\link[data.table:frank]{frankv}}, \code{\link[data.table]{fread}}, \code{\link[data.table:froll]{frollapply}}, \code{\link[data.table:froll]{frollmean}}, \code{\link[data.table:froll]{frollsum}}, \code{\link[data.table:setops]{fsetdiff}}, \code{\link[data.table:setops]{fsetequal}}, \code{\link[data.table]{fsort}}, \code{\link[data.table:setops]{funion}}, \code{\link[data.table]{fwrite}}, \code{\link[data.table:openmp-utils]{getDTthreads}}, \code{\link[data.table]{groupingsets}}, \code{\link[data.table:between]{inrange}}, \code{\link[data.table:as.data.table]{is.data.table}}, \code{\link[data.table]{last}}, \code{\link[data.table]{like}}, \code{\link[data.table]{nafill}}, \code{\link[data.table]{rbindlist}}, \code{\link[data.table]{rleid}}, \code{\link[data.table:rleid]{rleidv}}, \code{\link[data.table:groupingsets]{rollup}}, \code{\link[data.table]{rowid}}, \code{\link[data.table:rowid]{rowidv}}, \code{\link[data.table:assign]{set}}, \code{\link[data.table]{setDF}}, \code{\link[data.table]{setDT}}, \code{\link[data.table:openmp-utils]{setDTthreads}}, \code{\link[data.table]{setcolorder}}, \code{\link[data.table]{setkey}}, \code{\link[data.table:setkey]{setkeyv}}, \code{\link[data.table:nafill]{setnafill}}, \code{\link[data.table:setattr]{setnames}}, \code{\link[data.table]{setorder}}, \code{\link[data.table:setorder]{setorderv}}, \code{\link[data.table]{shift}}, \code{\link[data.table]{shouldPrint}}, \code{\link[data.table]{transpose}}, \code{\link[data.table]{tstrsplit}}, \code{\link[data.table:duplicated]{uniqueN}}}
 
   \item{magrittr}{\code{\link[magrittr:exposition]{\%$\%}}, \code{\link[magrittr:compound]{\%<>\%}}, \code{\link[magrittr:pipe]{\%>\%}}, \code{\link[magrittr:tee]{\%T>\%}}}
 }}
