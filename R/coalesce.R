@@ -5,7 +5,6 @@
 #'
 #' @return A vector the same length as the first ... argument with NA
 #'   values replaced by the first non-missing value.
-#' @export
 #'
 #' @examples
 #' # examples from dplyr
@@ -15,4 +14,5 @@
 #' y = c(1, 2, NA, NA, 5)
 #' z = c(NA, NA, 3, 4, 5)
 #' coalesce(y, z)
+#' @export
 coalesce = data.table::fcoalesce

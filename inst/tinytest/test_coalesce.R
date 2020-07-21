@@ -1,4 +1,5 @@
 cat("\nContext:","coalesce", "\n")
+suppressPackageStartupMessages(library(maditr))
 x = c(1, NA, 2, NA)
 res = coalesce(x, 0)
 expect_equal( res, c(1, 0, 2, 0))
