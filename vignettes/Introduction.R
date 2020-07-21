@@ -1,91 +1,53 @@
-# maditr: Fast Data Aggregation, Modification, and Filtering
+## ----setup, include=FALSE-----------------------------------------------------
+knitr::opts_chunk$set(echo = TRUE)
 
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/maditr)](https://cran.r-project.org/package=maditr)
-[![](https://cranlogs.r-pkg.org/badges/maditr)](https://cran.rstudio.com/web/packages/maditr/index.html)
-[![](https://cranlogs.r-pkg.org/badges/grand-total/maditr)](https://cran.rstudio.com/web/packages/maditr/index.html)
-[![Coverage Status](https://img.shields.io/codecov/c/github/gdemin/maditr/master.svg)](https://codecov.io/github/gdemin/maditr?branch=master)
+## ---- eval=FALSE--------------------------------------------------------------
+#       mtcars %>%
+#          let(mpg_hp = mpg/hp) %>%
+#          take(mean(mpg_hp), by = am)
 
-### Links
+## ---- eval=FALSE--------------------------------------------------------------
+#        mtcars %>%
+#           let(new_var = 42,
+#               new_var2 = new_var*hp) %>%
+#           head()
 
-- [maditr on CRAN](https://cran.r-project.org/package=maditr)
-- [maditr on Github](https://github.com/gdemin/maditr)
-- [Issues](https://github.com/gdemin/maditr/issues)
+## ---- eval=FALSE--------------------------------------------------------------
+#      iris %>%
+#        let_all(
+#            scaled = (.x - mean(.x))/sd(.x),
+#            by = Species) %>%
+#         head()
 
-### Installation
+## ---- eval=FALSE--------------------------------------------------------------
+#      iris %>%
+#        take_all(
+#            mean = if(startsWith(.name, "Sepal")) mean(.x),
+#            median = if(startsWith(.name, "Petal")) median(.x),
+#            by = Species
+#        )
 
-`maditr` is on CRAN, so for installation you can print in the console
-`install.packages("maditr")`.
+## ---- eval=FALSE--------------------------------------------------------------
+#      new_var = "my_var"
+#      old_var = "mpg"
+#      mtcars %>%
+#          let((new_var) := get(old_var)*2) %>%
+#          head()
+#  
+#      # or,
+#      expr = quote(mean(cyl))
+#      mtcars %>%
+#          let((new_var) := eval(expr)) %>%
+#          head()
+#  
+#      # the same with `take`
+#      by_var = "vs,am"
+#      take(mtcars, (new_var) := eval(expr), by = by_var)
 
-## Overview
-
-Package provides pipe-style interface for [data.table](https://cran.r-project.org/package=data.table) package. It preserves all data.table features without significant impact on performance. `let` and `take` functions are simplified interfaces for most common data manipulation tasks.
-
-- To select rows from data: `take_if(mtcars, am==0)`
-- To select columns from data: `take(mtcars, am, vs, mpg)`
-- To aggregate data: `take(mtcars, mean_mpg = mean(mpg), by = am)`
-- To aggregate all non-grouping columns: `take_all(mtcars, mean, by = am)`
-- To aggregate several columns with one summary: `take(mtcars, mpg, hp, fun = mean, by = am)`
-- To get total summary skip `by` argument: `take_all(mtcars, mean)`
-- Use magrittr pipe `%>%` to chain several operations: 
-```R
-     mtcars %>%
-        let(mpg_hp = mpg/hp) %>%
-        take(mean(mpg_hp), by = am)
-```
-- To modify variables or add new variables: 
-```R
-      mtcars %>%
-         let(new_var = 42,
-             new_var2 = new_var*hp) %>%
-         head()
-```          
-- To drop variable assign NULL: `let(mtcars, am = NULL) %>% head()`
-- To modify all non-grouping variables:
-```R
-    iris %>%
-      let_all(
-          scaled = (.x - mean(.x))/sd(.x),
-          by = Species) %>%
-       head()
-``` 
-- To aggregate all variables conditionally on name:
-```R
-    iris %>%
-      take_all(
-          mean = if(startsWith(.name, "Sepal")) mean(.x),
-          median = if(startsWith(.name, "Petal")) median(.x),
-          by = Species
-      )
-```
-- For parametric assignment use `:=`: 
-```R
-    new_var = "my_var"
-    old_var = "mpg"
-    mtcars %>%
-        let((new_var) := get(old_var)*2) %>%
-        head()
-     
-    # or,  
-    expr = quote(mean(cyl))
-    mtcars %>% 
-        let((new_var) := eval(expr)) %>% 
-        head()
-    
-    # the same with `take` 
-    by_var = "vs,am"
-    take(mtcars, (new_var) := eval(expr), by = by_var)
-```      
-
-`query_if` function translates its arguments one-to-one to `[.data.table` method. Additionally there are some conveniences such as automatic `data.frame` conversion to `data.table`.
-
-## vlookup & xlookup
-
-Let's make datasets for lookups:
-```{r include=FALSE}
+## ----include=FALSE------------------------------------------------------------
 library(maditr)
-```
 
-```{r}
+## -----------------------------------------------------------------------------
 
 workers = fread("
     name company
@@ -118,15 +80,9 @@ workers = let(workers,
 )
 
 head(workers)
-```
 
-### More examples
-
-We will use for demonstartion well-known `mtcars` dataset and some examples from `dplyr` package. 
-
-```R
+## -----------------------------------------------------------------------------
 library(maditr)
-
 data(mtcars)
 
 # Newly created variables are available immediately
@@ -256,13 +212,9 @@ mtcars %>%
     head()
 take(mtcars, (new_var) := eval(var))
 
-```
 
-## Joins
 
-Here we use the same datasets as with lookups:
-
-```R
+## -----------------------------------------------------------------------------
 workers = fread("
     name company
     Nick Acme
@@ -279,11 +231,8 @@ positions = fread("
 
 workers
 positions
-```
 
-Different kinds of joins:
-
-```R
+## -----------------------------------------------------------------------------
 workers %>% dt_inner_join(positions)
 workers %>% dt_left_join(positions)
 workers %>% dt_right_join(positions)
@@ -292,33 +241,15 @@ workers %>% dt_full_join(positions)
 # filtering joins
 workers %>% dt_anti_join(positions)
 workers %>% dt_semi_join(positions)
-```
 
-To suppress the message, supply `by` argument:
-```R
-workers %>% dt_left_join(positions, by = "name")
-```
+## ---- eval=FALSE--------------------------------------------------------------
+#  workers %>% dt_left_join(positions, by = "name")
 
-Use a named `by` if the join variables have different names:
-```R
-positions2 = setNames(positions, c("worker", "position")) # rename first column in 'positions'
-workers %>% dt_inner_join(positions2, by = c("name" = "worker"))
-```
+## ---- eval=FALSE--------------------------------------------------------------
+#  positions2 = setNames(positions, c("worker", "position")) # rename first column in 'positions'
+#  workers %>% dt_inner_join(positions2, by = c("name" = "worker"))
 
-## 'dplyr'-like interface for data.table.
-
-There are a small subset of 'dplyr' verbs to work with data.table. Note that there is no `group_by`
-verb - use `by` or `keyby` argument when needed.
-
-- `dt_mutate` adds new variables or modify existing variables. If data is data.table then it modifies in-place.
-- `dt_summarize` computes summary statistics. Splits the data into subsets, computes summary statistics for each, and returns the result in the "data.table" form.
-- `dt_summarize_all` the same as `dt_summarize` but work over all non-grouping variables.
-- `dt_filter` Selects rows/cases where conditions are true. Rows where the condition evaluates to NA are dropped.
-- `dt_select` Selects column/variables from the data set. Range of variables are supported, e. g. `vs:carb`. Characters which start with `^` or end with `\$` considered as Perl-style regular expression patterns. For example, `'^Petal'`
-returns all variables started with 'Petal'. `'Width\$'` returns all variables which end with 'Width'. Pattern `^.` matches all variables and pattern `'^.*my_str'` is equivalent to contains `"my_str"`. See examples.
-- `dt_arrange` sorts dataset by variable(-s). Use '-' to sort in desending order. If data is data.table then it modifies in-place.
-
-```R
+## -----------------------------------------------------------------------------
 # examples from 'dplyr'
 # newly created variables are available immediately
 mtcars  %>%
@@ -400,8 +331,4 @@ dt_select(iris, 1:4) # numeric indexing - all variables except Species
 # sorting
 dt_arrange(mtcars, cyl, disp)
 dt_arrange(mtcars, -disp)
-```
-
-
-
 
