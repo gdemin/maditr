@@ -369,7 +369,8 @@ summary {
 <ul>
 <li><a href="#links">Links</a></li>
 <li><a href="#overview">Overview</a></li>
-<li><a href="#some-examples">Some examples</a></li>
+<li><a href="#vlookup-xlookup">vlookup &amp; xlookup</a></li>
+<li><a href="#more-examples">More examples</a></li>
 <li><a href="#joins">Joins</a></li>
 <li><a href="#dplyr-like-interface-for-data.table.">‘dplyr’-like interface for data.table.</a></li>
 </ul>
@@ -443,13 +444,50 @@ summary {
     take(mtcars, (new_var) := eval(expr), by = by_var)</code></pre>
 <p><code>query_if</code> function translates its arguments one-to-one to <code>[.data.table</code> method. Additionally there are some conveniences such as automatic <code>data.frame</code> conversion to <code>data.table</code>.</p>
 </div>
-<div id="some-examples" class="section level2">
-<h2>Some examples</h2>
+<div id="vlookup-xlookup" class="section level2">
+<h2>vlookup &amp; xlookup</h2>
+<p>Let’s make datasets for lookups:</p>
+<pre class="r"><code>workers = fread(&quot;
+    name company
+    Nick Acme
+    John Ajax
+    Daniela Ajax
+&quot;)
+
+positions = fread(&quot;
+    name position
+    John designer
+    Daniela engineer
+    Cathie manager
+&quot;)
+
+# xlookup
+workers = let(workers,
+  position = xlookup(name, positions$name, positions$position)
+)
+
+# vlookup
+# by default we search in the first column and return values from secomd column
+workers = let(workers,
+  position = vlookup(name, positions)
+)
+
+# the same 
+workers = let(workers,
+  position = vlookup(name, positions, result_column = &quot;position&quot;) # or, result_column = 2 
+)
+
+head(workers)</code></pre>
+<pre><code>##       name company position
+## 1:    Nick    Acme     &lt;NA&gt;
+## 2:    John    Ajax designer
+## 3: Daniela    Ajax engineer</code></pre>
+</div>
+<div id="more-examples" class="section level2">
+<h2>More examples</h2>
 <p>We will use for demonstartion well-known <code>mtcars</code> dataset and some examples from <code>dplyr</code> package.</p>
-<pre class="r"><code>library(maditr)</code></pre>
-<pre><code>## 
-## To aggregate several columns with one summary: take(mtcars, mpg, hp, fun = mean, by = am)</code></pre>
-<pre class="r"><code>data(mtcars)
+<pre class="r"><code>library(maditr)
+data(mtcars)
 
 # Newly created variables are available immediately
 mtcars %&gt;%
@@ -554,12 +592,12 @@ mtcars %&gt;%
 ## 2: 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
 ## 3: 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
 ## 4: 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1</code></pre>
-<pre class="r"><code># A 'take' with summary functions applied without 'by' argument returns an aggregated data
+<pre class="r"><code># A &#39;take&#39; with summary functions applied without &#39;by&#39; argument returns an aggregated data
 mtcars %&gt;%
     take(mean = mean(disp), n = .N)</code></pre>
 <pre><code>##        mean  n
 ## 1: 230.7219 32</code></pre>
-<pre class="r"><code># Usually, you'll want to group first
+<pre class="r"><code># Usually, you&#39;ll want to group first
 mtcars %&gt;%
     take(mean = mean(disp), n = .N, by = am)</code></pre>
 <pre><code>##    am     mean  n
@@ -670,7 +708,7 @@ iris %&gt;%
 ## 4:            3.428                 1.5                0.2
 ## 5:            3.428                 1.5                0.2
 ## 6:            3.428                 1.5                0.2</code></pre>
-<pre class="r"><code># aggregation with 'take_all'
+<pre class="r"><code># aggregation with &#39;take_all&#39;
 mtcars %&gt;%
     take_all(mean = mean(.x), sd = sd(.x), n = .N, by = am)</code></pre>
 <pre><code>##    am mpg_mean cyl_mean disp_mean  hp_mean drat_mean  wt_mean qsec_mean
@@ -738,7 +776,7 @@ mtcars %&gt;%
 </div>
 <div id="joins" class="section level2">
 <h2>Joins</h2>
-<p>Let’s make datasets for joining:</p>
+<p>Here we use the same datasets as with lookups:</p>
 <pre class="r"><code>workers = fread(&quot;
     name company
     Nick Acme
@@ -801,7 +839,7 @@ workers %&gt;% dt_anti_join(positions)</code></pre>
 <p>To suppress the message, supply <code>by</code> argument:</p>
 <pre class="r"><code>workers %&gt;% dt_left_join(positions, by = &quot;name&quot;)</code></pre>
 <p>Use a named <code>by</code> if the join variables have different names:</p>
-<pre class="r"><code>positions2 = setNames(positions, c(&quot;worker&quot;, &quot;position&quot;)) # rename first column in 'positions'
+<pre class="r"><code>positions2 = setNames(positions, c(&quot;worker&quot;, &quot;position&quot;)) # rename first column in &#39;positions&#39;
 workers %&gt;% dt_inner_join(positions2, by = c(&quot;name&quot; = &quot;worker&quot;))</code></pre>
 </div>
 <div id="dplyr-like-interface-for-data.table." class="section level2">
@@ -812,11 +850,11 @@ workers %&gt;% dt_inner_join(positions2, by = c(&quot;name&quot; = &quot;worker&
 <li><code>dt_summarize</code> computes summary statistics. Splits the data into subsets, computes summary statistics for each, and returns the result in the “data.table” form.</li>
 <li><code>dt_summarize_all</code> the same as <code>dt_summarize</code> but work over all non-grouping variables.</li>
 <li><code>dt_filter</code> Selects rows/cases where conditions are true. Rows where the condition evaluates to NA are dropped.</li>
-<li><code>dt_select</code> Selects column/variables from the data set. Range of variables are supported, e. g. vs:carb. Characters which start with ‘^’ or end with ‘<span class="math inline">\(' considered as Perl-style regular expression patterns. For example, '^Petal' returns all variables started with 'Petal'. 'Width\)</span>’ returns all variables which end with ‘Width’. Pattern ‘^.’ matches all variables and pattern ’^.*my_str’ is equivalent to <code>contains &quot;my_str&quot;</code>. See examples.</li>
+<li><code>dt_select</code> Selects column/variables from the data set. Range of variables are supported, e. g. vs:carb. Characters which start with ‘^’ or end with ‘<span class="math inline">\(&#39; considered as Perl-style regular expression patterns. For example, &#39;^Petal&#39; returns all variables started with &#39;Petal&#39;. &#39;Width\)</span>’ returns all variables which end with ‘Width’. Pattern ‘^.’ matches all variables and pattern ’^.*my_str’ is equivalent to <code>contains &quot;my_str&quot;</code>. See examples.</li>
 <li><code>dt_arrange</code> sorts dataset by variable(-s). Use ‘-’ to sort in desending order. If data is data.table then it modifies in-place.</li>
 </ul>
 <p>The same examples with ‘dplyr’-verbs:</p>
-<pre class="r"><code># examples from 'dplyr'
+<pre class="r"><code># examples from &#39;dplyr&#39;
 # newly created variables are available immediately
 mtcars  %&gt;%
     dt_mutate(
@@ -900,14 +938,14 @@ mtcars %&gt;%
     dt_summarise(mean = mean(disp), n = .N)</code></pre>
 <pre><code>##        mean  n
 ## 1: 230.7219 32</code></pre>
-<pre class="r"><code># Usually, you'll want to group first
+<pre class="r"><code># Usually, you&#39;ll want to group first
 mtcars %&gt;%
     dt_summarise(mean = mean(disp), n = .N, by = cyl)</code></pre>
 <pre><code>##    cyl     mean  n
 ## 1:   6 183.3143  7
 ## 2:   4 105.1364 11
 ## 3:   8 353.1000 14</code></pre>
-<pre class="r"><code># Multiple 'by' - variables
+<pre class="r"><code># Multiple &#39;by&#39; - variables
 mtcars %&gt;%
     dt_summarise(cyl_n = .N, by = list(cyl, vs))</code></pre>
 <pre><code>##    cyl vs cyl_n
@@ -917,7 +955,7 @@ mtcars %&gt;%
 ## 4:   8  0    14
 ## 5:   4  0     1</code></pre>
 <pre class="r"><code># Newly created summaries immediately
-# doesn't overwrite existing variables
+# doesn&#39;t overwrite existing variables
 mtcars %&gt;%
     dt_summarise(disp = mean(disp),
                   sd = sd(disp),
@@ -1040,7 +1078,7 @@ mtcars %&gt;% dt_select(vs:carb, cyl)</code></pre>
 ## 32: 21.4 121.0 109 4.11 2.780 18.60  1    4    2
 ##      mpg  disp  hp drat    wt  qsec vs gear carb</code></pre>
 <pre class="r"><code># regular expression pattern
-dt_select(iris, &quot;^Petal&quot;) # variables which start from 'Petal'</code></pre>
+dt_select(iris, &quot;^Petal&quot;) # variables which start from &#39;Petal&#39;</code></pre>
 <pre><code>##      Petal.Length Petal.Width
 ##   1:          1.4         0.2
 ##   2:          1.4         0.2
@@ -1053,7 +1091,7 @@ dt_select(iris, &quot;^Petal&quot;) # variables which start from 'Petal'</code><
 ## 148:          5.2         2.0
 ## 149:          5.4         2.3
 ## 150:          5.1         1.8</code></pre>
-<pre class="r"><code>dt_select(iris, &quot;Width$&quot;) # variables which end with 'Width'</code></pre>
+<pre class="r"><code>dt_select(iris, &quot;Width$&quot;) # variables which end with &#39;Width&#39;</code></pre>
 <pre><code>##      Sepal.Width Petal.Width
 ##   1:         3.5         0.2
 ##   2:         3.0         0.2
@@ -1081,7 +1119,7 @@ dt_select(iris, Species, &quot;^.&quot;)</code></pre>
 ## 148: virginica          6.5         3.0          5.2         2.0
 ## 149: virginica          6.2         3.4          5.4         2.3
 ## 150: virginica          5.9         3.0          5.1         1.8</code></pre>
-<pre class="r"><code># pattern &quot;^.*al&quot; means &quot;contains 'al'&quot;
+<pre class="r"><code># pattern &quot;^.*al&quot; means &quot;contains &#39;al&#39;&quot;
 dt_select(iris, &quot;^.*al&quot;)</code></pre>
 <pre><code>##      Sepal.Length Sepal.Width Petal.Length Petal.Width
 ##   1:          5.1         3.5          1.4         0.2

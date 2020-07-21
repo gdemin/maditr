@@ -5,6 +5,17 @@
 [![](https://cranlogs.r-pkg.org/badges/grand-total/maditr)](https://cran.rstudio.com/web/packages/maditr/index.html)
 [![Coverage Status](https://img.shields.io/codecov/c/github/gdemin/maditr/master.svg)](https://codecov.io/github/gdemin/maditr?branch=master)
 
+### Links
+
+- [maditr on CRAN](https://cran.r-project.org/package=maditr)
+- [maditr on Github](https://github.com/gdemin/maditr)
+- [Issues](https://github.com/gdemin/maditr/issues)
+
+### Installation
+
+`maditr` is on CRAN, so for installation you can print in the console
+`install.packages("maditr")`.
+
 ## Overview
 
 Package provides pipe-style interface for [data.table](https://cran.r-project.org/package=data.table) package. It preserves all data.table features without significant impact on performance. `let` and `take` functions are simplified interfaces for most common data manipulation tasks.
@@ -67,18 +78,49 @@ Package provides pipe-style interface for [data.table](https://cran.r-project.or
 
 `query_if` function translates its arguments one-to-one to `[.data.table` method. Additionally there are some conveniences such as automatic `data.frame` conversion to `data.table`.
 
-### Links
+## vlookup & xlookup
 
-- [maditr on CRAN](https://cran.r-project.org/package=maditr)
-- [maditr on Github](https://github.com/gdemin/maditr)
-- [Issues](https://github.com/gdemin/maditr/issues)
+Let's make datasets for lookups:
+```{r include=FALSE}
+library(maditr)
+```
 
-### Installation
+```{r}
 
-`maditr` is on CRAN, so for installation you can print in the console
-`install.packages("maditr")`.
+workers = fread("
+    name company
+    Nick Acme
+    John Ajax
+    Daniela Ajax
+")
 
-### Some examples
+positions = fread("
+    name position
+    John designer
+    Daniela engineer
+    Cathie manager
+")
+
+# xlookup
+workers = let(workers,
+  position = xlookup(name, positions$name, positions$position)
+)
+
+# vlookup
+# by default we search in the first column and return values from secomd column
+workers = let(workers,
+  position = vlookup(name, positions)
+)
+
+# the same 
+workers = let(workers,
+  position = vlookup(name, positions, result_column = "position") # or, result_column = 2 
+)
+
+head(workers)
+```
+
+### More examples
 
 We will use for demonstartion well-known `mtcars` dataset and some examples from `dplyr` package. 
 
@@ -218,7 +260,7 @@ take(mtcars, (new_var) := eval(var))
 
 ## Joins
 
-Let's make datasets for joining:
+Here we use the same datasets as with lookups:
 
 ```R
 workers = fread("
