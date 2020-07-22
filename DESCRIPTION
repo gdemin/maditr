@@ -1,12 +1,12 @@
 Package: maditr
 Type: Package
 Title: Fast Data Aggregation, Modification, and Filtering with Pipes and 'data.table'
-Version: 0.7.2
+Version: 0.7.3
 Maintainer: Gregory Demin <gdemin@gmail.com>
 Authors@R: person("Gregory", "Demin", email = "gdemin@gmail.com", role = c("aut", "cre"))
 Depends: R (>= 3.3.0)
 Imports: data.table (>= 1.12.6), magrittr (>= 1.5)
-Suggests: knitr, tinytest, utils
+Suggests: knitr, tinytest, utils, rmarkdown
 Description: Provides pipe-style interface for 'data.table'. Package preserves all 'data.table' features without
               significant impact on performance. 'let' and 'take' functions are simplified interfaces for most common data
               manipulation tasks. For example, you can write 'take(mtcars, mean(mpg), by = am)' for aggregation or 
