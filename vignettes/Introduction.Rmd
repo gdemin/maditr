@@ -110,7 +110,7 @@ workers = let(workers,
 )
 
 # vlookup
-# by default we search in the first column and return values from secomd column
+# by default we search in the first column and return values from second column
 workers = let(workers,
   position = vlookup(name, positions)
 )
