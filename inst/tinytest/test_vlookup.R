@@ -1,13 +1,13 @@
 cat("vlookup data.frame\n")
 
-dict = data.frame(num=1:26,small=letters,cap=LETTERS,stringsAsFactors = FALSE)
+dict = data.frame(num=1:26,small=letters,cap=LETTERS, stringsAsFactors = FALSE)
 
 expect_identical(vlookup(1:3,dict), dict[1:3,2])
 expect_identical(xlookup(1:3,dict$num, dict$small), dict[1:3,2])
 expect_identical(vlookup(1:3,dict, result_column = names(dict)), dict[1:3,])
 expect_identical(vlookup(1:3,as.data.table(dict), result_column = names(dict)), as.data.table(dict[1:3,]))
 
-dict2 = data.frame(num = c(1:26, 1:26), small = c(letters, LETTERS))
+dict2 = data.frame(num = c(1:26, 1:26), small = c(letters, LETTERS), stringsAsFactors = FALSE)
 expect_identical(vlookup(1:3,dict2), dict[1:3,2])
 expect_error(xlookup(1:3,dict2$num, dict$small))
 expect_identical(xlookup(1:3,dict2$num, dict2$small), dict[1:3,2])
