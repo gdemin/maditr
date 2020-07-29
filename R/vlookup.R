@@ -1,27 +1,27 @@
 #' Look up values in dictionary.
 #'
-#' \code{vlookup} function is inspired by VLOOKUP spreadsheet
-#' function. It looks for a \code{lookup_value} in the \code{lookup_column} of
-#' the \code{dict}, and then returns values in the same rows from
-#' \code{result_column}.
-#' \code{xlookup} is simplified version of 'vlookup'. It searches for a
-#' \code{lookup_value} in the \code{lookup_vector} and return values in the same
-#' position from the \code{result_vector}.
+#' `vlookup` function is inspired by VLOOKUP spreadsheet
+#' function. It looks for a `lookup_value` in the `lookup_column` of
+#' the `dict`, and then returns values in the same rows from
+#' `result_column`.
+#' `xlookup` is simplified version of `vlookup`. It searches for a
+#' `lookup_value` in the `lookup_vector` and return values in the same
+#' position from the `result_vector`.
 #'
 #' @param lookup_value Vector of looked up values
 #' @param dict data.frame. Dictionary.
 #' @param result_column numeric or character. Resulting columns in the
-#'   \code{dict}. Default  value for \code{result_column} is 2 - for frequent
+#'   `dict`. Default  value for `result_column` is 2 - for frequent
 #'   case of dictionary with keys in the first column and results in the second
 #'   column.
-#' @param lookup_column Column of \code{dict} in which lookup value will be
-#'   searched. By default, it is the first column of the \code{dict}.
+#' @param lookup_column Column of `dict` in which lookup value will be
+#'   searched. By default, it is the first column of the `dict`.
 #' @param lookup_vector vector in which 'lookup_value' will be searched during 'xlookup'.
 #' @param result_vector vector with resulting values for 'xlookup'.
 #' @param no_match vector of length one. NA by default. Where a valid match is
 #'   not found, return the 'no_match' value you supply.
-#' @return \code{xlookup} always return vector, \code{vlookup} returns vector if
-#'   the \code{result_column} is single value. In the opposite case data.frame will
+#' @return `xlookup` always return vector, `vlookup` returns vector if
+#'   the `result_column` is single value. In the opposite case data.frame will
 #'   be returned.
 #'
 #' @export

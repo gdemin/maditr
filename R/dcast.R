@@ -6,17 +6,17 @@
 #' variables not otherwise mentioned in formula. LHS variable values will be in
 #' rows. RHS variables values will become column names.
 #' `fun.aggregate(value.var)` will be cell values. For details see
-#' \link[data.table]{dcast} and \link[data.table]{melt}.
-#' @param data A data.table/data.frame. \code{data.frame} will be automatically
+#' [dcast][data.table::dcast] and [melt][data.table::melt].
+#' @param data A data.table/data.frame. `data.frame` will be automatically
 #'   converted to data.table.
-#' @param formula A formula of the form LHS ~ RHS to cast. For details see \link[data.table]{dcast}.
+#' @param formula A formula of the form LHS ~ RHS to cast. For details see [dcast][data.table::dcast].
 #' @param fun.aggregate Should the data be aggregated before casting? If the
 #'   formula doesn't identify a single observation for each cell, then
 #'   aggregation defaults to length with a message.
 #' @param sep Character vector of length 1, indicating the separating character
 #'   in variable names generated during casting. Default is _ for backwards
 #'   compatibility.
-#' @param margins For details see \link[data.table]{dcast}.
+#' @param margins For details see [dcast][data.table::dcast].
 #' @param subset Specified if casting should be done on a subset of the data.
 #' @param fill Value with which to fill missing cells. If fun.aggregate is
 #'   present, takes the value by applying the function on a 0-length vector.
@@ -26,8 +26,8 @@
 #' @param value.var Name of the column whose values will be filled to cast.
 #'   Function 'guess()' tries to, well, guess this column automatically, if none
 #'   is provided. It is possible to cast multiple `value.var`` columns
-#'   simultaneously. For details see \link[data.table]{dcast}.
-#' @param verbose For details see \link[data.table]{dcast}.
+#'   simultaneously. For details see [dcast][data.table::dcast].
+#' @param verbose For details see [dcast][data.table::dcast].
 #' @param ... Any other arguments that may be passed to the aggregating function.
 #'
 #'
@@ -36,7 +36,7 @@
 #'   non-measure columns will be assigned to it. If integer, must be positive;
 #'   see Details.
 #' @param measure.vars Measure variables for melting. Can be missing, vector,
-#'   list, or pattern-based. For details see \link[data.table]{dcast}.
+#'   list, or pattern-based. For details see [dcast][data.table::dcast].
 #' @param variable.name name for the measured variable names column. The default name is 'variable'.
 #' @param value.name name for the molten data values column(s). The default name
 #'   is 'value'. Multiple names can be provided here for the case when

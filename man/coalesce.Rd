@@ -11,10 +11,10 @@ coalesce(...)
 }
 \value{
 A vector the same length as the first ... argument with NA
-  values replaced by the first non-missing value.
+values replaced by the first non-missing value.
 }
 \description{
-It is an alias for data.table \code{fcoalesce}. For details see \link[data.table]{fcoalesce}
+It is an alias for data.table \code{fcoalesce}. For details see \link[data.table:coalesce]{fcoalesce}
 }
 \examples{
 # examples from dplyr

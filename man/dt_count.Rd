@@ -36,9 +36,9 @@ data.table
 }
 \description{
 \itemize{
-\item{dt_count}{ calculate number of cases by groups, possibly
-weighted. \code{dt_add_count} adds number of cases to existing dataset}
-\item{dt_top_n}{ returns top n rows from each group.}
+\item \code{dt_count} calculates number of cases by groups, possibly
+weighted. \code{dt_add_count} adds number of cases to existing dataset.
+\item \code{dt_top_n} returns top n rows from each group.
 }
 }
 \examples{

@@ -1,53 +1,59 @@
 #' maditr: Pipe-Style Interface for 'data.table'
 #'
-#' Package provides pipe-style interface for \code{data.table}. It preserves
-#' all data.table features without significant impact on performance. '\code{let}'
-#' and '\code{take}' functions are simplified interfaces for most common data
+#' Package provides pipe-style interface for `data.table`. It preserves
+#' all data.table features without significant impact on performance. '`let`'
+#' and '`take`' functions are simplified interfaces for most common data
 #' manipulation tasks.
-#' \itemize{
-#' \item{To select rows from data: }{\code{take_if(mtcars, am==0)}}
-#' \item{To select columns from data: }{\code{take(mtcars, am, vs, mpg)}}
-#' \item{To aggregate data: }{\code{take(mtcars, mean_mpg = mean(mpg), by = am)}}
-#' \item{To aggregate all non-grouping columns: }{\code{take_all(mtcars, mean, by = am)}}
-#' \item{To conditionally aggregate all non-grouping columns: }{\code{take_all(iris, if(is.numeric(.x)) mean(.x))}}
-#' \item{To aggregate several columns with one summary: }{\code{take(mtcars, mpg, hp, fun = mean, by = am)}}
-#' \item{To get total summary skip 'by' argument: }{\code{take_all(mtcars, mean)}}
-#' \item{Use magrittr pipe '\%>\%' to chain several operations: }{\preformatted{
-#'      mtcars \%>\%
-#'         let(mpg_hp = mpg/hp) \%>\%
+#' - To select rows from data: `take_if(mtcars, am==0)`
+#' - To select columns from data: `take(mtcars, am, vs, mpg)`
+#' - To aggregate data: `take(mtcars, mean_mpg = mean(mpg), by = am)`
+#' - To aggregate all non-grouping columns: `take_all(mtcars, mean, by = am)`
+#' - To conditionally aggregate all non-grouping columns: `take_all(iris, if(is.numeric(.x)) mean(.x))`
+#' - To aggregate several columns with one summary: `take(mtcars, mpg, hp, fun = mean, by = am)`
+#' - To get total summary skip 'by' argument: `take_all(mtcars, mean)`
+#' - Use magrittr pipe '%>%' to chain several operations:
+#' ```
+#'      mtcars %>%
+#'         let(mpg_hp = mpg/hp) %>%
 #'         take(mean(mpg_hp), by = am)
-#' }}
-#' \item{To modify variables or add new variables: }{\preformatted{
-#'       mtcars \%>\%
+#' ```
+#' - To modify variables or add new variables:
+#' ```
+#'       mtcars %>%
 #'          let(new_var = 42,
-#'              new_var2 = new_var*hp) \%>\%
-#'           head()}}
-#' \item{To modify all non-grouping variables: }{\preformatted{
-#'       iris \%>\%
+#'              new_var2 = new_var*hp) %>%
+#'           head()
+#' ```
+#' - To modify all non-grouping variables:
+#' ```
+#'       iris %>%
 #'          let_all(
 #'              scaled = (.x - mean(.x))/sd(.x),
-#'              by = Species) \%>\%
-#'           head()}}
-#' \item{To drop variable assign NULL: }{\code{let(mtcars, am = NULL) \%>\% head()}}
-#' \item{To aggregate all variables conditionally on name: }{\preformatted{
-#'       iris \%>\%
+#'              by = Species) %>%
+#'           head()
+#' ```
+#' - To drop variable assign NULL: `let(mtcars, am = NULL) %>% head()`
+#' - To aggregate all variables conditionally on name:
+#' ```
+#'       iris %>%
 #'           take_all(
 #'               mean = if(startsWith(.name, "Sepal")) mean(.x),
 #'               median = if(startsWith(.name, "Petal")) median(.x),
 #'               by = Species
 #'           )
-#'       }}
-#' \item{For parametric assignment use ':=': }{\preformatted{
+#' ```
+#' - For parametric assignment use ':=':
+#' ```
 #'      new_var = "my_var"
 #'      old_var = "mpg"
-#'      mtcars \%>\%
-#'          let((new_var) := get(old_var)*2) \%>\%
-#'          head()}}
-#' \item{For more sophisticated operations see 'query'/'query_if': }{these
-#' functions translates its arguments one-to-one to '\code{[.data.table}'
+#'      mtcars %>%
+#'          let((new_var) := get(old_var)*2) %>%
+#'          head()
+#' ```
+#' - For more sophisticated operations see 'query'/'query_if': these
+#' functions translates its arguments one-to-one to '`[.data.table`'
 #' method. Additionally there are some conveniences such as automatic
-#' 'data.frame' conversion to 'data.table'.}
-#' }
+#' 'data.frame' conversion to 'data.table'.
 #'
 #' @examples
 #' # examples form 'dplyr' package

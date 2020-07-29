@@ -69,14 +69,16 @@ workers = let(workers,
 )
 
 # vlookup
-# by default we search in the first column and return values from secomd column
+# by default we search in the first column and return values from second column
 workers = let(workers,
-  position = vlookup(name, positions)
+  position = vlookup(name, positions, no_match = "Not found")
 )
 
 # the same 
 workers = let(workers,
-  position = vlookup(name, positions, result_column = "position") # or, result_column = 2 
+  position = vlookup(name, positions, 
+                     result_column = "position", 
+                     no_match = "Not found") # or, result_column = 2 
 )
 
 head(workers)

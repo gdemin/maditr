@@ -1,43 +1,41 @@
 #' 'dplyr'-like interface for data.table.
 #'
 #' Subset of 'dplyr' verbs to work with data.table. Note that there is no
-#' \code{group_by} verb - use \code{by} or \code{keyby} argument when needed.
-#' \itemize{
-#' \item{\code{dt_mutate} }{adds new variables or modify existing variables. If
-#' \code{data} is data.table then it modifies in-place.}
-#' \item{\code{dt_summarize} }{computes summary statistics. Splits the data into
+#' `group_by` verb - use `by` or `keyby` argument when needed.
+#' - `dt_mutate` adds new variables or modify existing variables. If
+#' `data` is data.table then it modifies in-place.
+#' - `dt_summarize` computes summary statistics. Splits the data into
 #' subsets, computes summary statistics for each, and returns the result in the
-#' "data.table" form.}
-#' \item{\code{dt_summarize_all} }{the same as \code{dt_summarize} but work over all non-grouping variables.}
-#' \item{\code{dt_filter} }{Selects rows/cases where conditions are true. Rows
-#' where the condition evaluates to NA are dropped.}
-#' \item{\code{dt_select} }{Selects column/variables from the data set. Range of
+#' "data.table" form.
+#' - `dt_summarize_all` is the same as `dt_summarize` but work over all non-grouping variables.
+#' - `dt_filter` selects rows/cases where conditions are true. Rows
+#' where the condition evaluates to NA are dropped.
+#' - `dt_select` selects column/variables from the data set. Range of
 #' variables are supported, e. g. vs:carb. Characters which start with '^' or
 #' end with '$' considered as Perl-style regular expression patterns. For
 #' example, '^Petal' returns all variables started with 'Petal'. 'Width$'
 #' returns all variables which end with 'Width'. Pattern '^.' matches all
 #' variables and pattern '^.*my_str' is equivalent to `contains "my_str"`. See
-#' examples. }
-#' \item{\code{dt_arrange} }{sorts dataset by variable(-s). Use '-' to sort in
-#' descending order. If \code{data} is data.table then it modifies in-place.}
-#' }
+#' examples.
+#' - `dt_arrange` sorts dataset by variable(-s). Use '-' to sort in
+#' descending order. If `data` is data.table then it modifies in-place.
 #'
 #' @param data data.table/data.frame data.frame will be automatically converted
-#'   to data.table. \code{dt_mutate}, \code{dt_mutate_if}, \code{dt_mutate_if}
+#'   to data.table. `dt_mutate`, `dt_mutate_if`, `dt_mutate_if`
 #'   modify data.table object in-place.
 #' @param ... List of variables or name-value pairs of summary/modifications
 #'   functions. The name will be the name of the variable in the result. In the
-#'   \code{mutate} function we can use \code{a = b} or \code{a := b} notation.
-#'   Advantages of \code{:=} are multiassignment (\code{c("a", "b") := list(1,2)})
-#'   and parametric assignment (\code{(a) := 2}).
+#'   `mutate` function we can use `a = b` or `a := b` notation.
+#'   Advantages of `:=` are multiassignment (`c("a", "b") := list(1,2)`)
+#'   and parametric assignment (`(a) := 2`).
 #' @param by unquoted name of grouping variable of list of unquoted names of
-#'   grouping variables. For details see \link[data.table]{data.table}
-#' @param keyby Same as \code{by}, but with an additional \code{setkey()} run on the by
+#'   grouping variables. For details see [data.table][data.table::data.table]
+#' @param keyby Same as `by`, but with an additional `setkey()` run on the by
 #'   columns of the result, for convenience. It is common practice to use
 #'   'keyby=' routinely when you wish the result to be sorted. For details see
-#'   \link[data.table]{data.table}.
+#'   [data.table][data.table::data.table].
 #' @param fun function which will be applied to all variables in
-#'   \code{dt_summarize} and \code{dt_summarize_all}.
+#'   `dt_summarize` and `dt_summarize_all`.
 #' @param na.last logical. FALSE by default. If TRUE, missing values in the data
 #'   are put last; if FALSE, they are put first.
 #' @export

@@ -1,46 +1,46 @@
 #' Modify, aggregate, select or filter data.frame/data.table
 #'
-#' \itemize{
-#' \item{let}{ adds new variables or modify existing variables. 'let_if' make
-#' the same thing on the subset of rows.}
-#' \item{take/take_if}{ aggregates data or select subset of the data by rows or
-#' columns.}
-#' \item{let_all}{ apply expressions to all variables in the dataset. It is also
-#' possible to modify the subset of the variables.}
-#' \item{take_all}{ aggregate all variables in the dataset. It is also possible
-#' to aggregate the subset of the variables.}
-#' }
-#' All functions return \code{data.table}. Expression in the 'take_all' and
+#' - `let` adds new variables or modify existing variables. 'let_if' make
+#' the same thing on the subset of rows.
+#' - `take/take_if` aggregate data or select subset of the data by rows or
+#' columns.
+#' - `let_all` applies expressions to all variables in the dataset. It is also
+#' possible to modify the subset of the variables.
+#' - `take_all` aggregates all variables in the dataset. It is also possible
+#' to aggregate the subset of the variables.
+#' ```
+#' ```
+#' All functions return `data.table`. Expression in the 'take_all' and
 #' 'let_all' can use predefined variables: '.x' is a value of current variable ,
 #' '.name' is a name of the variable and '.index' is sequential number of the
 #' variable. '.value' is is an alias to '.x'.
-#' \itemize{
-#' \item{Add new variables: }{\code{let(mtcars, new_var = 42, new_var2 = new_var*hp)}}
-#' \item{Filter data: }{\code{take_if(mtcars, am==0)}}
-#' \item{Select variables: }{\code{take(mtcars, am, vs, mpg)}}
-#' \item{Aggregate data: }{\code{take(mtcars, mean_mpg = mean(mpg), by = am)}}
-#' \item{Aggregate all non-grouping columns: }{\code{take_all(mtcars, mean = mean(.x), sd = sd(.x), n = .N, by = am)}}
-#' \item{Aggregate all numeric columns: }{\code{take_all(iris, if(is.numeric(.x)) mean(.x))}}
-#' \item{To modify all non-grouping variables: }{\preformatted{
-#'       iris \%>\%
+#' - Add new variables: `let(mtcars, new_var = 42, new_var2 = new_var*hp)`
+#' - Filter data: `take_if(mtcars, am==0)`
+#' - Select variables: `take(mtcars, am, vs, mpg)`
+#' - Aggregate data: `take(mtcars, mean_mpg = mean(mpg), by = am)`
+#' - Aggregate all non-grouping columns: `take_all(mtcars, mean = mean(.x), sd = sd(.x), n = .N, by = am)`
+#' - Aggregate all numeric columns: `take_all(iris, if(is.numeric(.x)) mean(.x))`
+#' - To modify all non-grouping variables:
+#' ```
+#'       iris %>%
 #'          let_all(
 #'              scaled = (.x - mean(.x))/sd(.x),
-#'              by = Species) \%>\%
-#'           head()}}
-#' \item{Aggregate specific columns: }{\code{take_all(iris, if(startsWith(.name, "Sepal")) mean(.x))}}
-#' }
+#'              by = Species) %>%
+#'           head()
+#'  ```
+#' - Aggregate specific columns: `take_all(iris, if(startsWith(.name, "Sepal")) mean(.x))`
 #'
 #' @param data data.table/data.frame data.frame will be automatically converted
-#'   to data.table. \code{let} modify data.table object in-place.
+#'   to data.table. `let` modify data.table object in-place.
 #' @param i integer/logical vector. Supposed to use to subset/conditional
-#'   modifications of \code{data}. For details see \link[data.table]{data.table}
+#'   modifications of `data`. For details see [data.table][data.table::data.table]
 #' @param ... List of variables or name-value pairs of summary/modifications
 #'   functions. The name will be the name of the variable in the result. In the
-#'   \code{let} and \code{take} functions we can use \code{a = b} or \code{a :=
-#'   b} notation. Advantages of \code{:=} is parametric assignment, e. g.
-#'   \code{(a) := 2} create variable with name which are stored in \code{a}. In
-#'   \code{let} \code{:=} can be used for multiassignment (\code{c("a", "b")  :=
-#'   list(1,2)}). Expression in the 'take_all' and 'let_all' can use predefined
+#'   `let` and `take` functions we can use `a = b` or `a :=
+#'   b` notation. Advantages of `:=` is parametric assignment, e. g.
+#'   `(a) := 2` create variable with name which are stored in `a`. In
+#'   `let` `:=` can be used for multiassignment (`c("a", "b")  :=
+#'   list(1,2)`). Expression in the 'take_all' and 'let_all' can use predefined
 #'   variables: '.x' is a value of current variable, '.name' is a name of
 #'   the variable and '.index' is sequential number of the variable. '.value' is
 #'   is an alias to '.x'.
@@ -50,21 +50,21 @@
 #' @param sep character. "_" by default. Separator between the old variables
 #'   name and prefix or suffix for 'let_all' and 'take_all'.
 #' @param by unquoted name of grouping variable of list of unquoted names of
-#'   grouping variables. For details see \link[data.table]{data.table}
-#' @param keyby Same as \code{by}, but with an additional \code{setkey()} run on the by
+#'   grouping variables. For details see [data.table][data.table::data.table]
+#' @param keyby Same as `by`, but with an additional `setkey()` run on the by
 #'   columns of the result, for convenience. It is common practice to use
 #'   'keyby=' routinely when you wish the result to be sorted. For details see
-#'   \link[data.table]{data.table}.
+#'   [data.table][data.table::data.table].
 #' @param .SDcols Specifies the columns of x to be included in the special
 #'   symbol .SD which stands for Subset of data.table. May be character column
-#'   names or numeric positions. For details see \link[data.table]{data.table}.
-#' @param autoname logical. TRUE by default. Should we create names for  unnamed expressions in \code{take}?
-#' @param fun Function which will be applied to all variables in \code{take}. If
-#'   there are no variables in \code{take} then it will be applied to all
-#'   non-grouping variables in the \code{data}.
+#'   names or numeric positions. For details see [data.table][data.table::data.table].
+#' @param autoname logical. TRUE by default. Should we create names for  unnamed expressions in `take`?
+#' @param fun Function which will be applied to all variables in `take`. If
+#'   there are no variables in `take` then it will be applied to all
+#'   non-grouping variables in the `data`.
 #' @param na.last logical. FALSE by default. If TRUE, missing values in the data
 #'   are put last; if FALSE, they are put first.
-#' @return data.table. \code{let} returns its result invisibly.
+#' @return data.table. `let` returns its result invisibly.
 #' @export
 #'
 #' @examples

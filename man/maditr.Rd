@@ -10,48 +10,56 @@ all data.table features without significant impact on performance. '\code{let}'
 and '\code{take}' functions are simplified interfaces for most common data
 manipulation tasks.
 \itemize{
-\item{To select rows from data: }{\code{take_if(mtcars, am==0)}}
-\item{To select columns from data: }{\code{take(mtcars, am, vs, mpg)}}
-\item{To aggregate data: }{\code{take(mtcars, mean_mpg = mean(mpg), by = am)}}
-\item{To aggregate all non-grouping columns: }{\code{take_all(mtcars, mean, by = am)}}
-\item{To conditionally aggregate all non-grouping columns: }{\code{take_all(iris, if(is.numeric(.x)) mean(.x))}}
-\item{To aggregate several columns with one summary: }{\code{take(mtcars, mpg, hp, fun = mean, by = am)}}
-\item{To get total summary skip 'by' argument: }{\code{take_all(mtcars, mean)}}
-\item{Use magrittr pipe '\%>\%' to chain several operations: }{\preformatted{
-     mtcars \%>\%
+\item To select rows from data: \code{take_if(mtcars, am==0)}
+\item To select columns from data: \code{take(mtcars, am, vs, mpg)}
+\item To aggregate data: \code{take(mtcars, mean_mpg = mean(mpg), by = am)}
+\item To aggregate all non-grouping columns: \code{take_all(mtcars, mean, by = am)}
+\item To conditionally aggregate all non-grouping columns: \code{take_all(iris, if(is.numeric(.x)) mean(.x))}
+\item To aggregate several columns with one summary: \code{take(mtcars, mpg, hp, fun = mean, by = am)}
+\item To get total summary skip 'by' argument: \code{take_all(mtcars, mean)}
+\item Use magrittr pipe '\%>\%' to chain several operations:
+}\preformatted{     mtcars \%>\%
         let(mpg_hp = mpg/hp) \%>\%
         take(mean(mpg_hp), by = am)
-}}
-\item{To modify variables or add new variables: }{\preformatted{
-      mtcars \%>\%
+}
+\itemize{
+\item To modify variables or add new variables:
+}\preformatted{      mtcars \%>\%
          let(new_var = 42,
              new_var2 = new_var*hp) \%>\%
-          head()}}
-\item{To modify all non-grouping variables: }{\preformatted{
-      iris \%>\%
+          head()
+}
+\itemize{
+\item To modify all non-grouping variables:
+}\preformatted{      iris \%>\%
          let_all(
              scaled = (.x - mean(.x))/sd(.x),
              by = Species) \%>\%
-          head()}}
-\item{To drop variable assign NULL: }{\code{let(mtcars, am = NULL) \%>\% head()}}
-\item{To aggregate all variables conditionally on name: }{\preformatted{
-      iris \%>\%
+          head()
+}
+\itemize{
+\item To drop variable assign NULL: \code{let(mtcars, am = NULL) \%>\% head()}
+\item To aggregate all variables conditionally on name:
+}\preformatted{      iris \%>\%
           take_all(
               mean = if(startsWith(.name, "Sepal")) mean(.x),
               median = if(startsWith(.name, "Petal")) median(.x),
               by = Species
           )
-      }}
-\item{For parametric assignment use ':=': }{\preformatted{
-     new_var = "my_var"
+}
+\itemize{
+\item For parametric assignment use ':=':
+}\preformatted{     new_var = "my_var"
      old_var = "mpg"
      mtcars \%>\%
          let((new_var) := get(old_var)*2) \%>\%
-         head()}}
-\item{For more sophisticated operations see 'query'/'query_if': }{these
-functions translates its arguments one-to-one to '\code{[.data.table}'
+         head()
+}
+\itemize{
+\item For more sophisticated operations see 'query'/'query_if': these
+functions translates its arguments one-to-one to '\verb{[.data.table}'
 method. Additionally there are some conveniences such as automatic
-'data.frame' conversion to 'data.table'.}
+'data.frame' conversion to 'data.table'.
 }
 }
 \examples{

@@ -31,7 +31,7 @@ dt_anti_join(x, y, by = NULL)
 across the two tables. A message lists the variables so that you can check
 they're right (to suppress the message, simply explicitly list the
 variables that you want to join). To join by different variables on x and y
-use a named vector. For example, by = c("a" = "b") will match x.a to y.b.}
+use a named vector. For example, \code{by = c("a" = "b")} will match x.a to y.b.}
 
 \item{suffix}{If there are non-joined duplicate variables in x and y, these
 suffixes will be added to the output to disambiguate them. Should be a

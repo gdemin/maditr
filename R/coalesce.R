@@ -1,6 +1,6 @@
 #' Return first non-missing element
 #'
-#' It is an alias for data.table \code{fcoalesce}. For details see \link[data.table]{fcoalesce}
+#' It is an alias for data.table `fcoalesce`. For details see [fcoalesce][data.table::fcoalesce]
 #' @param ... vectors
 #'
 #' @return A vector the same length as the first ... argument with NA

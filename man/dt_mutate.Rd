@@ -35,16 +35,16 @@ modify data.table object in-place.}
 \item{...}{List of variables or name-value pairs of summary/modifications
 functions. The name will be the name of the variable in the result. In the
 \code{mutate} function we can use \code{a = b} or \code{a := b} notation.
-Advantages of \code{:=} are multiassignment (\code{c("a", "b") := list(1,2)})
+Advantages of \verb{:=} are multiassignment (\code{c("a", "b") := list(1,2)})
 and parametric assignment (\code{(a) := 2}).}
 
 \item{by}{unquoted name of grouping variable of list of unquoted names of
-grouping variables. For details see \link[data.table]{data.table}}
+grouping variables. For details see \link[data.table:data.table]{data.table}}
 
 \item{keyby}{Same as \code{by}, but with an additional \code{setkey()} run on the by
 columns of the result, for convenience. It is common practice to use
 'keyby=' routinely when you wish the result to be sorted. For details see
-\link[data.table]{data.table}.}
+\link[data.table:data.table]{data.table}.}
 
 \item{fun}{function which will be applied to all variables in
 \code{dt_summarize} and \code{dt_summarize_all}.}
@@ -56,23 +56,23 @@ are put last; if FALSE, they are put first.}
 Subset of 'dplyr' verbs to work with data.table. Note that there is no
 \code{group_by} verb - use \code{by} or \code{keyby} argument when needed.
 \itemize{
-\item{\code{dt_mutate} }{adds new variables or modify existing variables. If
-\code{data} is data.table then it modifies in-place.}
-\item{\code{dt_summarize} }{computes summary statistics. Splits the data into
+\item \code{dt_mutate} adds new variables or modify existing variables. If
+\code{data} is data.table then it modifies in-place.
+\item \code{dt_summarize} computes summary statistics. Splits the data into
 subsets, computes summary statistics for each, and returns the result in the
-"data.table" form.}
-\item{\code{dt_summarize_all} }{the same as \code{dt_summarize} but work over all non-grouping variables.}
-\item{\code{dt_filter} }{Selects rows/cases where conditions are true. Rows
-where the condition evaluates to NA are dropped.}
-\item{\code{dt_select} }{Selects column/variables from the data set. Range of
+"data.table" form.
+\item \code{dt_summarize_all} is the same as \code{dt_summarize} but work over all non-grouping variables.
+\item \code{dt_filter} selects rows/cases where conditions are true. Rows
+where the condition evaluates to NA are dropped.
+\item \code{dt_select} selects column/variables from the data set. Range of
 variables are supported, e. g. vs:carb. Characters which start with '^' or
 end with '$' considered as Perl-style regular expression patterns. For
 example, '^Petal' returns all variables started with 'Petal'. 'Width$'
 returns all variables which end with 'Width'. Pattern '^.' matches all
-variables and pattern '^.*my_str' is equivalent to `contains "my_str"`. See
-examples. }
-\item{\code{dt_arrange} }{sorts dataset by variable(-s). Use '-' to sort in
-descending order. If \code{data} is data.table then it modifies in-place.}
+variables and pattern '^.*my_str' is equivalent to \verb{contains "my_str"}. See
+examples.
+\item \code{dt_arrange} sorts dataset by variable(-s). Use '-' to sort in
+descending order. If \code{data} is data.table then it modifies in-place.
 }
 }
 \examples{

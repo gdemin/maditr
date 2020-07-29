@@ -67,11 +67,11 @@ Expression can contain '.x', '.name', '.res' and '.index' variables.}
 
 \item{trace_step}{integer. 1 by default.  Step for reporting progress. Ignored if 'trace' argument is equal to FALSE.}
 
-\item{recursive}{logical. Should unlisting be applied to list components of x? For details see \link[base]{unlist}.}
+\item{recursive}{logical. Should unlisting be applied to list components of x? For details see \link[base:unlist]{unlist}.}
 
 \item{use.names}{logical. TRUE by default. Should names of source list be
 preserved? Setting it to FALSE in some cases can greatly increase
-performance. For details see \link[base]{unlist}.}
+performance. For details see \link[base:unlist]{unlist}.}
 
 \item{idvalue}{expression for calculation id column. Usually it is just
 unquoted symbols: one of the '.name', '.index' or '.x'.}
@@ -83,15 +83,16 @@ unquoted symbols: one of the '.name', '.index' or '.x'.}
 }
 \description{
 \itemize{
-\item{to_list}{ always returns a list, each element of which is the
+\item \code{to_list} always returns a list, each element of which is the
 result of expression \code{expr} on the elements of data. By
 default, NULL's will be removed from the result. You can change this behavior
-with \code{skip_null} argument.}
-\item{to_vec}{ is the same as \code{to_list} but tries to convert its result
-to vector via \link[base]{unlist}.}
-\item{to_df and to_dfr}{ try to combine its results to data.table by rows.}
-\item{to_dfc}{ try to combine its result to data.table by columns.}
-}
+with \code{skip_null} argument.
+\item \code{to_vec} is the same as \code{to_list} but tries to convert its result
+to vector via \link[base:unlist]{unlist}.
+\item \code{to_df} and \code{to_dfr} try to combine its results to data.table by rows.
+\item \code{to_dfc} tries to combine its result to data.table by columns.
+}\preformatted{}
+
 Expression can use predefined variables: '.x' is a value of current list
 element, '.name' is a name of the element and '.index' is sequential number
 of the element. '.value' is an alias to '.x'.

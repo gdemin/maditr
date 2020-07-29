@@ -1,18 +1,19 @@
 #' Apply an expression to each element of a list or vector
 #'
-#' \itemize{
-#' \item{to_list}{ always returns a list, each element of which is the
-#' result of expression \code{expr} on the elements of data. By
+#' - `to_list` always returns a list, each element of which is the
+#' result of expression `expr` on the elements of data. By
 #' default, NULL's will be removed from the result. You can change this behavior
-#' with \code{skip_null} argument.}
-#' \item{to_vec}{ is the same as \code{to_list} but tries to convert its result
-#' to vector via \link[base]{unlist}.}
-#' \item{to_df and to_dfr}{ try to combine its results to data.table by rows.}
-#' \item{to_dfc}{ try to combine its result to data.table by columns.}
-#' }
+#' with `skip_null` argument.
+#' - `to_vec` is the same as `to_list` but tries to convert its result
+#' to vector via [unlist][base::unlist].
+#' - `to_df` and `to_dfr` try to combine its results to data.table by rows.
+#' - `to_dfc` tries to combine its result to data.table by columns.
+#' ```
+#' ```
 #' Expression can use predefined variables: '.x' is a value of current list
 #' element, '.name' is a name of the element and '.index' is sequential number
 #' of the element. '.value' is an alias to '.x'.
+#'
 #' @param data data.frame/list/vector
 #' @param expr expression or function. Expression can use predefined variables:
 #'   '.x' is a value of current list element, '.name' is a name of the element
@@ -23,10 +24,10 @@
 #'   Expression can contain '.x', '.name', '.res' and '.index' variables.
 #' @param ... further arguments provided if 'expr' is function.
 #' @param trace_step integer. 1 by default.  Step for reporting progress. Ignored if 'trace' argument is equal to FALSE.
-#' @param recursive logical. Should unlisting be applied to list components of x? For details see \link[base]{unlist}.
+#' @param recursive logical. Should unlisting be applied to list components of x? For details see [unlist][base::unlist].
 #' @param use.names logical. TRUE by default. Should names of source list be
 #'   preserved? Setting it to FALSE in some cases can greatly increase
-#'   performance. For details see \link[base]{unlist}.
+#'   performance. For details see [unlist][base::unlist].
 #' @param idvalue expression for calculation id column. Usually it is just
 #'   unquoted symbols: one of the '.name', '.index' or '.x'.
 #' @param idname character, 'item_id' by default. Name for the id column.

@@ -37,15 +37,15 @@ not found, return the 'no_match' value you supply.}
 }
 \value{
 \code{xlookup} always return vector, \code{vlookup} returns vector if
-  the \code{result_column} is single value. In the opposite case data.frame will
-  be returned.
+the \code{result_column} is single value. In the opposite case data.frame will
+be returned.
 }
 \description{
 \code{vlookup} function is inspired by VLOOKUP spreadsheet
 function. It looks for a \code{lookup_value} in the \code{lookup_column} of
 the \code{dict}, and then returns values in the same rows from
 \code{result_column}.
-\code{xlookup} is simplified version of 'vlookup'. It searches for a
+\code{xlookup} is simplified version of \code{vlookup}. It searches for a
 \code{lookup_value} in the \code{lookup_vector} and return values in the same
 position from the \code{result_vector}.
 }

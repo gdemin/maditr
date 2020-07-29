@@ -39,7 +39,7 @@ guess(data)
 \item{data}{A data.table/data.frame. \code{data.frame} will be automatically
 converted to data.table.}
 
-\item{formula}{A formula of the form LHS ~ RHS to cast. For details see \link[data.table]{dcast}.}
+\item{formula}{A formula of the form LHS ~ RHS to cast. For details see \link[data.table:dcast.data.table]{dcast}.}
 
 \item{fun.aggregate}{Should the data be aggregated before casting? If the
 formula doesn't identify a single observation for each cell, then
@@ -51,7 +51,7 @@ compatibility.}
 
 \item{...}{Any other arguments that may be passed to the aggregating function.}
 
-\item{margins}{For details see \link[data.table]{dcast}.}
+\item{margins}{For details see \link[data.table:dcast.data.table]{dcast}.}
 
 \item{subset}{Specified if casting should be done on a subset of the data.}
 
@@ -65,9 +65,9 @@ c(TRUE, FALSE) will only include all missing combinations of formula RHS.}
 \item{value.var}{Name of the column whose values will be filled to cast.
 Function 'guess()' tries to, well, guess this column automatically, if none
 is provided. It is possible to cast multiple `value.var`` columns
-simultaneously. For details see \link[data.table]{dcast}.}
+simultaneously. For details see \link[data.table:dcast.data.table]{dcast}.}
 
-\item{verbose}{For details see \link[data.table]{dcast}.}
+\item{verbose}{For details see \link[data.table:dcast.data.table]{dcast}.}
 
 \item{id.vars}{vector of id variables. Can be integer (corresponding id
 column numbers) or character (id column names) vector. If missing, all
@@ -75,7 +75,7 @@ non-measure columns will be assigned to it. If integer, must be positive;
 see Details.}
 
 \item{measure.vars}{Measure variables for melting. Can be missing, vector,
-list, or pattern-based. For details see \link[data.table]{dcast}.}
+list, or pattern-based. For details see \link[data.table:dcast.data.table]{dcast}.}
 
 \item{variable.name}{name for the measured variable names column. The default name is 'variable'.}
 
@@ -96,13 +96,13 @@ else the molten value type is left unchanged.}
 data.table
 }
 \description{
-The `dcast` formula takes the form `LHS ~ RHS`, ex: `var1 + var2 ~ var3`. The
+The \code{dcast} formula takes the form \code{LHS ~ RHS}, ex: \code{var1 + var2 ~ var3}. The
 order of entries in the formula is essential. There are two special
-variables: `.` and `...`. `.` represents no variable; `...` represents all
+variables: \code{.} and \code{...}. \code{.} represents no variable; \code{...} represents all
 variables not otherwise mentioned in formula. LHS variable values will be in
 rows. RHS variables values will become column names.
-`fun.aggregate(value.var)` will be cell values. For details see
-\link[data.table]{dcast} and \link[data.table]{melt}.
+\code{fun.aggregate(value.var)} will be cell values. For details see
+\link[data.table:dcast.data.table]{dcast} and \link[data.table:melt.data.table]{melt}.
 }
 \examples{
 # examples from 'tidyr' package
@@ -124,5 +124,5 @@ df \%>\%
     melt(id.vars = "z", variable.name = "x", value.name = "y", na.rm = TRUE)
 }
 \author{
-Matt Dowle <mattjdowle@gmail.com>
+Matt Dowle \href{mailto:mattjdowle@gmail.com}{mattjdowle@gmail.com}
 }

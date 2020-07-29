@@ -467,21 +467,23 @@ workers = let(workers,
 )
 
 # vlookup
-# by default we search in the first column and return values from secomd column
+# by default we search in the first column and return values from second column
 workers = let(workers,
-  position = vlookup(name, positions)
+  position = vlookup(name, positions, no_match = &quot;Not found&quot;)
 )
 
 # the same 
 workers = let(workers,
-  position = vlookup(name, positions, result_column = &quot;position&quot;) # or, result_column = 2 
+  position = vlookup(name, positions, 
+                     result_column = &quot;position&quot;, 
+                     no_match = &quot;Not found&quot;) # or, result_column = 2 
 )
 
 head(workers)</code></pre>
-<pre><code>##       name company position
-## 1:    Nick    Acme     &lt;NA&gt;
-## 2:    John    Ajax designer
-## 3: Daniela    Ajax engineer</code></pre>
+<pre><code>##       name company  position
+## 1:    Nick    Acme Not found
+## 2:    John    Ajax  designer
+## 3: Daniela    Ajax  engineer</code></pre>
 </div>
 <div id="more-examples" class="section level2">
 <h2>More examples</h2>

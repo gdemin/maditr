@@ -1,10 +1,9 @@
 #' Additional useful functions
 #'
-#' \itemize{
-#' \item{dt_count}{ calculate number of cases by groups, possibly
-#' weighted. \code{dt_add_count} adds number of cases to existing dataset}
-#' \item{dt_top_n}{ returns top n rows from each group.}
-#' }
+#'
+#' - `dt_count` calculates number of cases by groups, possibly
+#' weighted. `dt_add_count` adds number of cases to existing dataset.
+#' - `dt_top_n` returns top n rows from each group.
 #'
 #' @param data data.table/data.frame data.frame will be automatically converted
 #'   to data.table.

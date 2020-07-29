@@ -1,22 +1,22 @@
 #' One-to-one interface for data.table '[' method
 #'
-#' Quote from \link[data.table]{data.table}:
-#' \preformatted{
+#' Quote from [data.table][data.table::data.table]:
+#' ```
 #' query(data, j,  by) # + extra arguments
 #'             |   |
 #'             |    -------> grouped by what?
 #'              -------> what to do?
-#' }
+#' ```
 #' or,
-#' \preformatted{
+#' ```
 #' query_if(data, i,  j,  by) # + extra arguments
 #'                |   |   |
 #'                |   |    -------> grouped by what?
 #'                |    -------> what to do?
 #'                 ---> on which rows?
-#' }
-#' If you don't need '\code{i}' argument, use '\code{query}'. In this case you can
-#' avoid printing leading comma inside brackets to denote empty '\code{i}'.
+#' ```
+#' If you don't need '`i`' argument, use '`query`'. In this case you can
+#' avoid printing leading comma inside brackets to denote empty '`i`'.
 #'
 #' @param data data.table/data.frame data.frame will be automatically converted
 #'   to data.table.
@@ -26,36 +26,36 @@
 #'   NAs are treated as FALSE. expression is evaluated within the frame of the
 #'   data.table (i.e. it sees column names as if they are variables) and can
 #'   evaluate to any of the other types. For details see
-#'   \link[data.table]{data.table}
+#'   [data.table][data.table::data.table]
 #' @param j When with=TRUE (default), j is evaluated within the frame of the
 #'   data.table; i.e., it sees column names as if they are variables. This
-#'   allows to not just select columns in j, but also compute on them e.g., x[,
-#'   a] and x[, sum(a)] returns x$a and sum(x$a) as a vector respectively. x[,
-#'   .(a, b)] and x[, .(sa=sum(a), sb=sum(b))] returns a two column data.table
+#'   allows to not just select columns in j, but also compute on them e.g., `x[,a]`
+#'   and `x[, sum(a)]` returns `x$a` and `sum(x$a)` as a vector respectively.
+#'   `x[, .(a, b)]` and `x[, .(sa=sum(a), sb=sum(b))]` returns a two column data.table
 #'   each, the first simply selecting columns a, b and the second computing
-#'   their sums. For details see \link[data.table]{data.table}.
+#'   their sums. For details see [data.table][data.table::data.table].
 #' @param by unquoted name of grouping variable of list of unquoted names of
-#'   grouping variables. For details see \link[data.table]{data.table}
-#' @param keyby Same as by, but with an additional \code{setkey()} run on the by
+#'   grouping variables. For details see [data.table][data.table::data.table]
+#' @param keyby Same as by, but with an additional `setkey()` run on the by
 #'   columns of the result, for convenience. It is common practice to use
 #'   'keyby=' routinely when you wish the result to be sorted. For details see
-#'   \link[data.table]{data.table}
-#' @param with logical. For details see \link[data.table]{data.table}.
+#'   [data.table][data.table::data.table]
+#' @param with logical. For details see [data.table][data.table::data.table].
 #' @param nomatch Same as nomatch in match. For details see
-#'   \link[data.table]{data.table}.
-#' @param mult For details see \link[data.table]{data.table}.
-#' @param roll For details see \link[data.table]{data.table}.
-#' @param rollends For details see \link[data.table]{data.table}.
-#' @param which For details see \link[data.table]{data.table}.
+#'   [data.table][data.table::data.table].
+#' @param mult For details see [data.table][data.table::data.table].
+#' @param roll For details see [data.table][data.table::data.table].
+#' @param rollends For details see [data.table][data.table::data.table].
+#' @param which For details see [data.table][data.table::data.table].
 #' @param .SDcols Specifies the columns of x to be included in the special
 #'   symbol .SD which stands for Subset of data.table. May be character column
-#'   names or numeric positions. For details see \link[data.table]{data.table}.
-#' @param verbose logical. For details see \link[data.table]{data.table}.
-#' @param allow.cartesian For details see \link[data.table]{data.table}.
-#' @param drop For details see \link[data.table]{data.table}.
-#' @param on For details see \link[data.table]{data.table}.
+#'   names or numeric positions. For details see [data.table][data.table::data.table].
+#' @param verbose logical. For details see [data.table][data.table::data.table].
+#' @param allow.cartesian For details see [data.table][data.table::data.table].
+#' @param drop For details see [data.table][data.table::data.table].
+#' @param on For details see [data.table][data.table::data.table].
 #'
-#' @return It depends. For details see \link[data.table]{data.table}.
+#' @return It depends. For details see [data.table][data.table::data.table].
 #' @export
 #'
 #' @examples

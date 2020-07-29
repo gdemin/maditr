@@ -32,30 +32,28 @@ take_all(data, ..., by, keyby, .SDcols, suffix = TRUE, sep = "_", i)
 to data.table. \code{let} modify data.table object in-place.}
 
 \item{i}{integer/logical vector. Supposed to use to subset/conditional
-modifications of \code{data}. For details see \link[data.table]{data.table}}
+modifications of \code{data}. For details see \link[data.table:data.table]{data.table}}
 
 \item{...}{List of variables or name-value pairs of summary/modifications
 functions. The name will be the name of the variable in the result. In the
-\code{let} and \code{take} functions we can use \code{a = b} or \code{a :=
-b} notation. Advantages of \code{:=} is parametric assignment, e. g.
+\code{let} and \code{take} functions we can use \code{a = b} or \code{a := b} notation. Advantages of \verb{:=} is parametric assignment, e. g.
 \code{(a) := 2} create variable with name which are stored in \code{a}. In
-\code{let} \code{:=} can be used for multiassignment (\code{c("a", "b")  :=
-list(1,2)}). Expression in the 'take_all' and 'let_all' can use predefined
+\code{let} \verb{:=} can be used for multiassignment (\code{c("a", "b")  := list(1,2)}). Expression in the 'take_all' and 'let_all' can use predefined
 variables: '.x' is a value of current variable, '.name' is a name of
 the variable and '.index' is sequential number of the variable. '.value' is
 is an alias to '.x'.}
 
 \item{by}{unquoted name of grouping variable of list of unquoted names of
-grouping variables. For details see \link[data.table]{data.table}}
+grouping variables. For details see \link[data.table:data.table]{data.table}}
 
 \item{keyby}{Same as \code{by}, but with an additional \code{setkey()} run on the by
 columns of the result, for convenience. It is common practice to use
 'keyby=' routinely when you wish the result to be sorted. For details see
-\link[data.table]{data.table}.}
+\link[data.table:data.table]{data.table}.}
 
 \item{.SDcols}{Specifies the columns of x to be included in the special
 symbol .SD which stands for Subset of data.table. May be character column
-names or numeric positions. For details see \link[data.table]{data.table}.}
+names or numeric positions. For details see \link[data.table:data.table]{data.table}.}
 
 \item{autoname}{logical. TRUE by default. Should we create names for  unnamed expressions in \code{take}?}
 
@@ -78,33 +76,36 @@ data.table. \code{let} returns its result invisibly.
 }
 \description{
 \itemize{
-\item{let}{ adds new variables or modify existing variables. 'let_if' make
-the same thing on the subset of rows.}
-\item{take/take_if}{ aggregates data or select subset of the data by rows or
-columns.}
-\item{let_all}{ apply expressions to all variables in the dataset. It is also
-possible to modify the subset of the variables.}
-\item{take_all}{ aggregate all variables in the dataset. It is also possible
-to aggregate the subset of the variables.}
-}
+\item \code{let} adds new variables or modify existing variables. 'let_if' make
+the same thing on the subset of rows.
+\item \code{take/take_if} aggregate data or select subset of the data by rows or
+columns.
+\item \code{let_all} applies expressions to all variables in the dataset. It is also
+possible to modify the subset of the variables.
+\item \code{take_all} aggregates all variables in the dataset. It is also possible
+to aggregate the subset of the variables.
+}\preformatted{}
+
 All functions return \code{data.table}. Expression in the 'take_all' and
 'let_all' can use predefined variables: '.x' is a value of current variable ,
 '.name' is a name of the variable and '.index' is sequential number of the
 variable. '.value' is is an alias to '.x'.
 \itemize{
-\item{Add new variables: }{\code{let(mtcars, new_var = 42, new_var2 = new_var*hp)}}
-\item{Filter data: }{\code{take_if(mtcars, am==0)}}
-\item{Select variables: }{\code{take(mtcars, am, vs, mpg)}}
-\item{Aggregate data: }{\code{take(mtcars, mean_mpg = mean(mpg), by = am)}}
-\item{Aggregate all non-grouping columns: }{\code{take_all(mtcars, mean = mean(.x), sd = sd(.x), n = .N, by = am)}}
-\item{Aggregate all numeric columns: }{\code{take_all(iris, if(is.numeric(.x)) mean(.x))}}
-\item{To modify all non-grouping variables: }{\preformatted{
-      iris \%>\%
+\item Add new variables: \code{let(mtcars, new_var = 42, new_var2 = new_var*hp)}
+\item Filter data: \code{take_if(mtcars, am==0)}
+\item Select variables: \code{take(mtcars, am, vs, mpg)}
+\item Aggregate data: \code{take(mtcars, mean_mpg = mean(mpg), by = am)}
+\item Aggregate all non-grouping columns: \code{take_all(mtcars, mean = mean(.x), sd = sd(.x), n = .N, by = am)}
+\item Aggregate all numeric columns: \code{take_all(iris, if(is.numeric(.x)) mean(.x))}
+\item To modify all non-grouping variables:
+}\preformatted{      iris \%>\%
          let_all(
              scaled = (.x - mean(.x))/sd(.x),
              by = Species) \%>\%
-          head()}}
-\item{Aggregate specific columns: }{\code{take_all(iris, if(startsWith(.name, "Sepal")) mean(.x))}}
+          head()
+}
+\itemize{
+\item Aggregate specific columns: \code{take_all(iris, if(startsWith(.name, "Sepal")) mean(.x))}
 }
 }
 \examples{
