@@ -139,7 +139,10 @@ vlookup = function(lookup_value, dict, result_column = 2, lookup_column = 1, no_
     } else {
         res = dict[ind, result_column, drop = FALSE]
     }
-    if(!identical(no_match, NA)) res[is.na(ind), ] = no_match
+    if(!identical(no_match, NA)) {
+        ind = is.na(ind)
+        res[ind, ] = no_match
+    }
     res
 }
 
