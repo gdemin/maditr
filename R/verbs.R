@@ -122,45 +122,16 @@
 #' dt_arrange(mtcars, cyl, disp)
 #' dt_arrange(mtcars, -disp)
 dt_mutate = function(data, ..., by){
-    eval.parent(substitute(let(data, ...,
+    eval.parent(substitute(maditr::let(data, ...,
                                by = by))
     )
 }
 
-# \code{dt_mutate_if} completely different from 'dplyr' \code{mutate_if}.
-# It modifies subset of rows rather than subset of columns as in 'dplyr'
-# \item{\code{dt_mutate_if} }{makes the same thing as \code{dt_mutate} but
-# conditionally on subset of rows.}
-# @param i integer/logical vector. Supposed to use to
-#   modify subset of rows in \code{data}.
-# @rdname dt_mutate
-# @export
-# dt_mutate_if = function(data, i, ..., by, keyby){
-#     if(!is.data.frame(data)) stop("dt_mutate_if: 'data' should be data.frame or data.table")
-#     if(!is.data.table(data)){
-#         data = as.data.table(data)
-#     }
-#     filt__ = eval.parent(
-#         substitute(data[, i, by = by, keyby = keyby])
-#     )
-#     if(!(NROW(filt___)==1 || NROW(filt___)==NROW(data))) {
-#         stop(sprintf("dt_mutate_if: incorrect number of rows in condition: %s. 'data' have %s rows.", NROW(filt___), NROW(filt___)))
-#     }
-#     if(is.data.table(filt__)){
-#         filt___ = Reduce(f = `&`, filt___)
-#     }
-#     eval.parent(substitute(let_if(data,
-#                                   filt__,
-#                                   ...,
-#                                   by = by,
-#                                   keyby = keyby)
-#     ))
-# }
 
 #' @rdname dt_mutate
 #' @export
 dt_summarize = function(data, ..., by, keyby, fun = NULL){
-    eval.parent(substitute(take(data, ...,
+    eval.parent(substitute(maditr::take(data, ...,
                                 by = by,
                                 keyby = keyby,
                                 fun = fun))
@@ -171,7 +142,7 @@ dt_summarize = function(data, ..., by, keyby, fun = NULL){
 #' @export
 dt_summarize_all = function(data, fun, by, keyby){
     !missing(fun) || stop("'dt_summarize_all': argument 'fun' is missing.")
-    eval.parent(substitute(take(data,
+    eval.parent(substitute(maditr::take(data,
                                 by = by,
                                 keyby = keyby,
                                 fun = fun))
@@ -226,15 +197,9 @@ dt_filter.default = function(data, ...){
         curr_names = curr_names[curr_names!=""][[1]]
         stop(sprintf("'dt_filter': it seems you use '=' instead of '==': %s.", curr_names))
     }
-    if(!is.data.table(data)){
-        eval.parent(substitute(
-            as.data.table(data)[Reduce(f = '&', list(...)), ]
-        ))
-    } else {
-        eval.parent(substitute(
-            data[Reduce(f = '&', list(...)), ]
-        ))
-    }
+    eval.parent(substitute(
+        maditr::take_if(data, Reduce(f = '&', list(...)))
+    ))
 
 }
 

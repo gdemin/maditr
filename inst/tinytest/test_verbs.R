@@ -17,6 +17,21 @@ mt_dt2[am==0, mpg_hp := mpg/hp][am==0, new := mpg_hp*2]
 expect_identical(new_dt, mt_dt)
 expect_identical(new_dt, mt_dt2)
 expect_identical(new_dt2, mt_dt2)
+
+
+# test scopes
+my_take = function(coef2){
+    take(mtcars, res = sum(am*coef2))
+}
+
+my_let = function(coef3){
+    let(mtcars, res := am*coef3)
+}
+
+
+expect_identical(my_take(3), mt_dt[, .(res = sum(am*3))])
+mt_dt = as.data.table(mtcars)
+expect_identical(my_let(3), mt_dt[, res := am*3])
 ###############
 mt_dt = as.data.table(mtcars)
 mt_dt2 = data.table::copy(mt_dt)

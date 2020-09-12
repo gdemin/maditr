@@ -33,12 +33,12 @@ dt_count = function(data, ..., weight = NULL, sort = FALSE, name = "n"){
     name = as.symbol(name)
     weight_expr = substitute(weight)
     if(is.null(weight_expr)){
-        res = eval.parent(substitute(take(data, name := .N, by = .(...))))
+        res = eval.parent(substitute(maditr::take(data, name := .N, by = .(...))))
     } else {
-        res = eval.parent(substitute(take(data, name := sum(weight, na.rm = TRUE), by = .(...))))
+        res = eval.parent(substitute(maditr::take(data, name := sum(weight, na.rm = TRUE), by = .(...))))
     }
     if(sort) {
-        res = eval(substitute(sort_by(res, -name), list(name = name)))
+        res = eval(substitute(maditr::sort_by(res, -name), list(name = name)))
 
     }
     res
@@ -50,12 +50,12 @@ dt_add_count = function(data, ..., weight = NULL, sort = FALSE, name = "n"){
     name = as.symbol(name)
     weight_expr = substitute(weight)
     if(is.null(weight_expr)){
-        res = eval.parent(substitute(let(data, name := .N, by = .(...))))
+        res = eval.parent(substitute(maditr::let(data, name := .N, by = .(...))))
     } else {
-        res = eval.parent(substitute(let(data, name := sum(weight, na.rm = TRUE), by = .(...))))
+        res = eval.parent(substitute(maditr::let(data, name := sum(weight, na.rm = TRUE), by = .(...))))
     }
     if(sort) {
-        res = eval(substitute(sort_by(res, -name), list(name = name)))
+        res = eval(substitute(maditr::sort_by(res, -name), list(name = name)))
 
     }
     res
@@ -70,11 +70,11 @@ dt_top_n = function(data, n, by, order_by = NULL){
     }
     if(n>0){
         eval.parent(substitute({
-            query(sort_by(data, -order_by), head(.SD, n), by = by)
+            maditr::query(sort_by(data, -order_by), head(.SD, n), by = by)
         }))
     } else {
         eval.parent(substitute({
-            query(sort_by(data, -order_by), tail(.SD, -n), by = by)
+            maditr::query(sort_by(data, -order_by), tail(.SD, -n), by = by)
         }))
     }
 

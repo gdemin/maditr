@@ -16,13 +16,13 @@ let_all = function(data,
 
 #' @export
 let_all.data.frame = function(data,
-                           ...,
-                           by,
-                           keyby,
-                           .SDcols,
-                           suffix = TRUE,
-                           sep = "_",
-                           i
+                              ...,
+                              by,
+                              keyby,
+                              .SDcols,
+                              suffix = TRUE,
+                              sep = "_",
+                              i
 ){
     j_expr = substitute(list(...))
     j_expr = as.list(j_expr)[-1]
@@ -45,11 +45,11 @@ let_all.data.frame = function(data,
     # we need to know resulting names
     # this is simplest method to escape complexities with by, keyby and SDCols interaction
     one_row = as.data.table(data[1,, drop = FALSE])
-    ._orig_names = eval.parent(substitute(one_row[, list(._res_names = names(.SD)),
-                                                 by = by,
-                                                 keyby = keyby,
-                                                 .SDcols = .SDcols
-                                                 ]))[["._res_names"]]
+    ._orig_names = eval.parent(substitute(maditr::query(one_row, list(._res_names = names(.SD)),
+                                                        by = by,
+                                                        keyby = keyby,
+                                                        .SDcols = .SDcols
+    )))[["._res_names"]]
     j_expr_names = names(j_expr)
     j_expr_names[!(j_expr_names %in% "")] = make.unique(j_expr_names[!(j_expr_names %in% "")])
     ._all_names = lapply(j_expr_names, function(curr_name){
@@ -128,18 +128,16 @@ let_all.data.frame = function(data,
     }
     ####
     ._all_names = unlist(._all_names, recursive = TRUE, use.names = FALSE)
-    if(is.data.table(data)){
-        expr = substitute(data[i, (._all_names) := j_expr,
-                               by = by,
-                               keyby = keyby,
-                               .SDcols = .SDcols])
-    } else {
-        expr = substitute(as.data.table(data)[i, (._all_names) := j_expr,
-                                              by = by,
-                                              keyby = keyby,
-                                              .SDcols = .SDcols])
 
-    }
+    expr = substitute(maditr::query_if(data,
+                                       i,
+                                       (._all_names) := j_expr,
+                                       by = by,
+                                       keyby = keyby,
+                                       .SDcols = .SDcols
+    )
+    )
+
     res = eval.parent(expr)
     if(length(to_drop)>0){
         res[,(names(to_drop)):=NULL]
@@ -243,7 +241,7 @@ take_all.data.frame = function(data,
     }
     ####
 
-    expr = substitute(query_if(data, i, j_expr,
+    expr = substitute(maditr::query_if(data, i, j_expr,
                                by = by,
                                keyby = keyby,
                                .SDcols = .SDcols)

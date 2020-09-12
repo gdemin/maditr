@@ -202,7 +202,7 @@ to_vec = function(data,
                   trace_step = 1L,
                   recursive = TRUE,
                   use.names = TRUE){
-    res = eval.parent(substitute(to_list(data, expr, ..., skip_null = skip_null, trace = trace, trace_step = trace_step)))
+    res = eval.parent(substitute(maditr::to_list(data, expr, ..., skip_null = skip_null, trace = trace, trace_step = trace_step)))
     unlist(res, recursive = recursive, use.names = use.names)
 
 }
@@ -219,7 +219,7 @@ to_df = function(data,
                  idname = "item_id"){
     res = eval.parent(
         substitute(
-            to_list(data,
+            maditr::to_list(data,
                     expr,
                     ...,
                     trace = trace,
@@ -234,7 +234,7 @@ to_df = function(data,
     }
     idvalue_expr = substitute(idvalue)
     if(!is.null(idvalue_expr)){
-        idvalue = eval.parent(substitute(to_list(data, expr = idvalue, skip_null = FALSE)))
+        idvalue = eval.parent(substitute(maditr::to_list(data, expr = idvalue, skip_null = FALSE)))
         for(i in seq_along(data)){
             if(!is.null(res[[i]]) && !is.null(idvalue[[i]])){
                 res[[i]][[idname]] = idvalue[[i]]
@@ -257,7 +257,7 @@ to_dfc = function(data,
                   trace_step = 1){
     res = eval.parent(
         substitute(
-            to_list(data,
+            maditr::to_list(data,
                     expr,
                     ...,
                     trace = trace,

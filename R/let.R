@@ -307,13 +307,8 @@ let_if.data.frame = function(data,
         }
     }
     ####
-    if(is.data.table(data)){
-        first_expr_part = substitute(data)
-    } else {
-        first_expr_part = substitute(as.data.table(data))
-    }
-    curr_expr = substitute(data[i, , by = by, keyby = keyby])
-    curr_expr[[2]] =  first_expr_part
+    # NULL is a placeholder, we replace it with real expression in the next line
+    curr_expr = substitute(maditr::query_if(data, i, NULL, by = by, keyby = keyby))
     curr_expr[[4]] = j_list[[1]]
     for(expr in j_list[-1]){
         new_expr = curr_expr
@@ -356,12 +351,12 @@ take_if.data.frame = function(data,
         # no j-arguments
         if(is.null(fun)){
             return(
-                eval.parent(substitute(query_if(data, i)))
+                eval.parent(substitute(maditr::query_if(data, i)))
             )
 
         }
         return(
-            eval.parent(substitute(query_if(data, i,
+            eval.parent(substitute(maditr::query_if(data, i,
                                             lapply(.SD, fun),
                                             by = by,
                                             keyby = keyby,
@@ -375,11 +370,10 @@ take_if.data.frame = function(data,
     }
     j_expr = as.call(c(list(quote(list)), j_expr))
     ###################
-    # TODO make 'fun' deprecated in favor for 'take_all'?
     if(!is.null(fun)){
         j_expr = substitute(lapply(j_expr, fun))
     }
-    eval.parent(substitute(query_if(data, i, j_expr,
+    eval.parent(substitute(maditr::query_if(data, i, j_expr,
                                by = by,
                                keyby = keyby,
                                .SDcols = .SDcols)))
@@ -409,7 +403,7 @@ take.data.frame = function(data,
                 i
 ){
     eval.parent(
-        substitute(take_if(data,
+        substitute(maditr::take_if(data,
                            i,
                            ...,
                            by = by,
@@ -441,7 +435,7 @@ let.data.frame = function(data,
                i
 ){
     eval.parent(
-        substitute(let_if(data,
+        substitute(maditr::let_if(data,
                            i,
                            ...,
                            by = by,
@@ -465,9 +459,9 @@ sort_by = function(data, ..., na.last = FALSE){
 #' @export
 sort_by.data.frame = function(data, ..., na.last = FALSE){
     if(!is.data.table(data)){
-        eval.parent(substitute(setorder(as.data.table(data), ..., na.last = na.last)))
+        eval.parent(substitute(data.table::setorder(data.table::as.data.table(data), ..., na.last = na.last)))
     } else {
-        eval.parent(substitute(setorder(data, ..., na.last = na.last)))
+        eval.parent(substitute(data.table::setorder(data, ..., na.last = na.last)))
     }
 }
 

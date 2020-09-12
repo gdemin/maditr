@@ -284,7 +284,7 @@ query_if.data.frame = function(data,
                     on = NULL){
     call_expr = sys.call()
     if(!is.data.table(data)){
-        call_expr[[2]] = substitute(as.data.table(data))
+        call_expr[[2]] = substitute(data.table::as.data.table(data))
     }
     call_expr[[1]] = as.symbol("[")
     eval.parent(call_expr)
@@ -310,7 +310,7 @@ query.data.frame = function(data,
                  drop = NULL,
                  on = NULL){
     call_expr = as.list(sys.call())
-    call_expr[[1]] = as.symbol("query_if")
+    call_expr[[1]] = quote(maditr::query_if)
     # insert empty i
     call_expr =  as.call(c(call_expr[1:2], list(substitute()), call_expr[-(1:2)]))
     eval.parent(call_expr)
