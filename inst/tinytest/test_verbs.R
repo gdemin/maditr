@@ -11,9 +11,9 @@ expect_error(let(mtcars, am*2))
 cat("\nContext:", "let/let_if", "\n")
 mt_dt = as.data.table(mtcars)
 mt_dt2 = data.table::copy(mt_dt)
-new_dt = let_if(mt_dt, am==0, mpg_hp = mpg/hp, new = mpg_hp*2)
-new_dt2 = let_if(mtcars, am==0, mpg_hp = mpg/hp, new = mpg_hp*2)
-mt_dt2[am==0, mpg_hp := mpg/hp][am==0, new := mpg_hp*2]
+new_dt = let_if(mt_dt, am==0, mpg_hp = mpg/hp, new = mpg_hp*2, new2 := new*4)
+new_dt2 = let_if(mtcars, am==0, mpg_hp = mpg/hp, new = mpg_hp*2, new2 := new*4)
+mt_dt2[am==0, mpg_hp := mpg/hp][am==0, new := mpg_hp*2][am==0, new2 := new*4]
 expect_identical(new_dt, mt_dt)
 expect_identical(new_dt, mt_dt2)
 expect_identical(new_dt2, mt_dt2)
@@ -52,6 +52,22 @@ expect_identical(new_dt, mt_dt)
 expect_identical(new_dt, mt_dt2)
 expect_identical(new_dt2, mt_dt2)
 
+etab = data.frame(a = 1:2, b = 3:4)
+class(etab) = c("etable", class(etab))
+res = etab
+res$new = c(1, NA)
+etab2 = let_if(
+    etab,
+    1,
+    new = 1
+)
+expect_identical(res, etab2)
+res$new = 1
+etab2 = let(
+    etab,
+    new = 1
+)
+expect_identical(res, etab2)
 ###############
 mt_dt = as.data.table(mtcars)
 mt_dt2 = data.table::copy(mt_dt)

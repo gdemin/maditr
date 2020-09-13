@@ -6,6 +6,7 @@
 \alias{take}
 \alias{let}
 \alias{let.data.frame}
+\alias{let.etable}
 \alias{sort_by}
 \alias{let_all}
 \alias{take_all}
@@ -20,6 +21,8 @@ take(data, ..., by, keyby, .SDcols, autoname = TRUE, fun = NULL)
 let(data, ..., by, keyby)
 
 \method{let}{data.frame}(data, ..., by, keyby, i)
+
+\method{let}{etable}(data, ..., by, keyby, i)
 
 sort_by(data, ..., na.last = FALSE)
 

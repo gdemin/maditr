@@ -279,6 +279,29 @@ let_if = function(data,
 }
 
 #' @export
+let_if.etable = function(data,
+                  i,
+                  ...,
+                  by,
+                  keyby
+){
+   data_class = class(data)
+   data = as.data.table(data)
+   res = eval.parent(
+           substitute(maditr::let_if(data,
+                                     i,
+                                     ...,
+                                     by = by,
+                                     keyby = keyby
+           )
+           )
+       )
+   setDF(res)
+   class(res) = data_class
+   res
+}
+
+#' @export
 let_if.data.frame = function(data,
                   i,
                   ...,
@@ -444,6 +467,26 @@ let.data.frame = function(data,
         )
     )
 }
+
+#' @rdname let_if
+#' @export
+let.etable = function(data,
+                          ...,
+                          by,
+                          keyby,
+                          i
+){
+    eval.parent(
+        substitute(maditr::let_if(data,
+                                  i,
+                                  ...,
+                                  by = by,
+                                  keyby = keyby
+        )
+        )
+    )
+}
+
 
 
 
