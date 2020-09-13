@@ -15,6 +15,35 @@ let_all = function(data,
 }
 
 #' @export
+let_all.etable = function(data,
+                         ...,
+                         by,
+                         keyby,
+                         .SDcols,
+                         suffix = TRUE,
+                         sep = "_",
+                         i
+){
+    data_class = class(data)
+    data = as.data.table(data)
+    res = eval.parent(
+        substitute(maditr::let_all(data,
+                                  ...,
+                                  by = by,
+                                  keyby = keyby,
+                                  .SDcols = .SDcols,
+                                  suffix = suffix,
+                                  sep = sep,
+                                  i = i
+        )
+        )
+    )
+    setDF(res)
+    class(res) = data_class
+    res
+}
+
+#' @export
 let_all.data.frame = function(data,
                               ...,
                               by,

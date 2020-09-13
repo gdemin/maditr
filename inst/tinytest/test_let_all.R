@@ -152,3 +152,16 @@ expect_equal(
     let_all(iris, mean = mean, .SDcols = -"Species"),
     dt_iris[,paste0(names(dt_iris)[-5], "_mean") := lapply(.SD, mean), .SDcols = -"Species"]
 )
+
+
+#### with etable
+
+etab = data.frame(a = 1:2, b = 3:4)
+class(etab) = c("etable", class(etab))
+res = etab
+res$a_new = res$a + 1
+res$b_new = res$b + 1
+
+etab2 = let_all(etab, new = .x + 1)
+expect_identical(etab2, res)
+
