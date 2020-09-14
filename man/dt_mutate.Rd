@@ -29,8 +29,7 @@ dt_arrange(data, ..., na.last = FALSE)
 }
 \arguments{
 \item{data}{data.table/data.frame data.frame will be automatically converted
-to data.table. \code{dt_mutate}, \code{dt_mutate_if}, \code{dt_mutate_if}
-modify data.table object in-place.}
+to data.table. \code{dt_mutate} modify data.table object in-place.}
 
 \item{...}{List of variables or name-value pairs of summary/modifications
 functions. The name will be the name of the variable in the result. In the
@@ -51,6 +50,9 @@ columns of the result, for convenience. It is common practice to use
 
 \item{na.last}{logical. FALSE by default. If TRUE, missing values in the data
 are put last; if FALSE, they are put first.}
+}
+\value{
+data.table
 }
 \description{
 Subset of 'dplyr' verbs to work with data.table. Note that there is no

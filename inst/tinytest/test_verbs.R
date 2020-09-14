@@ -232,3 +232,16 @@ res2 = take(mt_dt, (new_var) := eval(expr1), (new_var2) := eval(expr2), by = am)
 res3 = mt_dt[, list(agg = mean(mpg), agg2 = mean(hp)), by = am]
 expect_equal(res3, res)
 expect_equal(res3, res2)
+
+cat("\nContext: columns\n")
+etab = data.frame(a = 1:2, b = 3:4)
+class(etab) = c("etable", class(etab))
+res = etab[,2, drop = FALSE]
+expect_identical(res, columns(etab, "b"))
+
+mt_dt = as.data.table(mtcars)
+
+expect_identical(
+    columns(mt_dt, mpg:hp, carb),
+    columns(mtcars, mpg %to% hp, carb)
+)
