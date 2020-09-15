@@ -81,6 +81,28 @@ expect_identical(
 
 ###
 my_columns = function(my_dims){
+    columns(iris, my_dims)
+}
+
+expect_identical(
+    my_columns("Petal.{dims}"),
+    iris[, (4:3)]
+)
+
+###
+
+my_columns = function(my_dims){
+    columns(iris, -my_dims)
+}
+
+expect_identical(
+    my_columns("Petal.{dims}"),
+    iris[, -(4:3)]
+)
+
+###
+
+my_columns = function(my_dims){
     columns(iris, -"Petal.{my_dims}")
 }
 
@@ -89,7 +111,6 @@ expect_identical(
     iris[, -(3:4)]
 )
 
-###
 
 my_columns = function(my_dims){
     columns(iris, "Petal.{dims}")
