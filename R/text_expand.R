@@ -23,9 +23,7 @@
 #' text_expand("'iris' has {nrow(iris)} rows.")
 #' @export
 text_expand = function(..., delim = c("\\{", "\\}")){
-    if(length(delim)!=2){
-        stop("'text_expand': 'delim' should be vector of length two.")
-    }
+    length(delim)!=2 && stop("'text_expand': 'delim' should be vector of length two.")
     left = delim[[1]]
     right = delim[[2]]
     pattern = paste0(left, "(.+?)", right)
