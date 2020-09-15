@@ -119,45 +119,6 @@ expect_identical(new_dt2, res3)
 cat("\nContext:", "dt_select", "\n")
 mt_dt = as.data.table(mtcars)
 res1 = dt_select(mt_dt, -cyl, -am)
-res2 = dt_select(mtcars, -cyl, -am)
 res3 = mt_dt[, -c(2,9), with = FALSE]
 expect_identical(res1, res3)
-expect_identical(res2, res3)
-
-mt_dt = as.data.table(mtcars)
-res1 = dt_select(mt_dt, cyl:wt, am)
-res2 = dt_select(mtcars, cyl:wt, am)
-res3 = mt_dt[, c(2:6, 9), with = FALSE]
-expect_identical(res1, res3)
-expect_identical(res2, res3)
-
-mt_dt = as.data.table(mtcars)
-res1 = dt_select(mt_dt, -(cyl:wt), -am)
-res2 = dt_select(mtcars, -(cyl:wt), -am)
-res3 = mt_dt[, -c(2:6, 9), with = FALSE]
-expect_identical(res1, res3)
-expect_identical(res2, res3)
-
-data(iris)
-dt_iris = as.data.table(iris)
-res1 = dt_select(dt_iris, Species, "^Sepal")
-expect_identical(res1, dt_iris[,.(Species, Sepal.Length, Sepal.Width)])
-my_sepal = "^Sepal"
-res1 = dt_select(dt_iris, Species, my_sepal)
-expect_identical(res1, dt_iris[,.(Species, Sepal.Length, Sepal.Width)])
-
-res1 = dt_select(dt_iris, Species, "^.")
-expect_identical(res1, dt_iris[,c(5, 1:4)])
-
-res1 = dt_select(dt_iris, Species, "^Sepal", "Width$")
-expect_identical(res1, dt_iris[,c(5, 1:2, 4)])
-res1 = dt_select(dt_iris,  "^.+\\.")
-expect_identical(res1, dt_iris[,c(1:4)])
-
-res1 = dt_select(dt_iris,  Species, Species)
-expect_identical(res1, dt_iris[,c(5)])
-
-res1 = dt_select(dt_iris,  "Species")
-expect_identical(res1, dt_iris[,c(5)])
-
 

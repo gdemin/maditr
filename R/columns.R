@@ -40,15 +40,15 @@ columns = function(data, ...){
     UseMethod("columns")
 }
 
-#' @export
-columns.etable = function(data, ...){
-    data_class = class(data)
-    res = eval.parent(
-        substitute(maditr::columns(data, ...))
-    )
-    class(res) = data_class
-    res
-}
+# @export
+# columns.etable = function(data, ...){
+#     data_class = class(data)
+#     res = eval.parent(
+#         substitute(maditr::columns(data, ...))
+#     )
+#     class(res) = data_class
+#     res
+# }
 
 #' @export
 columns.data.frame = function(data, ...){
@@ -56,11 +56,12 @@ columns.data.frame = function(data, ...){
     var_list = substitute_symbols(var_list, list("%to%" = quote(`:`), "-" = quote(`__.my_custom_not_`)))
     all_indexes = as.list(seq_along(data))
     data_names = colnames(data)
+    parent_frame = parent.frame()
     names(all_indexes) = data_names
     "__.my_custom_not_" = function(e1, e2){
         if(missing(e2)){
             if(is.character(e1)){
-                var_indexes = expand_selectors(e1, data_names)
+                var_indexes = expand_selectors(e1, data_names, parent_frame)
                 return(-var_indexes)
             } else {
                 return(-e1)
@@ -69,8 +70,8 @@ columns.data.frame = function(data, ...){
         base::`-`(e1, e2)
     }
     all_indexes = c(all_indexes, c("__.my_custom_not_" = `__.my_custom_not_`))
-    var_indexes = eval(var_list, all_indexes, parent.frame())
-    var_indexes = expand_selectors(var_indexes, data_names)
+    var_indexes = eval(var_list, all_indexes, parent_frame)
+    var_indexes = expand_selectors(var_indexes, data_names, parent_frame)
     var_indexes = unique(unlist(var_indexes, use.names = FALSE))
     if(is.data.table(data)){
         query(data, var_indexes, with = FALSE)
@@ -81,8 +82,9 @@ columns.data.frame = function(data, ...){
 }
 
 
-expand_selectors = function(selected, df_names){
+expand_selectors = function(selected, df_names, frame){
     selected = lapply(selected, function(item){
+        if(length(item)>1) return(expand_selectors(item, df_names, frame))
         res = item
         if(is.character(item)){
             if(is_regex(item)){
@@ -90,7 +92,7 @@ expand_selectors = function(selected, df_names){
                 any(lengths(res)==0) && stop(paste("'columns' - there are no variables which match regex(-s): ",item))
 
             } else {
-                res = text_expand(item)
+                res = eval(substitute(maditr::text_expand(item), list(item = item)), envir = frame)
                 res = match(res, df_names)
                 anyNA(res) && stop(paste("'columns' - variable not found: ",item))
             }
