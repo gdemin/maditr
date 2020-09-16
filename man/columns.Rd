@@ -2,9 +2,12 @@
 % Please edit documentation in R/columns.R
 \name{columns}
 \alias{columns}
+\alias{rows}
 \title{Selects columns from the data set}
 \usage{
 columns(data, ...)
+
+rows(data, ...)
 }
 \arguments{
 \item{data}{data.table/data.frame data.frame will be automatically converted

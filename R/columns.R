@@ -82,6 +82,29 @@ columns.data.frame = function(data, ...){
 }
 
 
+#' @rdname columns
+#' @export
+rows = function(data, ...){
+    UseMethod("rows")
+}
+
+
+#' @export
+rows.data.frame = function(data, ...){
+    curr_names = names(substitute(list(...)))
+    if(!is.null(curr_names)){
+        if(any(c("by", "keyby") %in% curr_names)){
+            stop("'rows': you try to use 'by' or 'keyby'. Sorry, but grouped filtering is not yet supported.")
+        }
+        curr_names = curr_names[curr_names!=""][[1]]
+        stop(sprintf("'rows': it seems you use '=' instead of '==': %s.", curr_names))
+    }
+    eval.parent(substitute(
+        maditr::query_if(data, Reduce(f = '&', list(...)))
+    ))
+
+}
+
 expand_selectors = function(selected, df_names, frame){
     selected = lapply(selected, function(item){
         if(length(item)>1) return(expand_selectors(item, df_names, frame))
