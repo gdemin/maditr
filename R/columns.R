@@ -40,23 +40,44 @@ columns = function(data, ...){
     UseMethod("columns")
 }
 
-# @export
-# columns.etable = function(data, ...){
-#     data_class = class(data)
-#     res = eval.parent(
-#         substitute(maditr::columns(data, ...))
-#     )
-#     class(res) = data_class
-#     res
-# }
 
 #' @export
 columns.data.frame = function(data, ...){
-    var_list = substitute(list(...))
-    var_list = substitute_symbols(var_list, list("%to%" = quote(`:`), "-" = quote(`__.my_custom_not_`)))
-    all_indexes = as.list(seq_along(data))
     data_names = colnames(data)
     parent_frame = parent.frame()
+    var_indexes = column_selector(..., data_names = data_names, parent_frame = parent_frame)
+    if(is.data.table(data)){
+        query(data, var_indexes, with = FALSE)
+    } else {
+        data[, var_indexes, drop = FALSE]
+    }
+
+}
+
+expand_double_dots = function(expr, data_names, parent_frame){
+    if(is.call(expr) && length(expr)>1){
+        curr = expr[[1]]
+        if(identical(curr, quote(..)) || identical(curr, quote(columns)) || identical(curr, quote(`%to%`))){
+            if(identical(curr, quote(`%to%`))){
+                expr = bquote(column_selector(.(expr)))
+            } else {
+                expr[[1]] = quote(column_selector)
+            }
+            expr = as.call(c(as.list(expr), list(data_names = data_names, parent_frame = parent_frame)))
+            var_indexes = eval(expr)
+            expr = bquote(.SD[,.(var_indexes)])
+        } else {
+            res = lapply(as.list(expr), expand_double_dots, data_names = data_names, parent_frame = parent_frame)
+            expr = as.call(res)
+        }
+    }
+    expr
+}
+
+column_selector = function(..., data_names, parent_frame){
+    var_list = substitute(list(...))
+    var_list = substitute_symbols(var_list, list("%to%" = quote(`:`), "-" = quote(`__.my_custom_not_`)))
+    all_indexes = as.list(seq_along(data_names))
     names(all_indexes) = data_names
     "__.my_custom_not_" = function(e1, e2){
         if(missing(e2)){
@@ -73,14 +94,8 @@ columns.data.frame = function(data, ...){
     var_indexes = eval(var_list, all_indexes, parent_frame)
     var_indexes = expand_selectors(var_indexes, data_names, parent_frame)
     var_indexes = unique(unlist(var_indexes, use.names = FALSE))
-    if(is.data.table(data)){
-        query(data, var_indexes, with = FALSE)
-    } else {
-        data[, var_indexes, drop = FALSE]
-    }
-
+    var_indexes
 }
-
 
 #' @rdname columns
 #' @export

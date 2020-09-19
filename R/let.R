@@ -392,10 +392,21 @@ take_if.data.frame = function(data,
         j_expr = add_names_to_quoted_list(j_expr)
     }
     j_expr = as.call(c(list(quote(list)), j_expr))
+    # this is simplest method to escape complexities with by, keyby and SDCols interaction
+    one_row = as.data.table(as.list(setNames(rep(1L, NCOL(data)), names(data))))
+    data_names = eval.parent(substitute(maditr::query(one_row, list(._res_names = names(.SD)),
+                                                        by = by,
+                                                        keyby = keyby,
+                                                        .SDcols = .SDcols
+    )))[["._res_names"]]
+
+    j_expr = expand_double_dots(j_expr, data_names = data_names, parent_frame = parent.frame())
+
     ###################
     if(!is.null(fun)){
         j_expr = substitute(lapply(j_expr, fun))
     }
+    print(j_expr)
     eval.parent(substitute(maditr::query_if(data, i, j_expr,
                                by = by,
                                keyby = keyby,

@@ -28,6 +28,10 @@ substitute_symbols = function(substitute_result, symbols) {
 }
 
 
+substitute_symbols = function(substitute_result, symbols) {
+    eval(bquote(substitute(.(substitute_result), symbols)))
+}
+
 is_regex = function(txt){
     startsWith(txt, "^") | endsWith(txt, "$")
 }

@@ -73,7 +73,7 @@ let_all.data.frame = function(data,
     ## duplicated names will be made unique
     # we need to know resulting names
     # this is simplest method to escape complexities with by, keyby and SDCols interaction
-    one_row = as.data.table(data[1,, drop = FALSE])
+    one_row = as.data.table(as.list(setNames(rep(1L, NCOL(data)), names(data))))
     ._orig_names = eval.parent(substitute(maditr::query(one_row, list(._res_names = names(.SD)),
                                                         by = by,
                                                         keyby = keyby,
