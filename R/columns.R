@@ -54,7 +54,7 @@ columns.data.frame = function(data, ...){
 
 }
 
-expand_double_dots = function(expr, data_names, parent_frame){
+expand_double_dots = function(expr, data_names, parent_frame, use_sd = TRUE){
     if(is.call(expr) && length(expr)>1){
         curr = expr[[1]]
         if(identical(curr, quote(..)) || identical(curr, quote(columns)) || identical(curr, quote(`%to%`))){
@@ -65,9 +65,14 @@ expand_double_dots = function(expr, data_names, parent_frame){
             }
             expr = as.call(c(as.list(expr), list(data_names = data_names, parent_frame = parent_frame)))
             var_indexes = eval(expr)
-            expr = bquote(.SD[,.(var_indexes)])
+            if(use_sd){
+                expr = bquote(.SD[,.(var_indexes)])
+            } else {
+                symbols = lapply(data_names[var_indexes], as.symbol)
+                expr = as.call(c(quote(data.table), symbols))
+            }
         } else {
-            res = lapply(as.list(expr), expand_double_dots, data_names = data_names, parent_frame = parent_frame)
+            res = lapply(as.list(expr), expand_double_dots, data_names = data_names, parent_frame = parent_frame, use_sd = use_sd)
             expr = as.call(res)
         }
     }

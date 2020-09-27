@@ -1,4 +1,4 @@
-cat("\nContext:", "selectors", "\n")
+cat("\nContext:", "take selectors", "\n")
 
 data(mtcars)
 dt_mt = as.data.table(mtcars)
@@ -59,4 +59,13 @@ expect_identical(
 expect_identical(
     take(mtcars, my_sum = sum(columns(-disp)), by = am),
     dt_mt[,.(my_sum = sum(.SD[,-3])), by = am]
+)
+
+cat("\nContext:", "take_if selectors", "\n")
+a = "cyl"
+expect_identical(
+    take_if(mtcars,
+            (columns(a) == 4)[,1],
+            my_sum = sum(vs), by = am),
+    dt_mt[cyl == 4,.(my_sum = sum(vs)), by = am]
 )

@@ -317,3 +317,30 @@ query.data.frame = function(data,
 }
 
 
+query_with_preproc = function(data, i, j, by, keyby, .SDcols, parent_frame){
+    i_expr = substitute(i)
+    j_expr = substitute(j)
+    # this is simplest method to escape complexities with by, keyby and SDCols interaction
+    one_row = eval(substitute(maditr::as.data.table(data[1,, drop = FALSE])), envir = parent_frame)
+    data_names = eval(substitute(maditr::query(one_row, list(._res_names = names(.SD)),
+                                                      by = by,
+                                                      keyby = keyby,
+                                                      .SDcols = .SDcols
+    )), envir = parent_frame)[["._res_names"]]
+
+    if(!missing(i)) i_expr = expand_double_dots(i_expr, data_names = data_names, parent_frame = parent_frame, use_sd = FALSE)
+    if(!missing(j)) j_expr = expand_double_dots(j_expr, data_names = data_names, parent_frame = parent_frame, use_sd = TRUE)
+    # if(!missing(i)) print(i_expr)
+    # if(!missing(j)) print(j_expr)
+    eval(substitute(maditr::query_if(data,
+                                     i_expr,
+                                     j_expr,
+                                     by = by,
+                                     keyby = keyby,
+                                     .SDcols = .SDcols
+    )
+    ),
+    envir = parent_frame
+    )
+
+}
