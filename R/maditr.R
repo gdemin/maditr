@@ -242,6 +242,10 @@ data.table::setkey
 #' @export
 data.table::setkeyv
 #' @export
+data.table::setindex
+#' @export
+data.table::setindexv
+#' @export
 data.table::chmatch
 #' @export
 data.table::`%chin%`
