@@ -316,31 +316,25 @@ query.data.frame = function(data,
     eval.parent(call_expr)
 }
 
+# expr should be stricktly result of substitute(query_if(data, i, j, ...))
+# by, keyby, .SDcols shoud be named arguments
+preproc_query_if = function(data_names, expr, parent_frame){
+    # is_empty = function(x) is.symbol(x) && as.character(x) == ''
 
-query_with_preproc = function(data, i, j, by, keyby, .SDcols, parent_frame){
-    i_expr = substitute(i)
-    j_expr = substitute(j)
-    # this is simplest method to escape complexities with by, keyby and SDCols interaction
-    one_row = eval(substitute(maditr::as.data.table(data[1,, drop = FALSE])), envir = parent_frame)
-    data_names = eval(substitute(maditr::query(one_row, list(._res_names = names(.SD)),
-                                                      by = by,
-                                                      keyby = keyby,
-                                                      .SDcols = .SDcols
-    )), envir = parent_frame)[["._res_names"]]
-
-    if(!missing(i)) i_expr = expand_double_dots(i_expr, data_names = data_names, parent_frame = parent_frame, use_sd = FALSE)
-    if(!missing(j)) j_expr = expand_double_dots(j_expr, data_names = data_names, parent_frame = parent_frame, use_sd = TRUE)
+    # expr = substitute(expr)
+    if(length(expr)>2){
+        i_expr = expr[[3]]
+        if(!missing(i_expr)) {
+            expr[[3]] = expand_double_dots(i_expr, data_names = data_names, parent_frame = parent_frame)
+        }
+    }
+    if(length(expr)>3){
+        j_expr = expr[[4]]
+        if(!missing(j_expr)) {
+            expr[[4]] = expand_double_dots(j_expr, data_names = data_names, parent_frame = parent_frame)
+        }
+    }
     # if(!missing(i)) print(i_expr)
     # if(!missing(j)) print(j_expr)
-    eval(substitute(maditr::query_if(data,
-                                     i_expr,
-                                     j_expr,
-                                     by = by,
-                                     keyby = keyby,
-                                     .SDcols = .SDcols
-    )
-    ),
-    envir = parent_frame
-    )
-
+    expr
 }

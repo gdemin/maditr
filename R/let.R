@@ -330,16 +330,19 @@ let_if.data.frame = function(data,
         }
     }
     ####
-    # NULL is a placeholder, we replace it with real expression in the next line
-    curr_expr = substitute(maditr::query_if(data, i, NULL, by = by, keyby = keyby))
-    curr_expr[[4]] = j_list[[1]]
-    for(expr in j_list[-1]){
-        new_expr = curr_expr
-        new_expr[[2]] = curr_expr
-        new_expr[[4]] = expr
-        curr_expr = new_expr
+    # if data is expression we want to calculate it only once
+    res = data
+    parent_frame = parent.frame()
+
+    for(expr in j_list){
+        data_names = names(res)
+        curr_expr = substitute(maditr::query_if(res, i, expr, by = by, keyby = keyby))
+        # curr_expr = eval(substitute(preproc_query_if(data_names, curr_expr, parent_frame)))
+        curr_expr = preproc_query_if(data_names, curr_expr, parent_frame)
+        res = eval.parent(curr_expr)
     }
-    eval.parent(curr_expr)
+    res
+
 }
 
 #' @rdname let_if
@@ -369,45 +372,47 @@ take_if.data.frame = function(data,
     j_expr = substitute(list(...))
     j_expr = as.list(j_expr)[-1]
     j_length = length(j_expr)
-
+    # if data is expression we want to calculate it only once
+    calc_data = data
     if(j_length == 0){
         # no j-arguments
         if(is.null(fun)){
-            return(
-                eval.parent(substitute(maditr::query_if(data, i)))
-            )
+            expr = substitute(maditr::query_if(calc_data, i))
 
+
+        } else {
+            expr = substitute(maditr::query_if(calc_data, i,
+                                               lapply(.SD, fun),
+                                               by = by,
+                                               keyby = keyby,
+                                               .SDcols = .SDcols))
         }
-        return(
-            eval.parent(substitute(maditr::query_if(data, i,
-                                            lapply(.SD, fun),
-                                            by = by,
-                                            keyby = keyby,
-                                            .SDcols = .SDcols)))
-        )
-    }
-    # naming
-    j_expr = add_names_from_walrus_assignement(j_expr, envir = parent.frame())
-    if(autoname){
-        j_expr = add_names_to_quoted_list(j_expr)
-    }
-    j_expr = as.call(c(list(quote(list)), j_expr))
+    } else {
+        # naming
+        j_expr = add_names_from_walrus_assignement(j_expr, envir = parent.frame())
+        if(autoname){
+            j_expr = add_names_to_quoted_list(j_expr)
+        }
+        j_expr = as.call(c(list(quote(list)), j_expr))
 
-    ###################
-    if(!is.null(fun)){
-        j_expr = substitute(lapply(j_expr, fun))
+        ###################
+        if(!is.null(fun)){
+            j_expr = substitute(lapply(j_expr, fun))
+        }
+
+        expr = substitute(maditr::query_if(calc_data,
+                                           i,
+                                           j_expr,
+                                           by = by,
+                                           keyby = keyby,
+                                           .SDcols = .SDcols
+        ))
     }
+    data_names = names(calc_data)
     parent_frame = parent.frame()
-    eval(substitute(query_with_preproc(data,
-                                       i,
-                                       j_expr,
-                                       by = by,
-                                       keyby = keyby,
-                                       .SDcols = .SDcols,
-                                       parent_frame = parent_frame
-    )
-    )
-    )
+    # expr = eval(substitute(preproc_query_if(data_names, expr, parent_frame)))
+    expr = preproc_query_if(data_names, expr, parent_frame)
+    eval.parent(expr)
 }
 
 #' @rdname let_if

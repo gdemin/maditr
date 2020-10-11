@@ -46,15 +46,17 @@ columns.data.frame = function(data, ...){
     data_names = colnames(data)
     parent_frame = parent.frame()
     var_indexes = column_selector(..., data_names = data_names, parent_frame = parent_frame)
-    if(is.data.table(data)){
-        query(data, var_indexes, with = FALSE)
+    # if data is expression we want to calculate it only once
+    calc_data = data
+    if(is.data.table(calc_data)){
+        query(calc_data, var_indexes, with = FALSE)
     } else {
-        data[, var_indexes, drop = FALSE]
+        calc_data[, var_indexes, drop = FALSE]
     }
 
 }
 
-expand_double_dots = function(expr, data_names, parent_frame, use_sd = TRUE){
+expand_double_dots = function(expr, data_names, parent_frame){
     if(is.call(expr) && length(expr)>1){
         curr = expr[[1]]
         if(identical(curr, quote(..)) || identical(curr, quote(columns)) || identical(curr, quote(`%to%`))){
@@ -65,14 +67,11 @@ expand_double_dots = function(expr, data_names, parent_frame, use_sd = TRUE){
             }
             expr = as.call(c(as.list(expr), list(data_names = data_names, parent_frame = parent_frame)))
             var_indexes = eval(expr)
-            if(use_sd){
-                expr = bquote(.SD[,.(var_indexes)])
-            } else {
-                symbols = lapply(data_names[var_indexes], as.symbol)
-                expr = as.call(c(quote(data.table), symbols))
-            }
+            symbols = lapply(data_names[var_indexes], as.symbol)
+            expr = as.call(c(quote(data.table), symbols))
+
         } else {
-            res = lapply(as.list(expr), expand_double_dots, data_names = data_names, parent_frame = parent_frame, use_sd = use_sd)
+            res = lapply(as.list(expr), expand_double_dots, data_names = data_names, parent_frame = parent_frame)
             expr = as.call(res)
         }
     }
@@ -119,9 +118,15 @@ rows.data.frame = function(data, ...){
         curr_names = curr_names[curr_names!=""][[1]]
         stop(sprintf("'rows': it seems you use '=' instead of '==': %s.", curr_names))
     }
-    eval.parent(substitute(
-        maditr::query_if(data, Reduce(f = '&', list(...)))
-    ))
+    # if data is expression we want to calculate it only once
+    calc_data = data
+    expr = substitute(
+        maditr::query_if(calc_data, Reduce(f = '&', list(...)))
+    )
+    data_names = names(data)
+    parent_frame = parent.frame()
+    expr = preproc_query_if(data_names, expr, parent_frame)
+    eval.parent(expr)
 
 }
 
@@ -148,4 +153,45 @@ expand_selectors = function(selected, df_names, frame){
 
 get_names_by_regex = function(regex, df_names){
     lapply(regex, grep, x = df_names, perl = TRUE)
+}
+
+# %to% expansion for assignment
+.into_helper_ = function(e1, e2){
+    var_names = get_current_variables(parent.frame())
+    e1 = substitute(list(e1))
+    e2 = substitute(list(e2))
+    e1 = evaluate_variable_names(e1, envir = parent.frame(), symbols_to_characters = TRUE)
+    e2 = evaluate_variable_names(e2, envir = parent.frame(), symbols_to_characters = TRUE)
+    stopif(length(e1)>1, "'%to%' - length of name of first variable is greater than one.")
+    stopif(length(e2)>1, "'%to%' - length of name of second variable is greater than one.")
+    e1 = e1[[1]]
+    e2 = e2[[1]]
+    first = match(e1, var_names)[1]
+    last = match(e2, var_names)[1]
+    if(is.na(first) && is.na(last)){
+        patt1 = gsub("^(.+?)([\\d]+)$", "\\1", e1, perl = TRUE)
+        patt2 = gsub("^(.+?)([\\d]+)$", "\\1", e2, perl = TRUE)
+        stopif(patt1!=patt2, "Start and end variables begin from different patterns: '", patt1, "', '", patt2,"'.")
+        digits1 = gsub("^(.+?)([\\d]+)$", "\\2", e1, perl = TRUE)
+        digits2 = gsub("^(.+?)([\\d]+)$", "\\2", e2, perl = TRUE)
+        padding = 0
+        if((substr(digits1,1,1)=="0" || substr(digits2,1,1)==0) &&
+           !(substr(digits1,1,1)=="0" && nchar(digits1)==1 && substr(digits2,1,1)!=0)){
+            stopif(nchar(digits1)!=nchar(digits2),
+                   "Invalid use of the %to% convention. For zero-padded numbers numeric part of the names must be the same length but: '",
+                   digits1, ", '", digits2, "'.")
+            padding = nchar(digits1)
+        }
+        digits1 = as.numeric(digits1)
+        digits2 = as.numeric(digits2)
+        stopif(digits1>digits2, "Name of start variables greater than name of end variables: '", e1,"' > '",e2,"'.")
+        all_digits = digits1:digits2
+        if(padding>0) all_digits = formatC(all_digits, width = padding, format = "d", flag = "0")
+        return(paste0(patt1, all_digits))
+    } else {
+        stopif(is.na(first), "'", e2, "' is found but '", e1, "' is absent.")
+        stopif(is.na(last), "'", e1, "' is found but '", e2, "' is absent.")
+        stopif(last<first, "'",e2, "' located before '",e1,"'. Did you mean '",e2," %to% ",e1,"'?")
+        return(var_names[first:last])
+    }
 }
