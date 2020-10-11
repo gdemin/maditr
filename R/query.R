@@ -319,9 +319,6 @@ query.data.frame = function(data,
 # expr should be stricktly result of substitute(query_if(data, i, j, ...))
 # by, keyby, .SDcols shoud be named arguments
 preproc_query_if = function(data_names, expr, parent_frame){
-    # is_empty = function(x) is.symbol(x) && as.character(x) == ''
-
-    # expr = substitute(expr)
     if(length(expr)>2){
         i_expr = expr[[3]]
         if(!missing(i_expr)) {

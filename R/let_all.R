@@ -283,7 +283,6 @@ take_all.data.frame = function(data,
                                .SDcols = .SDcols)
     )
     data_names = names(calc_data)
-    # expr = eval(substitute(preproc_query_if(._data_names, expr, parent_frame)))
     expr = preproc_query_if(._data_names, expr, parent_frame)
     res = eval.parent(expr)
     setnames(res, make.unique(names(res)))
