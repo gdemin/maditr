@@ -1,6 +1,7 @@
 #' Selects columns from the data set
 #'
-#' Variable ranges are supported, e. g. vs:carb. Characters which start with '^' or
+#' Variable ranges are supported, e. g. vs:carb. Alternatively, you can use
+#' `%to%` instead of colon: `vs %to% carb`. Characters which start with '^' or
 #' end with '$' considered as Perl-style regular expression patterns. For
 #' example, '^Petal' returns all variables started with 'Petal'. 'Width$'
 #' returns all variables which end with 'Width'. Pattern '^.' matches all
@@ -59,6 +60,17 @@ columns.data.frame = function(data, ...){
 expand_double_dots = function(expr, data_names, parent_frame){
     if(is.call(expr) && length(expr)>1){
         curr = expr[[1]]
+        if((identical(curr, quote(`$`)) && identical(expr[[2]], quote(..))) || identical(curr, quote(indirect))){
+            # here we process ..$arg or indirect(arg)
+            # arg is variable in the parent frame.
+            # arg is evaluated in the parent frame and we replace indirect(arg) with this expression
+            if(identical(curr, quote(`$`))){
+                expr = eval(expr[[3]], parent_frame)
+            } else {
+                expr = eval(expr[[2]], parent_frame)
+            }
+            return(expand_double_dots(expr, data_names, parent_frame))
+        }
         if(identical(curr, quote(..)) || identical(curr, quote(columns)) || identical(curr, quote(`%to%`))){
             if(identical(curr, quote(`%to%`))){
                 expr = bquote(column_selector(.(expr)))
@@ -76,6 +88,26 @@ expand_double_dots = function(expr, data_names, parent_frame){
         }
     }
     expr
+}
+
+expand_selectors = function(selected, data_names, frame){
+    selected = lapply(selected, function(item){
+        if(length(item)>1) return(expand_selectors(item, data_names, frame))
+        res = item
+        if(is.character(item)){
+            if(is_regex(item)){
+                res = get_names_by_regex(item, data_names)
+                any(lengths(res)==0) && stop(paste("'columns' - there are no variables which match regex(-s): ",item))
+
+            } else {
+                res = eval(substitute(maditr::text_expand(item), list(item = item)), envir = frame)
+                res = match(res, data_names)
+                anyNA(res) && stop(paste("'columns' - variable not found: ",item))
+            }
+        }
+        res
+    })
+    unlist(selected, recursive = TRUE, use.names = TRUE)
 }
 
 column_selector = function(..., data_names, parent_frame){
@@ -130,25 +162,7 @@ rows.data.frame = function(data, ...){
 
 }
 
-expand_selectors = function(selected, df_names, frame){
-    selected = lapply(selected, function(item){
-        if(length(item)>1) return(expand_selectors(item, df_names, frame))
-        res = item
-        if(is.character(item)){
-            if(is_regex(item)){
-                res = get_names_by_regex(item, df_names)
-                any(lengths(res)==0) && stop(paste("'columns' - there are no variables which match regex(-s): ",item))
 
-            } else {
-                res = eval(substitute(maditr::text_expand(item), list(item = item)), envir = frame)
-                res = match(res, df_names)
-                anyNA(res) && stop(paste("'columns' - variable not found: ",item))
-            }
-        }
-        res
-    })
-    unlist(selected, recursive = TRUE, use.names = TRUE)
-}
 
 
 get_names_by_regex = function(regex, df_names){

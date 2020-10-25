@@ -249,3 +249,42 @@ expect_identical(
     my_fun(mtcars, "am", "vs"),
     setindex(let_if(mtcars, am==0, res = sum(vs)), NULL)
 )
+
+
+cat("\nContext:", "..$/indirect selectors", "\n")
+data(mtcars)
+mtcars$expr = "something"
+dt_mt = as.data.table(mtcars)
+
+expr = quote(am+vs)
+expect_identical(
+    let(mtcars, new = indirect(expr)),
+    dt_mt[,new:=am+vs]
+
+)
+
+expect_identical(
+    let(mtcars, new = ..$expr),
+    dt_mt[,new:=am+vs]
+
+)
+
+
+my_grouping = function(data, my_expr){
+    my_expr2 = substitute(my_expr)
+    take(data, res = indirect(my_expr2), by = "am")
+}
+
+
+expect_identical(
+    my_grouping(mtcars, mean(mpg)),
+    dt_mt[, .(res=mean(mpg)), by = "am"]
+
+)
+
+
+# am = quote(vs)
+# expect_identical(
+#     columns(dt_mt, ..$am),
+#     dt_mt[,.(vs)]
+# )

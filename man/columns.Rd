@@ -22,7 +22,8 @@ and parametric assignment (\code{(a) := 2})}
 data.table
 }
 \description{
-Variable ranges are supported, e. g. vs:carb. Characters which start with '^' or
+Variable ranges are supported, e. g. vs:carb. Alternatively, you can use
+\verb{\%to\%} instead of colon: \code{vs \%to\% carb}. Characters which start with '^' or
 end with '$' considered as Perl-style regular expression patterns. For
 example, '^Petal' returns all variables started with 'Petal'. 'Width$'
 returns all variables which end with 'Width'. Pattern '^.' matches all
