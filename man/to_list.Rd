@@ -63,7 +63,7 @@ and '.index' is sequential number of the element.}
 
 \item{trace}{FALSE by default. Should we report progress during execution?
 Possible values are TRUE, FALSE, "pb" (progress bar) or custom expression in 'quote', e. g. 'quote(print(.x))'.
-Expression can contain '.x', '.name', '.res' and '.index' variables.}
+Expression can contain '.x', '.name', and '.index' variables.}
 
 \item{trace_step}{integer. 1 by default.  Step for reporting progress. Ignored if 'trace' argument is equal to FALSE.}
 
@@ -95,7 +95,7 @@ to vector via \link[base:unlist]{unlist}.
 
 Expression can use predefined variables: '.x' is a value of current list
 element, '.name' is a name of the element and '.index' is sequential number
-of the element. '.value' is an alias to '.x'.
+of the element.
 }
 \examples{
 1:5 \%>\%
@@ -115,7 +115,7 @@ of the element. '.value' is an alias to '.x'.
 # filtering - return only even numbers
 to_vec(1:10, if(.x \%\% 2 == 0) .x)
 
-# filtering - mean only on the numeric columns
+# filtering - calculate mean only on the numeric columns
 to_vec(iris, if(is.numeric(.x)) mean(.x))
 
 # mean for numerics, number of distincts for others

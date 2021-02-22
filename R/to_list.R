@@ -12,7 +12,7 @@
 #' ```
 #' Expression can use predefined variables: '.x' is a value of current list
 #' element, '.name' is a name of the element and '.index' is sequential number
-#' of the element. '.value' is an alias to '.x'.
+#' of the element.
 #'
 #' @param data data.frame/list/vector
 #' @param expr expression or function. Expression can use predefined variables:
@@ -21,7 +21,7 @@
 #' @param skip_null logical Should we skip NULL's from result? Default is TRUE
 #' @param trace FALSE by default. Should we report progress during execution?
 #'   Possible values are TRUE, FALSE, "pb" (progress bar) or custom expression in 'quote', e. g. 'quote(print(.x))'.
-#'   Expression can contain '.x', '.name', '.res' and '.index' variables.
+#'   Expression can contain '.x', '.name', and '.index' variables.
 #' @param ... further arguments provided if 'expr' is function.
 #' @param trace_step integer. 1 by default.  Step for reporting progress. Ignored if 'trace' argument is equal to FALSE.
 #' @param recursive logical. Should unlisting be applied to list components of x? For details see [unlist][base::unlist].
@@ -53,7 +53,7 @@
 #' # filtering - return only even numbers
 #' to_vec(1:10, if(.x %% 2 == 0) .x)
 #'
-#' # filtering - mean only on the numeric columns
+#' # filtering - calculate mean only on the numeric columns
 #' to_vec(iris, if(is.numeric(.x)) mean(.x))
 #'
 #' # mean for numerics, number of distincts for others
@@ -102,11 +102,14 @@ to_list = function(data,
         # progress bar
         ._data_length = length(data)
         pbar = utils::txtProgressBar(min = 0, max = ._data_length, style = 3)
-        on.exit(close(pbar))
+        on.exit({
+            utils::setTxtProgressBar(pbar, ._data_length)
+            close(pbar)
+            })
 
         # progress bar
-        trace_expr = quote({
-            utils::setTxtProgressBar(pbar, min(.index, ._data_length))
+        trace_expr = substitute({
+            utils::setTxtProgressBar(pbar, min(.index - 1, ._data_length))
         })
 
 
@@ -128,58 +131,47 @@ to_list = function(data,
         trace_expr = trace
     }
 
-    if(!is.null(trace_expr)){
-        trace_expr = substitute_symbols(trace_expr, list(
-            '.value' = quote(data[[.index]]),
-            '.x' = quote(data[[.index]]),
-            '.name' = quote(._names[[.index]])
-        ))
-        if(trace_step>1)
-            trace_expr = substitute({
+    if(!is.null(trace_expr) && (trace_step>1)){
+        trace_expr = substitute(
+            {
                 if(.index %% trace_step == 0) trace_expr
             },
             list(trace_expr = trace_expr, trace_step = trace_step)
-            )
+        )
     }
 
     ### main expression
-    expr_expr = substitute_symbols(expr_expr, list(
-        '.value' = quote(data[[.index]]),
-        '.x' = quote(data[[.index]]),
-        '.name' = quote(._names[[.index]])
-    ))
     ._indexes = seq_along(data)
     ._names = names(data)
     names(._indexes) = ._names
     if(is.null(._names)) ._names = rep("", length(data))
-
-    if((is.symbol(expr_expr) && !identical(expr_expr, quote(.index))) ||
-       (length(expr_expr)>1 && identical(as.character(expr_expr[[1]]), "function"))
-       ){
+    data = force(data) # for new version of magrittr
+    if(is.symbol(expr_expr) || (length(expr_expr)>1 && identical(as.character(expr_expr[[1]]), "function"))){
         if(is.null(trace_expr)){
             # simple lapply case
             res = lapply(data, expr, ...)
         } else {
             # simple lapply case with trace
             expr_expr = substitute(expr(.x, ...))
-            expr_expr = substitute_symbols(expr_expr, list(
-                '.x' = quote(data[[.index]])
-            ))
-            expr_expr = eval(substitute({function(.index, ...)
+            expr_expr = eval.parent(substitute({function(.index, ...)
             {
-                .res = expr_expr
+                .x = data[[.index]]
+                .value = data[[.index]]
+                .name = ._names[[.index]]
                 trace_expr
-                .res
+                expr_expr
             }}))
             res = lapply(._indexes, expr_expr, ...)
         }
     } else {
         # expression
-        expr_expr = eval(substitute({function(.index, ...)
+        expr_expr = eval.parent(substitute({function(.index, ...)
         {
-            .res = expr_expr
+            .x = data[[.index]]
+            .value = data[[.index]]
+            .name = ._names[[.index]]
             trace_expr
-            .res
+            expr_expr
         }}))
         res = lapply(._indexes, expr_expr, ...)
     }
@@ -234,7 +226,7 @@ to_df = function(data,
     }
     idvalue_expr = substitute(idvalue)
     if(!is.null(idvalue_expr)){
-        idvalue = eval.parent(substitute(maditr::to_list(data, expr = idvalue, skip_null = FALSE)))
+        idvalue = eval.parent(substitute(maditr::to_list(data, expr = (idvalue), skip_null = FALSE)))
         for(i in seq_along(data)){
             if(!is.null(res[[i]]) && !is.null(idvalue[[i]])){
                 res[[i]][[idname]] = idvalue[[i]]

@@ -1,6 +1,12 @@
+0.7.5 (2021-03-)
+================
+
+* remove `.res` variable from progress bar indicator in 'to_list'
+* bugfixes
+
 0.7.4 (2020-07-29)
 ================
-* fix tests for R befor 4.0
+* fix tests for R before 4.0
 * convert documentation to markdown
 
 0.7.3 (2020-07-22)
