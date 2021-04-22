@@ -99,14 +99,12 @@ let_all.data.frame = function(data,
     ###
     for(j in seq_along(j_expr)){
         expr = j_expr[[j]]
-        expr = substitute_symbols(expr, list(
-            '.value' = quote(.SD[[.name]]),
-            '.x' = quote(.SD[[.name]]),
-            '.index' = substitute(match(.name, ._data_names))
-        ))
 
 
         if((is.symbol(expr) && !identical(expr, quote(.name)) &&
+            !identical(expr, quote(.index)) &&
+            !identical(expr, quote(.x)) &&
+            !identical(expr, quote(.value)) &&
             !identical(expr, quote(.N)) &&
             !identical(expr, quote(.GRP))) ||
            (length(expr)>1 && as.character(expr[[1]]) == "function")){
@@ -115,12 +113,22 @@ let_all.data.frame = function(data,
             expr = substitute(lapply(.SD, expr))
         } else {
             # let_all(data, scale(.x))
-            expr = substitute(lapply(names(.SD), function(.name) expr))
+            expr = substitute({
+                # TODO possible errors because names(.SD) don't include 'by' variables
+                .data_names = names(.SD)
+                lapply(.data_names, function(.name) {
+                .value = get(.name)
+                .x = get(.name)
+                .index = match(.name, .data_names)
+                expr
+            })
+            })
         }
 
         if(identical(._all_names[[j]], ._orig_names)){
             j_expr[[j]] = substitute(
                 {
+
                     res = expr
                     # if expression returns NULL we leave this variable unchanged
                     empty = which(vapply(res, is.null, FUN.VALUE = logical(1)))
