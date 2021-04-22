@@ -115,8 +115,8 @@ let_all.data.frame = function(data,
             # let_all(data, scale(.x))
             expr = substitute({
                 # TODO possible errors because names(.SD) don't include 'by' variables
-                .data_names = names(.SD)
-                lapply(.data_names, function(.name) {
+                .data_names =  ._data_names
+                lapply(names(.SD), function(.name) {
                 .value = get(.name)
                 .x = get(.name)
                 .index = match(.name, .data_names)

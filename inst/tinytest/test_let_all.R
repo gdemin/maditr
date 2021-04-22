@@ -4,9 +4,15 @@ scale2 = function(x) c(scale(x))
 data(iris)
 data(mtcars)
 dt_iris = as.data.table(iris)
+dt_mt = as.data.table(mtcars)
 expect_equal(
     let_all(iris, if(is.numeric(.x)) scale2(.x)),
     dt_iris[, names(dt_iris[,-5]) := lapply(.SD, scale2), .SDcols = -5]
+)
+
+expect_equal(
+let_all(mtcars, wow = if(.index==2) .x, by = cyl),
+dt_mt
 )
 
 dt_iris = as.data.table(iris)
