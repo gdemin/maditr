@@ -36,6 +36,24 @@ is_regex = function(txt){
     startsWith(txt, "^") | endsWith(txt, "$")
 }
 
+# 'expr' is result of substitute with assumption
+# that first argument is data.frame.
+# When we have huge constant instead of
+# variable in the expression, then, in the case of the error
+# we have long lag to print this error in the console.
+# This function is workaround for this issue.
+eval_in_parent_frame = function(data, expr, frame){
+    if(!is.data.table(data)){
+        data = as.data.table(data)
+    }
+    assign("._***data***", data, envir = frame)
+    on.exit({
+        rm(`._***data***`, envir = frame)
+    })
+    expr[[2]] = quote(`._***data***`)
+    eval(expr, envir = frame)
+}
+
 # j_expr - list from j-expression
 # envir - environement where we will evaluate lhs of :=
 add_names_from_walrus_assignement = function(j_expr, envir){

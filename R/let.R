@@ -331,7 +331,7 @@ let_if.data.frame = function(data,
     }
     ####
     # if data is expression we want to calculate it only once
-    res = data
+    res = force(data)
     parent_frame = parent.frame()
 
     for(expr in j_list){
@@ -372,19 +372,22 @@ take_if.data.frame = function(data,
     j_expr = as.list(j_expr)[-1]
     j_length = length(j_expr)
     # if data is expression we want to calculate it only once
-    calc_data = data
+    data = force(data)
+
+    # NULL is just a placeholder
     if(j_length == 0){
         # no j-arguments
         if(is.null(fun)){
-            expr = substitute(maditr::query_if(calc_data, i))
+            expr = substitute(NULL[i, ])
 
 
         } else {
-            expr = substitute(maditr::query_if(calc_data, i,
-                                               lapply(.SD, fun),
-                                               by = by,
-                                               keyby = keyby,
-                                               .SDcols = .SDcols))
+            expr = substitute(NULL[i,
+                                   lapply(.SD, fun),
+                                   by = by,
+                                   keyby = keyby,
+                                   .SDcols = .SDcols]
+            )
         }
     } else {
         # naming
@@ -399,18 +402,18 @@ take_if.data.frame = function(data,
             j_expr = substitute(lapply(j_expr, fun))
         }
 
-        expr = substitute(maditr::query_if(calc_data,
-                                           i,
-                                           j_expr,
-                                           by = by,
-                                           keyby = keyby,
-                                           .SDcols = .SDcols
-        ))
+        expr = substitute(NULL[
+            i,
+            j_expr,
+            by = by,
+            keyby = keyby,
+            .SDcols = .SDcols
+        ])
     }
-    data_names = names(calc_data)
+    data_names = names(data)
     parent_frame = parent.frame()
     expr = preproc_query_if(data_names, expr, parent_frame)
-    eval.parent(expr)
+    eval_in_parent_frame(data, expr, frame = parent_frame)
 }
 
 #' @rdname let_if

@@ -238,6 +238,7 @@ query_if = function(data,
                     drop = NULL,
                     on = NULL){
     UseMethod("query_if")
+
 }
 
 #' @rdname query_if
@@ -283,11 +284,8 @@ query_if.data.frame = function(data,
                     drop = NULL,
                     on = NULL){
     call_expr = sys.call()
-    if(!is.data.table(data)){
-        call_expr[[2]] = substitute(data.table::as.data.table(data))
-    }
     call_expr[[1]] = as.symbol("[")
-    eval.parent(call_expr)
+    eval_in_parent_frame(data, call_expr, frame = parent.frame())
 }
 
 
@@ -313,10 +311,11 @@ query.data.frame = function(data,
     call_expr[[1]] = quote(maditr::query_if)
     # insert empty i
     call_expr =  as.call(c(call_expr[1:2], list(substitute()), call_expr[-(1:2)]))
-    eval.parent(call_expr)
+    call_expr[[1]] = as.symbol("[")
+    eval_in_parent_frame(data, call_expr, frame = parent.frame())
 }
 
-# expr should be stricktly result of substitute(query_if(data, i, j, ...))
+# expr should be stricktly result of substitute(some_fun(data, i, j, ...))
 # by, keyby, .SDcols shoud be named arguments
 preproc_query_if = function(data_names, expr, parent_frame){
     if(length(expr)>2){
