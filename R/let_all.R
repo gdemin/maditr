@@ -178,8 +178,7 @@ let_all.data.frame = function(data,
     )
     data_names = names(calc_data)
     parent_frame = parent.frame()
-    # expr = eval(substitute(preproc_query_if(data_names, expr, parent_frame)))
-    expr = preproc_query_if(data_names, expr, parent_frame)
+    expr = preproc_variable_names(data_names, expr, parent_frame)
     res = eval.parent(expr)
     if(length(to_drop)>0){
         res[,(names(to_drop)):=NULL]
@@ -291,7 +290,7 @@ take_all.data.frame = function(data,
                                .SDcols = .SDcols)
     )
     data_names = names(calc_data)
-    expr = preproc_query_if(._data_names, expr, parent_frame)
+    expr = preproc_variable_names(._data_names, expr, parent_frame)
     res = eval.parent(expr)
     setnames(res, make.unique(names(res)))
     res

@@ -91,6 +91,7 @@ expand_double_dots = function(expr, data_names, parent_frame){
 }
 
 expand_selectors = function(selected, data_names, frame){
+    # expand text and regex
     selected = lapply(selected, function(item){
         if(length(item)>1) return(expand_selectors(item, data_names, frame))
         res = item
@@ -157,7 +158,7 @@ rows.data.frame = function(data, ...){
     )
     data_names = names(data)
     parent_frame = parent.frame()
-    expr = preproc_query_if(data_names, expr, parent_frame)
+    expr = preproc_variable_names(data_names, expr, parent_frame)
     eval.parent(expr)
 
 }

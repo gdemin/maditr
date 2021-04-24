@@ -337,7 +337,7 @@ let_if.data.frame = function(data,
     for(expr in j_list){
         data_names = names(res)
         curr_expr = substitute(maditr::query_if(res, i, expr, by = by, keyby = keyby))
-        curr_expr = preproc_query_if(data_names, curr_expr, parent_frame)
+        curr_expr = preproc_variable_names(data_names, curr_expr, parent_frame)
         res = eval.parent(curr_expr)
     }
     res
@@ -412,7 +412,7 @@ take_if.data.frame = function(data,
     }
     data_names = names(data)
     parent_frame = parent.frame()
-    expr = preproc_query_if(data_names, expr, parent_frame)
+    expr = preproc_variable_names(data_names, expr, parent_frame)
     eval_in_parent_frame(data, expr, frame = parent_frame)
 }
 

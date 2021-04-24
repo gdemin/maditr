@@ -317,7 +317,7 @@ query.data.frame = function(data,
 
 # expr should be stricktly result of substitute(some_fun(data, i, j, ...))
 # by, keyby, .SDcols shoud be named arguments
-preproc_query_if = function(data_names, expr, parent_frame){
+preproc_variable_names = function(data_names, expr, parent_frame){
     if(length(expr)>2){
         i_expr = expr[[3]]
         if(!missing(i_expr)) {
