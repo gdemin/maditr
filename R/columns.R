@@ -140,15 +140,18 @@ rows.data.frame = function(data, ...){
         curr_names = curr_names[curr_names!=""][[1]]
         stop(sprintf("'rows': it seems you use '=' instead of '==': %s.", curr_names))
     }
-    # if data is expression we want to calculate it only once
-    calc_data = data
+
+
+    # NULL is just a placeholder
     expr = substitute(
-        maditr::query_if(calc_data, Reduce(f = '&', list(...)))
+        NULL[Reduce(f = '&', list(...)),]
     )
-    data_names = names(data)
     parent_frame = parent.frame()
-    expr = preproc_variable_names(data_names, expr, parent_frame)
-    eval.parent(expr)
+    # if data is expression we want to calculate it only once
+    data = force(data)
+    # data_names = names(data)
+    # expr = preproc_variable_names(data_names, expr, parent_frame)
+    eval_in_parent_frame(data, expr, frame = parent_frame)
 
 }
 
