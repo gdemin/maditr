@@ -44,15 +44,16 @@ columns = function(data, ...){
 
 #' @export
 columns.data.frame = function(data, ...){
+    # if data is expression we want to calculate it only once
+    data = force(data)
     data_names = colnames(data)
     parent_frame = parent.frame()
     var_indexes = column_selector(..., data_names = data_names, parent_frame = parent_frame)
-    # if data is expression we want to calculate it only once
-    calc_data = data
-    if(is.data.table(calc_data)){
-        query(calc_data, var_indexes, with = FALSE)
+    # NULL is just a placeholder
+    if(is.data.table(data)){
+        data[, var_indexes, with = FALSE]
     } else {
-        calc_data[, var_indexes, drop = FALSE]
+        data[, var_indexes, drop = FALSE]
     }
 
 }
