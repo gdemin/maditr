@@ -515,10 +515,14 @@ sort_by = function(data, ..., na.last = FALSE){
 
 #' @export
 sort_by.data.frame = function(data, ..., na.last = FALSE){
-    if(!is.data.table(data)){
-        eval.parent(substitute(data.table::setorder(data.table::as.data.table(data), ..., na.last = na.last)))
-    } else {
-        eval.parent(substitute(data.table::setorder(data, ..., na.last = na.last)))
-    }
+    # NULL is just a placeholder
+    expr = substitute(data.table::setorder(NULL, ..., na.last = na.last))
+    parent_frame = parent.frame()
+    # if data is expression we want to calculate it only once
+    data = force(data)
+    # data_names = names(data)
+    # expr = preproc_variable_names(data_names, expr, parent_frame)
+    eval_in_parent_frame(data, expr, frame = parent_frame)
+
 }
 
