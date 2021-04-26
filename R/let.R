@@ -325,20 +325,20 @@ let_if.data.frame = function(data,
 
         if(all_names[each]!=""){
             curr_name = all_names[each]
-            curr_expr = j_list[[each]]
-            j_list[[each]] = substitute(`:=`(curr_name, curr_expr))
+            expr = j_list[[each]]
+            j_list[[each]] = substitute(`:=`(curr_name, expr))
         }
     }
     ####
     # if data is expression we want to calculate it only once
     res = force(data)
     parent_frame = parent.frame()
-
+    # NULL is just a placeholder
     for(expr in j_list){
         data_names = names(res)
-        curr_expr = substitute(maditr::query_if(res, i, expr, by = by, keyby = keyby))
-        curr_expr = preproc_variable_names(data_names, curr_expr, parent_frame)
-        res = eval.parent(curr_expr)
+        expr = substitute(NULL[i, expr, by = by, keyby = keyby])
+        expr = preproc_variable_names(data_names, expr, parent_frame)
+        res = eval_in_parent_frame(res, expr, frame = parent_frame)
     }
     res
 
