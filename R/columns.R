@@ -60,18 +60,7 @@ columns.data.frame = function(data, ...){
 expand_double_dots = function(expr, data_names, parent_frame){
     if(is.call(expr) && length(expr)>1){
         curr = expr[[1]]
-        if((identical(curr, quote(`$`)) && identical(expr[[2]], quote(..))) || identical(curr, quote(indirect))){
-            # here we process ..$arg or indirect(arg)
-            # arg is variable in the parent frame.
-            # arg is evaluated in the parent frame and we replace indirect(arg) with this expression
-            if(identical(curr, quote(`$`))){
-                expr = eval(expr[[3]], parent_frame)
-            } else {
-                expr = eval(expr[[2]], parent_frame)
-            }
-            return(expand_double_dots(expr, data_names, parent_frame))
-        }
-        if(identical(curr, quote(..)) || identical(curr, quote(columns)) || identical(curr, quote(`%to%`))){
+        if(identical(curr, quote(columns)) || identical(curr, quote(`%to%`))){
             if(identical(curr, quote(`%to%`))){
                 expr = bquote(column_selector(.(expr)))
             } else {

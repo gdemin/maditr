@@ -3,8 +3,8 @@ cat("\nContext:", "take selectors", "\n")
 data(mtcars)
 dt_mt = as.data.table(mtcars)
 expect_identical(
-    take(mtcars, sum(..(disp:drat)), by = am),
-    dt_mt[,.('sum(..(disp:drat))' = sum(cbind(disp, hp, drat))), by = am]
+    take(mtcars, sum(columns(disp:drat)), by = am),
+    dt_mt[,.('sum(columns(disp:drat))' = sum(cbind(disp, hp, drat))), by = am]
 )
 
 expect_identical(
@@ -80,7 +80,7 @@ cat("\nContext:", "take_if selectors inside fun", "\n")
 
 data(mtcars)
 my_fun = function(data_arg, i_arg, j_arg){
-    take_if(data_arg, ..(i_arg)[[1]]==0, res = sum(..(j_arg)))
+    take_if(data_arg, columns(i_arg)[[1]]==0, res = sum(columns(j_arg)))
 }
 
 
@@ -102,7 +102,7 @@ expect_identical(
 )
 
 my_fun = function(data_arg, i_arg, j_arg){
-    take_if(data_arg, ..("{i_arg}")[[1]]==0, res = sum(..("{j_arg}")))
+    take_if(data_arg, columns("{i_arg}")[[1]]==0, res = sum(columns("{j_arg}")))
 }
 
 expect_identical(
@@ -113,7 +113,7 @@ expect_identical(
 my_fun = function(data_arg, i_arg, j_arg){
     internal_i = i_arg
     internal_j = j_arg
-    take_if(data_arg, ..("{internal_i}")[[1]]==0, res = sum(..("{internal_j}")))
+    take_if(data_arg, columns("{internal_i}")[[1]]==0, res = sum(columns("{internal_j}")))
 }
 
 expect_identical(
@@ -128,13 +128,13 @@ cat("\n******\nContext: let selectors\n*******\n")
 data(mtcars)
 dt_mt = as.data.table(mtcars)
 expect_identical(
-    let(mtcars, my_sum = sum(..(disp:drat)), by = am),
+    let(mtcars, my_sum = sum(columns(disp:drat)), by = am),
     dt_mt[,my_sum := sum(cbind(disp, hp, drat)), by = am]
 )
 
 dt_mt = as.data.table(mtcars)
 expect_identical(
-    let(mtcars, my_sum = sum(..(disp %to% drat)), by = am),
+    let(mtcars, my_sum = sum(columns(disp %to% drat)), by = am),
     dt_mt[,my_sum := sum(cbind(disp, hp, drat)), by = am]
 )
 
@@ -209,7 +209,7 @@ cat("\nContext:", "let_if selectors inside fun", "\n")
 
 data(mtcars)
 my_fun = function(data_arg, i_arg, j_arg){
-    let_if(data_arg, ..(i_arg)[[1]]==0, res = sum(..(j_arg)))
+    let_if(data_arg, columns(i_arg)[[1]]==0, res = sum(columns(j_arg)))
 }
 
 
@@ -231,7 +231,7 @@ expect_identical(
 )
 
 my_fun = function(data_arg, i_arg, j_arg){
-    let_if(data_arg, ..("{i_arg}")[[1]]==0, res = sum(..("{j_arg}")))
+    let_if(data_arg, columns("{i_arg}")[[1]]==0, res = sum(columns("{j_arg}")))
 }
 
 expect_identical(
@@ -242,7 +242,7 @@ expect_identical(
 my_fun = function(data_arg, i_arg, j_arg){
     internal_i = i_arg
     internal_j = j_arg
-    let_if(data_arg, ..("{internal_i}")[[1]]==0, res = sum(..("{internal_j}")))
+    let_if(data_arg, columns("{internal_i}")[[1]]==0, res = sum(columns("{internal_j}")))
 }
 
 expect_identical(
@@ -251,40 +251,3 @@ expect_identical(
 )
 
 
-cat("\nContext:", "..$/indirect selectors", "\n")
-data(mtcars)
-mtcars$expr = "something"
-dt_mt = as.data.table(mtcars)
-
-expr = quote(am+vs)
-expect_identical(
-    let(mtcars, new = indirect(expr)),
-    dt_mt[,new:=am+vs]
-
-)
-
-expect_identical(
-    let(mtcars, new = ..$expr),
-    dt_mt[,new:=am+vs]
-
-)
-
-
-my_grouping = function(data, my_expr){
-    my_expr2 = substitute(my_expr)
-    take(data, res = indirect(my_expr2), by = "am")
-}
-
-
-expect_identical(
-    my_grouping(mtcars, mean(mpg)),
-    dt_mt[, .(res=mean(mpg)), by = "am"]
-
-)
-
-
-# am = quote(vs)
-# expect_identical(
-#     columns(dt_mt, ..$am),
-#     dt_mt[,.(vs)]
-# )
