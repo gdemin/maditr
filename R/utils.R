@@ -43,6 +43,7 @@ is_regex = function(txt){
 # we have long lag to print this error in the console.
 # This function is workaround for this issue.
 eval_in_parent_frame = function(data, expr, frame){
+    `._***data***` = NULL # to pass CRAN check
     if(!is.data.table(data)){
         data = as.data.table(data)
     }
