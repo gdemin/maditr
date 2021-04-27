@@ -62,7 +62,7 @@ let_all.data.frame = function(data,
     j_expr = add_names_from_single_symbol(j_expr)
 
     # if data is expression we want to calculate it only once
-    calc_data = data
+    data = force(data)
 
     #################
     ## naming
@@ -75,7 +75,7 @@ let_all.data.frame = function(data,
     #
     # we need to know resulting names
     # this is simplest method to escape complexities with by, keyby and SDCols interaction
-    one_row = as.data.table(calc_data[1,, drop = FALSE])
+    one_row = as.data.table(data[1,, drop = FALSE])
     ._orig_names = eval.parent(substitute(maditr::query(one_row, list(._res_names = names(.SD)),
                                                         by = by,
                                                         keyby = keyby,
@@ -94,7 +94,7 @@ let_all.data.frame = function(data,
 
 
     to_drop = new.env()
-    ._data_names = names(calc_data)
+    ._data_names = names(data)
     names(j_expr) = NULL
     ###
     for(j in seq_along(j_expr)){
@@ -114,7 +114,6 @@ let_all.data.frame = function(data,
         } else {
             # let_all(data, scale(.x))
             expr = substitute({
-                # TODO possible errors because names(.SD) don't include 'by' variables
                 .data_names =  ._data_names
                 lapply(names(.SD), function(.name) {
                 .value = get(.name)
@@ -167,19 +166,18 @@ let_all.data.frame = function(data,
     }
     ####
     ._all_names = unlist(._all_names, recursive = TRUE, use.names = FALSE)
+    # NULL is just a placeholder
+    expr = substitute(NULL[i,
+                           (._all_names) := j_expr,
+                           by = by,
+                           keyby = keyby,
+                           .SDcols = .SDcols
+    ]
+    )
 
-    expr = substitute(maditr::query_if(calc_data,
-                                       i,
-                                       (._all_names) := j_expr,
-                                       by = by,
-                                       keyby = keyby,
-                                       .SDcols = .SDcols
-    )
-    )
-    data_names = names(calc_data)
     parent_frame = parent.frame()
-    expr = preproc_variable_names(data_names, expr, parent_frame)
-    res = eval.parent(expr)
+    expr = preproc_variable_names(._data_names, expr, parent_frame)
+    res = eval_in_parent_frame(data, expr, frame = parent_frame)
     if(length(to_drop)>0){
         res[,(names(to_drop)):=NULL]
     }
@@ -233,9 +231,9 @@ take_all.data.frame = function(data,
     ## duplicated names will be made unique (??)
 
     # if data is expression we want to calculate it only once
-    calc_data = data
+    data = force(data)
 
-    ._data_names = names(calc_data)
+    ._data_names = names(data)
     j_names = names(j_expr)
     names(j_expr) = NULL
     for(j in seq_along(j_expr)){
@@ -284,14 +282,15 @@ take_all.data.frame = function(data,
     }
     ####
 
-    expr = substitute(maditr::query_if(calc_data, i, j_expr,
-                               by = by,
-                               keyby = keyby,
-                               .SDcols = .SDcols)
-    )
-    data_names = names(calc_data)
+    # NULL is just a placeholder
+    expr = substitute(NULL[i, j_expr,
+                           by = by,
+                           keyby = keyby,
+                           .SDcols = .SDcols])
+
+    parent_frame = parent.frame()
     expr = preproc_variable_names(._data_names, expr, parent_frame)
-    res = eval.parent(expr)
+    res = eval_in_parent_frame(data, expr, frame = parent_frame)
     setnames(res, make.unique(names(res)))
     res
 }
