@@ -124,6 +124,8 @@ column_selector = function(..., data_names, parent_frame){
     var_indexes
 }
 
+########################################################
+
 #' @rdname columns
 #' @export
 rows = function(data, ...){
@@ -162,6 +164,8 @@ rows.data.frame = function(data, ...){
 get_names_by_regex = function(regex, df_names){
     lapply(regex, grep, x = df_names, perl = TRUE)
 }
+
+#########
 
 # %to% expansion for assignment
 .into_helper_ = function(e1, e2){
