@@ -58,10 +58,14 @@ columns.data.frame = function(data, ...){
 
 }
 
+#' @rdname columns
+#' @export
+cols = columns
+
 replace_column_expr = function(expr, data_names, frame){
     if(is.call(expr) && length(expr)>1){
         curr = expr[[1]]
-        if(identical(curr, quote(columns)) || identical(curr, quote(`%to%`))){
+        if(identical(curr, quote(columns)) || identical(curr, quote(cols)) || identical(curr, quote(`%to%`))){
             if(identical(curr, quote(`%to%`))){
                 expr = bquote(select_columns(.(expr)))# standalone a %to% b, without 'columns'
             } else {
