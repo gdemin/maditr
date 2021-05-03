@@ -1,4 +1,7 @@
-
+# generate missing argument
+missing_arg = function(){
+    quote(expr=)
+}
 
 safe_deparse = function(expr){
     res = deparse(expr, width.cutoff = 500)
@@ -28,13 +31,7 @@ substitute_symbols = function(substitute_result, symbols) {
 }
 
 
-substitute_symbols = function(substitute_result, symbols) {
-    eval(bquote(substitute(.(substitute_result), symbols)))
-}
 
-is_regex = function(txt){
-    startsWith(txt, "^") | endsWith(txt, "$")
-}
 
 # 'expr' is result of substitute with assumption
 # that first argument is data.frame.

@@ -48,8 +48,8 @@ columns.data.frame = function(data, ...){
     data = force(data)
     data_names = colnames(data)
     parent_frame = parent.frame()
-    var_indexes = column_selector(..., data_names = data_names, parent_frame = parent_frame)
-    # NULL is just a placeholder
+    var_indexes = select_columns(..., data_names = data_names, frame = parent_frame)
+
     if(is.data.table(data)){
         data[, var_indexes, with = FALSE]
     } else {
@@ -58,50 +58,30 @@ columns.data.frame = function(data, ...){
 
 }
 
-expand_double_dots = function(expr, data_names, parent_frame){
+replace_column_expr = function(expr, data_names, frame){
     if(is.call(expr) && length(expr)>1){
         curr = expr[[1]]
         if(identical(curr, quote(columns)) || identical(curr, quote(`%to%`))){
             if(identical(curr, quote(`%to%`))){
-                expr = bquote(column_selector(.(expr)))
+                expr = bquote(select_columns(.(expr)))# standalone a %to% b, without 'columns'
             } else {
-                expr[[1]] = quote(column_selector)
+                # 'columns(...)'
+                expr[[1]] = quote(select_columns)
             }
-            expr = as.call(c(as.list(expr), list(data_names = data_names, parent_frame = parent_frame)))
+            expr = as.call(c(as.list(expr), list(data_names = data_names, frame = frame)))
             var_indexes = eval(expr)
             symbols = lapply(data_names[var_indexes], as.symbol)
             expr = as.call(c(quote(data.table), symbols))
 
         } else {
-            res = lapply(as.list(expr), expand_double_dots, data_names = data_names, parent_frame = parent_frame)
+            res = lapply(as.list(expr), replace_column_expr, data_names = data_names, frame = frame)
             expr = as.call(res)
         }
     }
     expr
 }
 
-expand_selectors = function(selected, data_names, frame){
-    # expand text and regex
-    selected = lapply(selected, function(item){
-        if(length(item)>1) return(expand_selectors(item, data_names, frame))
-        res = item
-        if(is.character(item)){
-            if(is_regex(item)){
-                res = get_names_by_regex(item, data_names)
-                any(lengths(res)==0) && stop(paste("'columns' - there are no variables which match regex(-s): ",item))
-
-            } else {
-                res = eval(substitute(maditr::text_expand(item), list(item = item)), envir = frame)
-                res = match(res, data_names)
-                anyNA(res) && stop(paste("'columns' - variable not found: ",item))
-            }
-        }
-        res
-    })
-    unlist(selected, recursive = TRUE, use.names = TRUE)
-}
-
-column_selector = function(..., data_names, parent_frame){
+select_columns = function(..., data_names, frame){
     var_list = substitute(list(...))
     var_list = substitute_symbols(var_list, list("%to%" = quote(`:`), "-" = quote(`__.my_custom_not_`)))
     all_indexes = as.list(seq_along(data_names))
@@ -109,7 +89,7 @@ column_selector = function(..., data_names, parent_frame){
     "__.my_custom_not_" = function(e1, e2){
         if(missing(e2)){
             if(is.character(e1)){
-                var_indexes = expand_selectors(e1, data_names, parent_frame)
+                var_indexes = expand_selectors(e1, data_names, frame)
                 return(-var_indexes)
             } else {
                 return(-e1)
@@ -118,11 +98,47 @@ column_selector = function(..., data_names, parent_frame){
         base::`-`(e1, e2)
     }
     all_indexes = c(all_indexes, c("__.my_custom_not_" = `__.my_custom_not_`))
-    var_indexes = eval(var_list, all_indexes, parent_frame)
-    var_indexes = expand_selectors(var_indexes, data_names, parent_frame)
+    var_indexes = eval(var_list, all_indexes, frame)
+    var_indexes = expand_selectors(var_indexes, data_names, frame)
     var_indexes = unique(unlist(var_indexes, use.names = FALSE))
     var_indexes
 }
+
+expand_selectors = function(selected, data_names, frame){
+    # expand text and regex
+    selected = lapply(selected, function(item){
+        if(length(item)>1) return(expand_selectors(item, data_names, frame))
+        item = s_regex_expand(item, data_names)
+        item = s_text_expand(item, data_names, frame)
+        item
+    })
+    unlist(selected, recursive = TRUE, use.names = TRUE)
+}
+
+
+is_regex = function(txt){
+    is.character(txt) && any(startsWith(txt, "^") | endsWith(txt, "$"))
+}
+
+
+s_regex_expand = function(expr, df_names){
+    if(!is_regex(expr)) return(expr)
+    res = lapply(expr, grep, x = df_names, perl = TRUE)
+    any(lengths(res)==0) && stop(paste("'columns' - there are no variables which match regex(-s): ", paste(expr, collapse = ",")))
+    res
+}
+
+s_text_expand = function(expr, df_names, frame){
+    if(!is.character(expr)) return(expr)
+    res = eval(substitute(maditr::text_expand(item), list(item = expr)), envir = frame)
+    res = match(res, df_names)
+    anyNA(res) && stop(paste("'columns' - variable not found: ",paste(expr, collapse = ",")))
+    res
+}
+
+
+
+
 
 ########################################################
 
@@ -152,8 +168,6 @@ rows.data.frame = function(data, ...){
     parent_frame = parent.frame()
     # if data is expression we want to calculate it only once
     data = force(data)
-    # data_names = names(data)
-    # expr = preproc_variable_names(data_names, expr, parent_frame)
     eval_in_parent_frame(data, expr, frame = parent_frame)
 
 }
@@ -161,9 +175,6 @@ rows.data.frame = function(data, ...){
 
 
 
-get_names_by_regex = function(regex, df_names){
-    lapply(regex, grep, x = df_names, perl = TRUE)
-}
 
 #########
 
