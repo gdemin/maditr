@@ -62,7 +62,7 @@ columns.data.frame = function(data, ...){
 #' @export
 cols = columns
 
-replace_column_expr = function(expr, data_names, frame){
+replace_column_expr = function(expr, data_names, frame, combine = quote(data.table)){
     if(is.call(expr) && length(expr)>1){
         curr = expr[[1]]
         if(identical(curr, quote(columns)) || identical(curr, quote(cols)) || identical(curr, quote(`%to%`))){
@@ -75,10 +75,15 @@ replace_column_expr = function(expr, data_names, frame){
             expr = as.call(c(as.list(expr), list(data_names = data_names, frame = frame)))
             var_indexes = eval(expr)
             symbols = lapply(data_names[var_indexes], as.symbol)
-            expr = as.call(c(quote(data.table), symbols))
+            expr = as.call(c(combine, symbols))
 
         } else {
-            res = lapply(as.list(expr), replace_column_expr, data_names = data_names, frame = frame)
+            res = lapply(as.list(expr),
+                         replace_column_expr,
+                         data_names = data_names,
+                         frame = frame,
+                         combine = combine
+                         )
             expr = as.call(res)
         }
     }

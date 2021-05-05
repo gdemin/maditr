@@ -2,10 +2,13 @@
 % Please edit documentation in R/columns.R
 \name{columns}
 \alias{columns}
+\alias{cols}
 \alias{rows}
 \title{Selects columns from the data set}
 \usage{
 columns(data, ...)
+
+cols(data, ...)
 
 rows(data, ...)
 }
