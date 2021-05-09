@@ -53,3 +53,32 @@ text_expand = function(..., delim = c("\\{", "\\}")){
     c(res, recursive = TRUE)
 }
 
+
+
+#' Copy an entire object
+#'
+#' Mainly intended to copy data.table objects because by default they are modified by reference. See example.
+#'
+#' @param x object
+#'
+#' @return copy of the object 'x'
+#' @export
+#'
+#' @examples
+#' data(mtcars)
+#' dt_mtcars = as.data.table(mtcars)
+#' dt_mtcars2 = dt_mtcars
+#' dt_mtcars3 = copy(dt_mtcars)
+#' let(dt_mtcars, new = 1)
+#'
+#' head(dt_mtcars2) # we see 'new' column
+#' head(dt_mtcars3) # no 'new' column
+copy = function(x) {
+    if(missing(x)) return(maditr::copy)
+    if(is.list(x)){
+        data.table::copy(x)
+    } else {
+        x
+    }
+
+}

@@ -113,3 +113,20 @@ expect_equal(
     dt_top_n(mtcars, -2, order_by = mpg, by = list(am, vs)),
     query_if(mtcars, order(-mpg), tail(.SD, 2), by = list(am, vs))
 )
+
+
+cat("\nContext:","copy", "\n")
+
+expect_identical(
+    copy(), maditr::copy
+)
+
+data(iris)
+expect_identical(
+    copy(iris), iris
+)
+
+
+expect_identical(
+    copy(1), 1
+)

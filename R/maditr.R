@@ -198,8 +198,6 @@ magrittr::`%T>%`
 #' @export
 data.table::data.table
 
-#' @export
-data.table::copy
 
 #' @export
 data.table::as.data.table
