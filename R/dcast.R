@@ -52,7 +52,8 @@
 #' @return data.table
 #' @author Matt Dowle <mattjdowle@gmail.com>
 #' @export
-#'
+#' @noRd
+#' @keywords internal
 #' @examples
 #' # examples from 'tidyr' package
 #' stocks = data.frame(
@@ -91,7 +92,7 @@ dcast.data.frame = function(data, formula, fun.aggregate = NULL, sep = "_",
 
 
 #' @export
-#' @rdname dcast
+#' @noRd
 melt = function(data, id.vars, measure.vars,
                 variable.name = "variable", value.name = "value",
                 ..., na.rm = FALSE, variable.factor = TRUE,
@@ -112,7 +113,7 @@ melt.data.frame = function(data, id.vars, measure.vars,
     eval.parent(curr_call)
 }
 
-#' @rdname dcast
+#' @noRd
 #' @export
 guess = function (data){
     if ("value" %chin% names(data))
