@@ -53,16 +53,20 @@ let_all.data.frame = function(data,
                               sep = "_",
                               i
 ){
+
+    # if data is expression we want to calculate it only once
+    data = force(data)
+
     j_expr = substitute(list(...))
+
+    parent_frame = parent.frame()
+
     j_expr = as.list(j_expr)[-1]
     (length(j_expr) == 0) && stop("'let_all' - missing expressions. You should provide at least one expression.")
 
 
     j_expr = add_names_from_walrus_assignement(j_expr, envir = parent.frame())
     j_expr = add_names_from_single_symbol(j_expr)
-
-    # if data is expression we want to calculate it only once
-    data = force(data)
 
     #################
     ## naming
@@ -166,6 +170,7 @@ let_all.data.frame = function(data,
     }
     ####
     ._all_names = unlist(._all_names, recursive = TRUE, use.names = FALSE)
+
     # NULL is just a placeholder
     expr = substitute(NULL[i,
                            (._all_names) := j_expr,
@@ -175,8 +180,6 @@ let_all.data.frame = function(data,
     ]
     )
 
-    parent_frame = parent.frame()
-    expr = preproc_variable_names(._data_names, expr, parent_frame)
     res = eval_in_parent_frame(data, expr, frame = parent_frame)
     if(length(to_drop)>0){
         res[,(names(to_drop)):=NULL]
@@ -212,7 +215,11 @@ take_all.data.frame = function(data,
                                sep = "_",
                                i
 ){
+
     j_expr = substitute(list(...))
+
+    parent_frame = parent.frame()
+
     j_expr = as.list(j_expr)[-1]
     (length(j_expr) == 0) && stop("'take_all' - missing expressions. You should provide at least one expression.")
 
@@ -231,7 +238,7 @@ take_all.data.frame = function(data,
     ## duplicated names will be made unique (??)
 
     # if data is expression we want to calculate it only once
-    data = force(data)
+
 
     ._data_names = names(data)
     j_names = names(j_expr)
@@ -281,15 +288,12 @@ take_all.data.frame = function(data,
         j_expr = j_expr[[1]]
     }
     ####
-
     # NULL is just a placeholder
     expr = substitute(NULL[i, j_expr,
                            by = by,
                            keyby = keyby,
                            .SDcols = .SDcols])
 
-    parent_frame = parent.frame()
-    expr = preproc_variable_names(._data_names, expr, parent_frame)
     res = eval_in_parent_frame(data, expr, frame = parent_frame)
     setnames(res, make.unique(names(res)))
     res

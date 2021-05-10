@@ -315,20 +315,4 @@ query.data.frame = function(data,
     eval_in_parent_frame(data, call_expr, frame = parent.frame())
 }
 
-# expr should be strictly result of substitute(some_fun(data, i, j, ...))
-# by, keyby, .SDcols shoud be named arguments
-preproc_variable_names = function(data_names, expr, parent_frame){
-    if(length(expr)>2){
-        i_expr = expr[[3]]
-        if(!missing(i_expr)) {
-            expr[[3]] = replace_column_expr(i_expr, data_names = data_names, frame = parent_frame)
-        }
-    }
-    if(length(expr)>3){
-        j_expr = expr[[4]]
-        if(!missing(j_expr)) {
-            expr[[4]] = replace_column_expr(j_expr, data_names = data_names, frame = parent_frame)
-        }
-    }
-    expr
-}
+

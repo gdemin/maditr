@@ -44,6 +44,8 @@ eval_in_parent_frame = function(data, expr, frame){
     if(!is.data.table(data)){
         data = as.data.table(data)
     }
+    data_names = names(data)
+    expr = replace_column_expr(expr, data_names = data_names, frame = frame)
     assign("._***data***", data, envir = frame)
     on.exit({
         rm(`._***data***`, envir = frame)

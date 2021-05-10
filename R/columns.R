@@ -63,6 +63,7 @@ columns.data.frame = function(data, ...){
 cols = columns
 
 replace_column_expr = function(expr, data_names, frame, combine = quote(data.table)){
+    if(missing(expr)) return(missing_arg())
     if(is.call(expr) && length(expr)>1){
         curr = expr[[1]]
         if(identical(curr, quote(columns)) || identical(curr, quote(cols)) || identical(curr, quote(`%to%`))){

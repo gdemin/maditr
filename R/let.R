@@ -308,6 +308,7 @@ let_if.data.frame = function(data,
                   by,
                   keyby
 ){
+
     j_list = as.list(substitute(list(...)))[-1]
     j_length = length(j_list)
     j_length>0 || stop("let/let_if: please, provide at least one expression.")
@@ -333,11 +334,10 @@ let_if.data.frame = function(data,
     # if data is expression we want to calculate it only once
     res = force(data)
     parent_frame = parent.frame()
+    # i_expr = substitute(i)
     # NULL is just a placeholder
     for(expr in j_list){
-        data_names = names(res)
         expr = substitute(NULL[i, expr, by = by, keyby = keyby])
-        expr = preproc_variable_names(data_names, expr, parent_frame)
         res = eval_in_parent_frame(res, expr, frame = parent_frame)
     }
     res
@@ -369,10 +369,12 @@ take_if.data.frame = function(data,
                               fun = NULL
 ){
     j_expr = substitute(list(...))
+    data = force(data)
+    parent_frame = parent.frame()
+
     j_expr = as.list(j_expr)[-1]
     j_length = length(j_expr)
     # if data is expression we want to calculate it only once
-    data = force(data)
 
     # NULL is just a placeholder
     if(j_length == 0){
@@ -410,9 +412,6 @@ take_if.data.frame = function(data,
             .SDcols = .SDcols
         ])
     }
-    data_names = names(data)
-    parent_frame = parent.frame()
-    expr = preproc_variable_names(data_names, expr, parent_frame)
     eval_in_parent_frame(data, expr, frame = parent_frame)
 }
 
@@ -520,8 +519,6 @@ sort_by.data.frame = function(data, ..., na.last = FALSE){
     parent_frame = parent.frame()
     # if data is expression we want to calculate it only once
     data = force(data)
-    # data_names = names(data)
-    # expr = preproc_variable_names(data_names, expr, parent_frame)
     eval_in_parent_frame(data, expr, frame = parent_frame)
 
 }

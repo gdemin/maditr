@@ -207,8 +207,7 @@ data.table::is.data.table
 data.table::last
 #' @export
 data.table::first
-#' @export
-data.table::like
+
 #' @export
 data.table::`%like%`
 #' @export
