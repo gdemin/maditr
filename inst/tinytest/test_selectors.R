@@ -29,17 +29,16 @@ expect_identical(
 a = "disp"
 b = "drat"
 
-expect_error(take(mtcars, my_sum = sum(columns(a %to% b)), by = am))
+expect_error(take(mtcars, my_sum = sum(columns(aaa %to% bbb)), by = am))
 
 expect_identical(
-    take(mtcars, my_sum = sum(columns((a) %to% (b))), by = am),
+    take(mtcars, my_sum = sum(columns(a %to% b)), by = am),
     dt_mt[,.(my_sum = sum(cbind(disp, hp, drat))), by = am]
 )
 
 
-expect_identical(
-    take(mtcars, my_sum = sum((a) %to% (b)), by = am),
-    dt_mt[,.(my_sum = sum(cbind(disp, hp, drat))), by = am]
+expect_error(
+    take(mtcars, my_sum = sum((a) %to% (b)), by = am)
 )
 
 expect_identical(

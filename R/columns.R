@@ -48,7 +48,11 @@ columns.data.frame = function(data, ...){
     data = force(data)
     data_names = colnames(data)
     parent_frame = parent.frame()
-    var_indexes = select_columns(..., data_names = data_names, frame = parent_frame)
+    var_indexes = select_columns(...,
+                                 data_names = data_names,
+                                 frame = parent_frame,
+                                 combine = NULL,
+                                 new = FALSE)
 
     if(is.data.table(data)){
         data[, var_indexes, with = FALSE]
@@ -62,9 +66,8 @@ columns.data.frame = function(data, ...){
 #' @export
 cols = columns
 
-# here we find `columns` expression and replace it with
-# data.table(...) or c(...)
-replace_column_expr = function(expr, data_names, frame, combine = quote(data.table)){
+# here we find `columns` expression and replace it with data.table(...) or c(...)
+replace_column_expr = function(expr, data_names, frame, combine = quote(data.table), new = FALSE){
     if(missing(expr)) return(missing_arg())
     if(is.call(expr) && length(expr)>1){
         curr = expr[[1]]
@@ -75,17 +78,21 @@ replace_column_expr = function(expr, data_names, frame, combine = quote(data.tab
                 # 'columns(...)'
                 expr[[1]] = quote(select_columns)
             }
-            expr = as.call(c(as.list(expr), list(data_names = data_names, frame = frame)))
-            var_indexes = eval(expr)
-            symbols = lapply(data_names[var_indexes], as.symbol)
-            expr = as.call(c(combine, symbols))
+            expr = as.call(c(as.list(expr),
+                             list(data_names = data_names,
+                                  frame = frame,
+                                  combine = combine,
+                                  new = new))
+                           )
+            expr = eval(expr)
 
         } else {
             res = lapply(as.list(expr),
                          replace_column_expr,
                          data_names = data_names,
                          frame = frame,
-                         combine = combine
+                         combine = combine,
+                         new = new
                          )
             expr = as.call(res)
         }
@@ -93,51 +100,74 @@ replace_column_expr = function(expr, data_names, frame, combine = quote(data.tab
     expr
 }
 
-select_columns = function(..., data_names, frame){
+select_columns = function(..., data_names, frame, combine, new){
     var_list = substitute(list(...))
-    var_list = substitute_symbols(var_list, list("%to%" = quote(`:`), "-" = quote(`__.my_custom_not_`)))
+    all_symbols = create_list_with_symbols(data_names)
+    var_names = all.vars(var_list)
+    var_symbols = lapply(var_names, as.symbol)
+    names(var_symbols) = var_names
+    var_symbols = as.call(c(quote(list), var_symbols))
+
+    # resolve all symbols with their value
+    var_symbols = eval(var_symbols, envir = all_symbols, enclos = frame)
+    var_list = substitute_symbols(var_list, c(var_symbols,
+                                              list("%to%" = quote(`:`))
+    ))
+    var_list = expand_selectors(var_list, data_names, frame, new = new)
+    ### we need convert symbols to indexes to make '-' work as exclusion operator
     all_indexes = as.list(seq_along(data_names))
     names(all_indexes) = data_names
-    "__.my_custom_not_" = function(e1, e2){
-        if(missing(e2)){
-            if(is.character(e1)){
-                var_indexes = expand_selectors(e1, data_names, frame, new = FALSE)
-                return(-var_indexes)
-            } else {
-                return(-e1)
-            }
-        }
-        base::`-`(e1, e2)
-    }
-    all_indexes = c(all_indexes, c("__.my_custom_not_" = `__.my_custom_not_`))
-    var_indexes = expand_selectors(var_list, data_names, frame, new = FALSE)
-    var_indexes = eval(var_indexes, all_indexes, frame)
-    var_indexes = unique(unlist(var_indexes, use.names = FALSE))
-    var_indexes
+    var_indexes = eval(var_list, all_indexes, frame)
+    var_indexes = unique(unlist(var_indexes, recursive = TRUE, use.names = FALSE))
+    if(is.null(combine)) return(var_indexes)
+    res = all_symbols[var_indexes]
+    as.call(c(combine, res))
+
 }
 
-expand_selectors = function(selected, data_names, frame, new = FALSE){
+expand_selectors = function(selected, data_names, frame, new){
     # expand text and regex
-    selected = lapply(as.list(selected), function(item){
+    selected = lapply(selected, function(item){
+        # browser()
         if(is_range(item)) return(
-            s_range_expand(item, df_names = data_names, frame = frame, var_index = !new)
+            s_range_expand(item, df_names = data_names, frame = frame, new = new)
         )
-        if(length(item)>1) return(
+        if(is.call(item) && length(item)>1) return(
             expand_selectors(item, data_names, frame, new = new)
         )
 
-        item = s_regex_expand(item, data_names, var_index = !new)
-        item = s_text_expand(item, data_names, frame, var_index = !new)
+        item = s_regex_expand(item, data_names)
+        item = s_text_expand(item, data_names, frame)
         item
     })
-    #unlist(selected, recursive = TRUE, use.names = FALSE)
     as.call(selected)
 }
 
 
+###
 
+create_list_with_symbols = function(data_names){
+    res = lapply(data_names, as.symbol)
+    names(res) = data_names
+    res
+}
 
+create_list_with_index = function(data_names){
+    res = as.list(seq_along(data_names))
+    names(res) = data_names
+    res
+}
 
+create_vec_expression = function(data_names){
+    if(length(data_names)==1) return(as.symbol(data_names))
+    res = lapply(unlist(data_names, recursive = TRUE, use.names = FALSE),
+                 as.symbol)
+    as.call(c(quote(c), res))
+}
+
+create_index_vec = function(res, df_names){
+    match(res, df_names)
+}
 
 ####
 is_regex = function(txt){
@@ -148,42 +178,35 @@ is_range = function(expr){
     is.call(expr) && (identical(expr[[1]], quote(`:`)) | identical(expr[[1]], quote(`%to%`)))
 }
 
-s_regex_expand = function(expr, df_names, var_index = TRUE){
+s_regex_expand = function(expr, df_names){
+    # TODO here we have possible unexpected behaviour - when expr is vec of several character
+    # if one of them is regex all other will be considered as regex
     if(!is_regex(expr)) return(expr)
-    res = lapply(expr, grep, x = df_names, perl = TRUE, value = !var_index)
-    any(lengths(res)==0) && stop(paste("'columns' - there are no variables which match regex(-s): ", paste(expr, collapse = ",")))
-    res
+    res = lapply(expr, grep, x = df_names, perl = TRUE, value = TRUE)
+    res = unlist(res, recursive = TRUE, use.names = FALSE)
+    (length(res)==0) && stop(paste("'columns' - there are no variables which match regex(-s): ", paste(expr, collapse = ",")))
+    create_vec_expression(res)
 }
 
-s_text_expand = function(expr, df_names, frame, var_index = TRUE){
+s_text_expand = function(expr, df_names, frame){
     if(!is.character(expr)) return(expr)
     res = eval(substitute(maditr::text_expand(item), list(item = expr)), envir = frame)
-    if(!var_index) return(res)
-    res = match(res, df_names)
-    anyNA(res) && stop(paste("'columns' - variable not found: ",paste(expr, collapse = ",")))
-    res
+    # anyNA(res) && stop(paste("'columns' - variable(-s) not found: ",paste(expr, collapse = ",")))
+    create_vec_expression(res)
 }
 
 # %to% expansion
 # we can rely on indexing a:b -> 10:15, but in this case we cannot
 # create new variables from ranges
-s_range_expand = function(expr, df_names, frame, var_index = TRUE){
+s_range_expand = function(expr, df_names, frame, new = FALSE){
     if(!is_range(expr)) return(expr)
     from = expr[[2]]
     to = expr[[3]]
-    if(!is.symbol(from)) {
-        from = eval(from, envir = frame, enclos = .GlobalEnv)
-    } else {
-        from = as.character(from)
-    }
-    if(!is.symbol(to)) {
-        to = eval(to, envir = frame, enclos = .GlobalEnv)
-    } else {
-        to = as.character(to)
-    }
+    from = as.character(from)
+    to = as.character(to)
     first = match(from, df_names)[1]
     last = match(to, df_names)[1]
-    if((is.na(first) && is.na(last)) && !var_index){
+    if((is.na(first) && is.na(last)) && new){
         patt1 = gsub("^(.+?)([\\d]+)$", "\\1", from, perl = TRUE)
         patt2 = gsub("^(.+?)([\\d]+)$", "\\1", to, perl = TRUE)
         (patt1 == patt2) || stop("'columns range selection': start and end variables begin from different patterns: '", patt1, "', '", patt2,"'.")
@@ -206,9 +229,9 @@ s_range_expand = function(expr, df_names, frame, var_index = TRUE){
     } else {
         (!is.na(first) &&  !is.na(last)) || stop("'columns' range selection: variables '", from, "' or '", to, "' are not found.")
         (last>=first) || stop( "'columns' range selection: '",to, "' located before '",from,"'. Did you mean '",to," %to% ",from,"'?")
-        if(var_index) res = first:last else res = df_names[first:last]
+        res = df_names[first:last]
     }
-    return(res)
+    create_vec_expression(res)
 }
 
 
