@@ -62,6 +62,8 @@ columns.data.frame = function(data, ...){
 #' @export
 cols = columns
 
+# here we find `columns` expression and replace it with
+# data.table(...) or c(...)
 replace_column_expr = function(expr, data_names, frame, combine = quote(data.table)){
     if(missing(expr)) return(missing_arg())
     if(is.call(expr) && length(expr)>1){
@@ -99,7 +101,7 @@ select_columns = function(..., data_names, frame){
     "__.my_custom_not_" = function(e1, e2){
         if(missing(e2)){
             if(is.character(e1)){
-                var_indexes = expand_selectors(e1, data_names, frame)
+                var_indexes = expand_selectors(e1, data_names, frame, new = FALSE)
                 return(-var_indexes)
             } else {
                 return(-e1)
@@ -108,44 +110,106 @@ select_columns = function(..., data_names, frame){
         base::`-`(e1, e2)
     }
     all_indexes = c(all_indexes, c("__.my_custom_not_" = `__.my_custom_not_`))
-    var_indexes = eval(var_list, all_indexes, frame)
-    var_indexes = expand_selectors(var_indexes, data_names, frame)
+    var_indexes = expand_selectors(var_list, data_names, frame, new = FALSE)
+    var_indexes = eval(var_indexes, all_indexes, frame)
     var_indexes = unique(unlist(var_indexes, use.names = FALSE))
     var_indexes
 }
 
-expand_selectors = function(selected, data_names, frame){
+expand_selectors = function(selected, data_names, frame, new = FALSE){
     # expand text and regex
-    selected = lapply(selected, function(item){
-        if(length(item)>1) return(expand_selectors(item, data_names, frame))
-        item = s_regex_expand(item, data_names)
-        item = s_text_expand(item, data_names, frame)
+    selected = lapply(as.list(selected), function(item){
+        if(is_range(item)) return(
+            s_range_expand(item, df_names = data_names, frame = frame, var_index = !new)
+        )
+        if(length(item)>1) return(
+            expand_selectors(item, data_names, frame, new = new)
+        )
+
+        item = s_regex_expand(item, data_names, var_index = !new)
+        item = s_text_expand(item, data_names, frame, var_index = !new)
         item
     })
-    unlist(selected, recursive = TRUE, use.names = TRUE)
+    #unlist(selected, recursive = TRUE, use.names = FALSE)
+    as.call(selected)
 }
 
 
+
+
+
+
+####
 is_regex = function(txt){
     is.character(txt) && any(startsWith(txt, "^") | endsWith(txt, "$"))
 }
 
+is_range = function(expr){
+    is.call(expr) && (identical(expr[[1]], quote(`:`)) | identical(expr[[1]], quote(`%to%`)))
+}
 
-s_regex_expand = function(expr, df_names){
+s_regex_expand = function(expr, df_names, var_index = TRUE){
     if(!is_regex(expr)) return(expr)
-    res = lapply(expr, grep, x = df_names, perl = TRUE)
+    res = lapply(expr, grep, x = df_names, perl = TRUE, value = !var_index)
     any(lengths(res)==0) && stop(paste("'columns' - there are no variables which match regex(-s): ", paste(expr, collapse = ",")))
     res
 }
 
-s_text_expand = function(expr, df_names, frame){
+s_text_expand = function(expr, df_names, frame, var_index = TRUE){
     if(!is.character(expr)) return(expr)
     res = eval(substitute(maditr::text_expand(item), list(item = expr)), envir = frame)
+    if(!var_index) return(res)
     res = match(res, df_names)
     anyNA(res) && stop(paste("'columns' - variable not found: ",paste(expr, collapse = ",")))
     res
 }
 
+# %to% expansion
+# we can rely on indexing a:b -> 10:15, but in this case we cannot
+# create new variables from ranges
+s_range_expand = function(expr, df_names, frame, var_index = TRUE){
+    if(!is_range(expr)) return(expr)
+    from = expr[[2]]
+    to = expr[[3]]
+    if(!is.symbol(from)) {
+        from = eval(from, envir = frame, enclos = .GlobalEnv)
+    } else {
+        from = as.character(from)
+    }
+    if(!is.symbol(to)) {
+        to = eval(to, envir = frame, enclos = .GlobalEnv)
+    } else {
+        to = as.character(to)
+    }
+    first = match(from, df_names)[1]
+    last = match(to, df_names)[1]
+    if((is.na(first) && is.na(last)) && !var_index){
+        patt1 = gsub("^(.+?)([\\d]+)$", "\\1", from, perl = TRUE)
+        patt2 = gsub("^(.+?)([\\d]+)$", "\\1", to, perl = TRUE)
+        (patt1 == patt2) || stop("'columns range selection': start and end variables begin from different patterns: '", patt1, "', '", patt2,"'.")
+        digits1 = gsub("^(.+?)([\\d]+)$", "\\2", from, perl = TRUE)
+        digits2 = gsub("^(.+?)([\\d]+)$", "\\2", to, perl = TRUE)
+        padding = 0
+        if((substr(digits1,1,1)=="0" || substr(digits2,1,1)=="0") &&
+           !(substr(digits1,1,1)=="0" && nchar(digits1)==1 && substr(digits2,1,1)!=0)){
+            (nchar(digits1) == nchar(digits2)) ||
+                   stop("'columns' range selection: invalid use of the '%to%' convention. For zero-padded numbers numeric part of the names must be the same length but: '",
+                   digits1, ", '", digits2, "'.")
+            padding = nchar(digits1)
+        }
+        digits1 = as.numeric(digits1)
+        digits2 = as.numeric(digits2)
+        (digits1<=digits2) || stop("'columns' range selection: name of start variables greater than name of end variables: '", from,"' > '",to,"'.")
+        all_digits = digits1:digits2
+        if(padding>0) all_digits = formatC(all_digits, width = padding, format = "d", flag = "0")
+        res = paste0(patt1, all_digits)
+    } else {
+        (!is.na(first) &&  !is.na(last)) || stop("'columns' range selection: variables '", from, "' or '", to, "' are not found.")
+        (last>=first) || stop( "'columns' range selection: '",to, "' located before '",from,"'. Did you mean '",to," %to% ",from,"'?")
+        if(var_index) res = first:last else res = df_names[first:last]
+    }
+    return(res)
+}
 
 
 
@@ -188,43 +252,3 @@ rows.data.frame = function(data, ...){
 
 #########
 
-# %to% expansion for assignment
-.into_helper_ = function(e1, e2){
-    var_names = get_current_variables(parent.frame())
-    e1 = substitute(list(e1))
-    e2 = substitute(list(e2))
-    e1 = evaluate_variable_names(e1, envir = parent.frame(), symbols_to_characters = TRUE)
-    e2 = evaluate_variable_names(e2, envir = parent.frame(), symbols_to_characters = TRUE)
-    stopif(length(e1)>1, "'%to%' - length of name of first variable is greater than one.")
-    stopif(length(e2)>1, "'%to%' - length of name of second variable is greater than one.")
-    e1 = e1[[1]]
-    e2 = e2[[1]]
-    first = match(e1, var_names)[1]
-    last = match(e2, var_names)[1]
-    if(is.na(first) && is.na(last)){
-        patt1 = gsub("^(.+?)([\\d]+)$", "\\1", e1, perl = TRUE)
-        patt2 = gsub("^(.+?)([\\d]+)$", "\\1", e2, perl = TRUE)
-        stopif(patt1!=patt2, "Start and end variables begin from different patterns: '", patt1, "', '", patt2,"'.")
-        digits1 = gsub("^(.+?)([\\d]+)$", "\\2", e1, perl = TRUE)
-        digits2 = gsub("^(.+?)([\\d]+)$", "\\2", e2, perl = TRUE)
-        padding = 0
-        if((substr(digits1,1,1)=="0" || substr(digits2,1,1)==0) &&
-           !(substr(digits1,1,1)=="0" && nchar(digits1)==1 && substr(digits2,1,1)!=0)){
-            stopif(nchar(digits1)!=nchar(digits2),
-                   "Invalid use of the %to% convention. For zero-padded numbers numeric part of the names must be the same length but: '",
-                   digits1, ", '", digits2, "'.")
-            padding = nchar(digits1)
-        }
-        digits1 = as.numeric(digits1)
-        digits2 = as.numeric(digits2)
-        stopif(digits1>digits2, "Name of start variables greater than name of end variables: '", e1,"' > '",e2,"'.")
-        all_digits = digits1:digits2
-        if(padding>0) all_digits = formatC(all_digits, width = padding, format = "d", flag = "0")
-        return(paste0(patt1, all_digits))
-    } else {
-        stopif(is.na(first), "'", e2, "' is found but '", e1, "' is absent.")
-        stopif(is.na(last), "'", e1, "' is found but '", e2, "' is absent.")
-        stopif(last<first, "'",e2, "' located before '",e1,"'. Did you mean '",e2," %to% ",e1,"'?")
-        return(var_names[first:last])
-    }
-}

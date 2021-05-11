@@ -20,8 +20,8 @@
 
 Package provides pipe-style interface for [data.table](https://cran.r-project.org/package=data.table) package. It preserves all data.table features without significant impact on performance. `let` and `take` functions are simplified interfaces for most common data manipulation tasks.
 
-- To select rows from data: `take_if(mtcars, am==0)`
-- To select columns from data: `take(mtcars, am, vs, mpg)`
+- To select rows from data: `rows(mtcars, am==0)`
+- To select columns from data: `columns(mtcars, mpg, vs:carb)`
 - To aggregate data: `take(mtcars, mean_mpg = mean(mpg), by = am)`
 - To aggregate all non-grouping columns: `take_all(mtcars, mean, by = am)`
 - To aggregate several columns with one summary: `take(mtcars, mpg, hp, fun = mean, by = am)`
@@ -175,14 +175,36 @@ mtcars %>%
     let(cyl = cyl * var) %>%
     head()
 
-# filter by condition
+# select rows
 mtcars %>%
-    take_if(am==0) %>% 
+    rows(am==0) %>% 
     head()
 
-# filter by compound condition
+# select rows with compound condition
 mtcars %>%
-    take_if(am==0 & mpg>mean(mpg))
+    rows(am==0 & mpg>mean(mpg))
+
+# select columns
+mtcars %>% 
+    columns(vs:carb, cyl)
+    
+mtcars %>% 
+    columns(-am, -cyl)    
+
+# regular expression pattern
+columns(iris, "^Petal") # variables which start from 'Petal'
+columns(iris, "Width$") # variables which end with 'Width'
+
+# move Species variable to the front
+# pattern "^." matches all variables
+columns(iris, Species, "^.")
+
+# pattern "^.*al" means "contains 'al'"
+columns(iris, "^.*al")
+
+# numeric indexing - all variables except Species
+columns(iris, 1:4) 
+
 
 
 # A 'take' with summary functions applied without 'by' argument returns an aggregated data

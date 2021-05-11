@@ -13,13 +13,32 @@ expect_identical(
 )
 
 
+
+
 expect_identical(
     take(mtcars, my_sum = sum(columns(disp %to% drat)), by = am),
     dt_mt[,.(my_sum = sum(cbind(disp, hp, drat))), by = am]
 )
 
+
 expect_identical(
     take(mtcars, my_sum = sum(disp %to% drat), by = am),
+    dt_mt[,.(my_sum = sum(cbind(disp, hp, drat))), by = am]
+)
+
+a = "disp"
+b = "drat"
+
+expect_error(take(mtcars, my_sum = sum(columns(a %to% b)), by = am))
+
+expect_identical(
+    take(mtcars, my_sum = sum(columns((a) %to% (b))), by = am),
+    dt_mt[,.(my_sum = sum(cbind(disp, hp, drat))), by = am]
+)
+
+
+expect_identical(
+    take(mtcars, my_sum = sum((a) %to% (b)), by = am),
     dt_mt[,.(my_sum = sum(cbind(disp, hp, drat))), by = am]
 )
 
@@ -38,6 +57,11 @@ expect_identical(
 expect_identical(
     take(mtcars, my_sum = sum(columns('{my_vars}')), by = am),
     dt_mt[,.(my_sum = sum(cbind(disp, hp, drat))), by = am]
+)
+
+expect_identical(
+    take(mtcars, my_sum = sum(columns('{my_vars}')), my_mean = mean(as.matrix(columns('{my_vars}'))), by = am),
+    dt_mt[,.(my_sum = sum(cbind(disp, hp, drat)), my_mean = mean(cbind(disp, hp, drat))), by = am]
 )
 
 expect_identical(

@@ -308,6 +308,9 @@ let_if.data.frame = function(data,
                   by,
                   keyby
 ){
+    # if data is expression we want to calculate it only once
+    res = force(data)
+    parent_frame = parent.frame()
 
     j_list = as.list(substitute(list(...)))[-1]
     j_length = length(j_list)
@@ -329,14 +332,13 @@ let_if.data.frame = function(data,
             expr = j_list[[each]]
             j_list[[each]] = substitute(`:=`(curr_name, expr))
         }
+
     }
     ####
-    # if data is expression we want to calculate it only once
-    res = force(data)
-    parent_frame = parent.frame()
-    # i_expr = substitute(i)
+
     # NULL is just a placeholder
     for(expr in j_list){
+        data_names = names(res)
         expr = substitute(NULL[i, expr, by = by, keyby = keyby])
         res = eval_in_parent_frame(res, expr, frame = parent_frame)
     }
