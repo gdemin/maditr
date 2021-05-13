@@ -100,23 +100,30 @@ replace_column_expr = function(expr, data_names, frame, combine = quote(data.tab
     expr
 }
 
-select_columns = function(..., data_names, frame, combine, new){
+
+select_columns = function(..., data_names, frame, combine, new = FALSE){
     var_list = substitute(list(...))
-    all_symbols = create_list_with_symbols(data_names)
     var_names = all.vars(var_list)
     var_symbols = lapply(var_names, as.symbol)
     names(var_symbols) = var_names
     var_symbols = as.call(c(quote(list), var_symbols))
-
+    if(new){
+        all_symbols = create_list_with_names(data_names)
+    } else {
+        all_symbols = create_list_with_symbols(data_names)
+    }
     # resolve all symbols with their value
     var_symbols = eval(var_symbols, envir = all_symbols, enclos = frame)
     var_list = substitute_symbols(var_list, c(var_symbols,
                                               list("%to%" = quote(`:`))
     ))
     var_list = expand_selectors(var_list, data_names, frame, new = new)
+    if(new){
+        res = eval(var_list, envir = frame)
+        return(unlist(res, recursive = TRUE, use.names = FALSE))
+    }
     ### we need convert symbols to indexes to make '-' work as exclusion operator
-    all_indexes = as.list(seq_along(data_names))
-    names(all_indexes) = data_names
+    all_indexes = create_list_with_index(data_names)
     var_indexes = eval(var_list, all_indexes, frame)
     var_indexes = unique(unlist(var_indexes, recursive = TRUE, use.names = FALSE))
     if(is.null(combine)) return(var_indexes)
@@ -129,16 +136,24 @@ expand_selectors = function(selected, data_names, frame, new){
     # expand text and regex
     selected = lapply(selected, function(item){
         # browser()
-        if(is_range(item)) return(
-            s_range_expand(item, df_names = data_names, frame = frame, new = new)
-        )
-        if(is.call(item) && length(item)>1) return(
-            expand_selectors(item, data_names, frame, new = new)
-        )
+        if(is_range(item)) {
+            item = s_range_expand(item, df_names = data_names, frame = frame, new = new)
+            if(!new) item = create_vec_expression(item)
+            return(item)
 
-        item = s_regex_expand(item, data_names)
-        item = s_text_expand(item, data_names, frame)
+        }
+        if(is.character(item)){
+            item = s_regex_expand(item, data_names)
+            item = s_text_expand(item, data_names, frame)
+            if(!new) item = create_vec_expression(item)
+            return(item)
+        }
+        if(is.call(item) && length(item)>1){
+            item = expand_selectors(item, data_names, frame, new = new)
+            return(item)
+        }
         item
+
     })
     as.call(selected)
 }
@@ -152,6 +167,12 @@ create_list_with_symbols = function(data_names){
     res
 }
 
+create_list_with_names = function(data_names){
+    res = as.list(data_names)
+    names(res) = data_names
+    res
+}
+
 create_list_with_index = function(data_names){
     res = as.list(seq_along(data_names))
     names(res) = data_names
@@ -160,8 +181,7 @@ create_list_with_index = function(data_names){
 
 create_vec_expression = function(data_names){
     if(length(data_names)==1) return(as.symbol(data_names))
-    res = lapply(unlist(data_names, recursive = TRUE, use.names = FALSE),
-                 as.symbol)
+    res = lapply(data_names, as.symbol)
     as.call(c(quote(c), res))
 }
 
@@ -185,14 +205,13 @@ s_regex_expand = function(expr, df_names){
     res = lapply(expr, grep, x = df_names, perl = TRUE, value = TRUE)
     res = unlist(res, recursive = TRUE, use.names = FALSE)
     (length(res)==0) && stop(paste("'columns' - there are no variables which match regex(-s): ", paste(expr, collapse = ",")))
-    create_vec_expression(res)
+    unlist(res, recursive = TRUE, use.names = TRUE)
 }
 
 s_text_expand = function(expr, df_names, frame){
-    if(!is.character(expr)) return(expr)
     res = eval(substitute(maditr::text_expand(item), list(item = expr)), envir = frame)
     # anyNA(res) && stop(paste("'columns' - variable(-s) not found: ",paste(expr, collapse = ",")))
-    create_vec_expression(res)
+    unlist(res, recursive = TRUE, use.names = TRUE)
 }
 
 # %to% expansion
@@ -231,7 +250,7 @@ s_range_expand = function(expr, df_names, frame, new = FALSE){
         (last>=first) || stop( "'columns' range selection: '",to, "' located before '",from,"'. Did you mean '",to," %to% ",from,"'?")
         res = df_names[first:last]
     }
-    create_vec_expression(res)
+    unlist(res, recursive = TRUE, use.names = TRUE)
 }
 
 

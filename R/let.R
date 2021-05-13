@@ -339,6 +339,11 @@ let_if.data.frame = function(data,
     # NULL is just a placeholder
     for(expr in j_list){
         data_names = names(res)
+        expr[[2]] = replace_column_expr(expr[[2]],
+                                        data_names =  data_names,
+                                        frame = parent_frame,
+                                        new = TRUE)
+
         expr = substitute(NULL[i, expr, by = by, keyby = keyby])
         res = eval_in_parent_frame(res, expr, frame = parent_frame)
     }
