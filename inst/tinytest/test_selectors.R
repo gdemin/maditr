@@ -36,10 +36,12 @@ expect_identical(
     dt_mt[,.(my_sum = sum(cbind(disp, hp, drat))), by = am]
 )
 
-
-expect_error(
-    take(mtcars, my_sum = sum((a) %to% (b)), by = am)
+expect_identical(
+    take(mtcars, my_sum = sum(columns((a) %to% (b))), by = am),
+    dt_mt[,.(my_sum = sum(cbind(disp, hp, drat))), by = am]
 )
+
+
 
 expect_identical(
     take(mtcars, my_sum = sum(columns("^disp|hp|drat")), by = am),
@@ -274,3 +276,34 @@ expect_identical(
 )
 
 
+# cat("\nContext:", "let selectors LHS", "\n")
+#
+# data(mtcars)
+#
+# dt_mt = as.data.table(mtcars)
+# dt_mt2 = data.table::copy(dt_mt)
+#
+#
+# expect_error(
+#     let(dt_mt,
+#         cols(param) := 43
+#     )
+# )
+#
+# param = "b{1:3}"
+#
+# expect_identical(
+#     let(dt_mt,
+#         cols(param) := 43
+#     ),
+#     dt_mt2[,text_expand(param) := 43]
+# )
+#
+# aaa = let(mtcars,
+#     cols("a{1:5}") := 1
+#     )
+#
+#
+# let(aaa,
+#     cols("a{1:5}") := 42
+# )
