@@ -67,16 +67,21 @@ columns.data.frame = function(data, ...){
 cols = columns
 
 # here we find `columns` expression and replace it with data.table(...) or c(...)
-replace_column_expr = function(expr, data_names, frame, combine = quote(data.table)){
+replace_column_expr = function(expr, data_names, frame, combine = quote(data.table), new = FALSE){
     if(missing(expr)) return(missing_arg())
     if(is.call(expr) && length(expr)>1){
+        if(new){
+            curr_action = quote(create_columns)
+        } else {
+            curr_action = quote(select_columns)
+        }
         curr = expr[[1]]
         if(identical(curr, quote(columns)) || identical(curr, quote(cols)) || identical(curr, quote(`%to%`))){
             if(identical(curr, quote(`%to%`))){
-                expr = bquote(select_columns(.(expr)))# standalone a %to% b, without 'columns'
+                expr = as.call(list(curr_action, expr)) # standalone a %to% b, without 'columns'
             } else {
                 # 'columns(...)'
-                expr[[1]] = quote(select_columns)
+                expr[[1]] = curr_action
             }
             expr = as.call(c(as.list(expr),
                              list(data_names = data_names,
@@ -91,7 +96,8 @@ replace_column_expr = function(expr, data_names, frame, combine = quote(data.tab
                          replace_column_expr,
                          data_names = data_names,
                          frame = frame,
-                         combine = combine
+                         combine = combine,
+                         new = new
                          )
             expr = as.call(res)
         }
@@ -119,15 +125,38 @@ select_columns = function(..., data_names, frame, combine){
 
 }
 
+create_columns = function(..., data_names, frame, combine){
+    var_list = substitute(list(...))
+
+    # unknown names
+    var_names = setdiff(all.vars(var_list), data_names)
+
+    # it is mostly for %to% expression, where we use unquoted names
+    name_exists = unlist(lapply(var_names, exists, envir = frame))
+    new_names = var_names[!name_exists]
+
+    curr_range_expander = create_range_expander(data_names, new = TRUE)
+    var_list = substitute_symbols(var_list, list(
+        ":" = curr_range_expander,
+        "%to%" = curr_range_expander
+    ))
+    all_names = create_list_with_names(c(data_names, new_names))
+    var_list = eval(var_list, all_names, frame)
+    new_names = expand_characters(var_list, data_names, frame, new = TRUE)
+    unique(unlist(new_names, recursive = TRUE, use.names = FALSE))
+}
+
 ###
-expand_characters = function(selected, data_names, frame){
+expand_characters = function(selected, data_names, frame, new = FALSE){
     # expand text and regex
     selected = lapply(selected, function(item){
         # browser()
         if(is.character(item)){
             item = s_regex_expand(item, data_names)
             item = s_text_expand(item, data_names, frame)
-            item = create_index_vec(item, df_names = data_names)
+            if(!new){
+                item = create_index_vec(item, df_names = data_names)
+            }
         }
         item
 
@@ -171,12 +200,15 @@ s_text_expand = function(expr, df_names, frame){
     unlist(res, recursive = TRUE, use.names = TRUE)
 }
 
-create_range_expander = function(df_names){
+create_range_expander = function(df_names, new = FALSE){
     force(df_names)
     function(from, to){   # , frame, new = FALSE
-        if(is.numeric(from) && is.numeric(to)) return(from:to)
+        if(is.numeric(from) && is.numeric(to) && !new) return(from:to)
         first = match(from, df_names)[1]
         last = match(to, df_names)[1]
+        if(is.na(first) && is.na(last) && new) return(
+            create_name_sequence(from, to)
+        )
         (!is.na(first) &&  !is.na(last)) || stop("'columns' range selection: variables '", from, "' or '", to, "' are not found.")
         (last>=first) || stop( "'columns' range selection: '",to, "' located before '",from,"'. Did you mean '",to," %to% ",from,"'?")
         return(first:last)
@@ -218,35 +250,30 @@ create_vec_expression = function(data_names){
 
 ####
 
-is_range = function(expr){
-    is.call(expr) && (identical(expr[[1]], quote(`:`)) | identical(expr[[1]], quote(`%to%`)))
+
+
+create_name_sequence = function(from, to){
+    patt1 = gsub("^(.+?)([\\d]+)$", "\\1", from, perl = TRUE)
+    patt2 = gsub("^(.+?)([\\d]+)$", "\\1", to, perl = TRUE)
+    (patt1 == patt2) || stop("'columns range selection': start and end variables begin from different patterns: '", patt1, "', '", patt2,"'.")
+    digits1 = gsub("^(.+?)([\\d]+)$", "\\2", from, perl = TRUE)
+    digits2 = gsub("^(.+?)([\\d]+)$", "\\2", to, perl = TRUE)
+    padding = 0
+    if((substr(digits1,1,1)=="0" || substr(digits2,1,1)=="0") &&
+       !(substr(digits1,1,1)=="0" && nchar(digits1)==1 && substr(digits2,1,1)!=0)){
+        (nchar(digits1) == nchar(digits2)) ||
+            stop("'columns' range selection: invalid use of the '%to%' convention. For zero-padded numbers numeric part of the names must be the same length but: '",
+                 from, ", '", to, "'.")
+        padding = nchar(digits1)
+    }
+    digits1 = as.numeric(digits1)
+    digits2 = as.numeric(digits2)
+    (digits1<=digits2) || stop("'columns' range selection: name of start variables greater than name of end variables: '", from,"' > '",to,"'.")
+    all_digits = digits1:digits2
+    if(padding>0) all_digits = formatC(all_digits, width = padding, format = "d", flag = "0")
+    res = paste0(patt1, all_digits)
+    unlist(res, recursive = TRUE, use.names = TRUE)
 }
-
-
-    # if((is.na(first) && is.na(last)) && new){
-    #     patt1 = gsub("^(.+?)([\\d]+)$", "\\1", from, perl = TRUE)
-    #     patt2 = gsub("^(.+?)([\\d]+)$", "\\1", to, perl = TRUE)
-    #     (patt1 == patt2) || stop("'columns range selection': start and end variables begin from different patterns: '", patt1, "', '", patt2,"'.")
-    #     digits1 = gsub("^(.+?)([\\d]+)$", "\\2", from, perl = TRUE)
-    #     digits2 = gsub("^(.+?)([\\d]+)$", "\\2", to, perl = TRUE)
-    #     padding = 0
-    #     if((substr(digits1,1,1)=="0" || substr(digits2,1,1)=="0") &&
-    #        !(substr(digits1,1,1)=="0" && nchar(digits1)==1 && substr(digits2,1,1)!=0)){
-    #         (nchar(digits1) == nchar(digits2)) ||
-    #                stop("'columns' range selection: invalid use of the '%to%' convention. For zero-padded numbers numeric part of the names must be the same length but: '",
-    #                digits1, ", '", digits2, "'.")
-    #         padding = nchar(digits1)
-    #     }
-    #     digits1 = as.numeric(digits1)
-    #     digits2 = as.numeric(digits2)
-    #     (digits1<=digits2) || stop("'columns' range selection: name of start variables greater than name of end variables: '", from,"' > '",to,"'.")
-    #     all_digits = digits1:digits2
-    #     if(padding>0) all_digits = formatC(all_digits, width = padding, format = "d", flag = "0")
-    #     res = paste0(patt1, all_digits)
-    #
-    # }
-    # unlist(res, recursive = TRUE, use.names = TRUE)
-
 
 
 
