@@ -108,7 +108,7 @@ replace_column_expr = function(expr, data_names, frame, combine = quote(data.tab
 
 select_columns = function(..., data_names, frame, combine){
     var_list = substitute(list(...))
-    curr_range_expander = create_range_expander(data_names)
+    curr_range_expander = create_range_expander(data_names, frame)
     var_list = substitute_symbols(var_list, list(
         ":" = curr_range_expander,
         "%to%" = curr_range_expander,
@@ -127,15 +127,12 @@ select_columns = function(..., data_names, frame, combine){
 
 create_columns = function(..., data_names, frame, combine){
     var_list = substitute(list(...))
-
+    var_list = eval_expressions(var_list, frame)
     # unknown names
-    var_names = setdiff(all.vars(var_list), data_names)
+    # it is for unquoted names
+    new_names = setdiff(all.vars(var_list), data_names)
 
-    # it is mostly for %to% expression, where we use unquoted names
-    name_exists = unlist(lapply(var_names, exists, envir = frame))
-    new_names = var_names[!name_exists]
-
-    curr_range_expander = create_range_expander(data_names, new = TRUE)
+    curr_range_expander = create_range_expander(data_names, frame, new = TRUE)
     var_list = substitute_symbols(var_list, list(
         ":" = curr_range_expander,
         "%to%" = curr_range_expander
@@ -144,6 +141,20 @@ create_columns = function(..., data_names, frame, combine){
     var_list = eval(var_list, all_names, frame)
     new_names = expand_characters(var_list, data_names, frame, new = TRUE)
     unique(unlist(new_names, recursive = TRUE, use.names = FALSE))
+}
+
+eval_expressions = function(var_list, frame){
+    if(length(var_list)>1){
+        var_list = as.list(var_list)
+        var_list[-1] = lapply(var_list[-1], function(item){
+            if(is.call(item) && !(identical(item[[1]], quote(`:`)) || identical(item[[1]], quote(`%to%`)))){
+                item = eval(item, envir = frame)
+            }
+            item
+        })
+        var_list = as.call(var_list)
+    }
+    var_list
 }
 
 ###
@@ -200,9 +211,15 @@ s_text_expand = function(expr, df_names, frame){
     unlist(res, recursive = TRUE, use.names = TRUE)
 }
 
-create_range_expander = function(df_names, new = FALSE){
+create_range_expander = function(df_names, frame, new = FALSE){
     force(df_names)
     function(from, to){   # , frame, new = FALSE
+        from = substitute(from)
+        to = substitute(to)
+        if(is.call(from)) from = eval(from, frame)
+        if(is.call(to)) to = eval(to, frame)
+        if(is.symbol(from)) from = as.character(from)
+        if(is.symbol(to)) to = as.character(to)
         if(is.numeric(from) && is.numeric(to) && !new) return(from:to)
         first = match(from, df_names)[1]
         last = match(to, df_names)[1]

@@ -31,9 +31,8 @@ b = "drat"
 
 expect_error(take(mtcars, my_sum = sum(columns(aaa %to% bbb)), by = am))
 
-expect_identical(
-    take(mtcars, my_sum = sum(columns(a %to% b)), by = am),
-    dt_mt[,.(my_sum = sum(cbind(disp, hp, drat))), by = am]
+expect_error(
+    take(mtcars, my_sum = sum(columns(a %to% b)), by = am)
 )
 
 expect_identical(
@@ -79,6 +78,11 @@ expect_identical(
 expect_identical(
     take(mtcars, my_sum = sum(columns("^.")), by = am),
     dt_mt[,.(my_sum = sum(cbind(.SD, am))), by = am]
+)
+
+expect_identical(
+    take(mtcars, my_sum = sum(columns(-(disp:drat), -am)), by = am),
+    dt_mt[,.(my_sum = sum(.SD[,-(disp:drat)])), by = am]
 )
 
 expect_identical(
@@ -276,34 +280,115 @@ expect_identical(
 )
 
 
-# cat("\nContext:", "let selectors LHS", "\n")
-#
-# data(mtcars)
-#
-# dt_mt = as.data.table(mtcars)
-# dt_mt2 = data.table::copy(dt_mt)
-#
-#
-# expect_error(
-#     let(dt_mt,
-#         cols(param) := 43
-#     )
-# )
-#
-# param = "b{1:3}"
-#
-# expect_identical(
-#     let(dt_mt,
-#         cols(param) := 43
-#     ),
-#     dt_mt2[,text_expand(param) := 43]
-# )
-#
-# aaa = let(mtcars,
-#     cols("a{1:5}") := 1
-#     )
-#
-#
-# let(aaa,
-#     cols("a{1:5}") := 42
-# )
+cat("\nContext:", "let selectors LHS", "\n")
+
+data(mtcars)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+if(exists("param", inherits = FALSE)) rm(param)
+
+expect_identical(
+    let(dt_mt,
+        cols(param) := 43
+    ),
+    dt_mt2[, param := 43]
+)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+param = "b{1:3}"
+
+expect_identical(
+    let(dt_mt,
+        cols(param) := 43
+    ),
+    dt_mt2[, param := 43]
+)
+
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+expect_identical(
+    let(dt_mt,
+        cols((param)) := 43
+    ),
+    dt_mt2[,text_expand(param) := 43]
+)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+expect_identical(
+    let(dt_mt,
+        cols(a1, a2, a3) := list(1,2,3)
+    ),
+    dt_mt2[, c("a1", "a2", "a3") := list(1,2,3)]
+)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+expect_identical(
+    let(dt_mt,
+        cols(a1 %to% a3) := list(1,2,3)
+    ),
+    dt_mt2[, c("a1", "a2", "a3") := list(1,2,3)]
+)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+expect_identical(
+    let(dt_mt,
+        (a1 %to% a3) := list(1,2,3)
+    ),
+    dt_mt2[, c("a1", "a2", "a3") := list(1,2,3)]
+)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+expect_error(
+    let(dt_mt, cols("^q_\\d") := 42)
+)
+
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+expect_identical(
+    let(dt_mt, cols("^(am|vs)$") := NA),
+    dt_mt2[,c("am", "vs") := NA]
+)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+expect_identical(
+    let(dt_mt, cols("{c('am', 'vs')}") := NA),
+    dt_mt2[,c("am", "vs") := NA]
+)
+
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+a = "a1"
+b = "a3"
+expect_error(
+    let(dt_mt,
+        (a %to% b) := list(1,2,3)
+    )
+)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+expect_identical(
+    let(dt_mt,
+        ((a) %to% (b)) := list(1,2,3)
+    ),
+    dt_mt2[, c("a1", "a2", "a3") := list(1,2,3)]
+)
