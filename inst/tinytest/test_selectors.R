@@ -351,6 +351,36 @@ expect_identical(
 dt_mt = as.data.table(mtcars)
 dt_mt2 = data.table::copy(dt_mt)
 
+expect_identical(
+    let(dt_mt,
+        (a01 %to% a03) := list(1,2,3)
+    ),
+    dt_mt2[, c("a01", "a02", "a03") := list(1,2,3)]
+)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+expect_error(
+    let(dt_mt,
+        (a1 %to% a03) := list(1,2,3)
+    )
+)
+
+expect_error(
+    let(dt_mt,
+        (a1 %to% b3) := list(1,2,3)
+    )
+)
+
+expect_error(
+    let(dt_mt,
+        (a3 %to% a1) := list(1,2,3)
+    )
+)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
 expect_error(
     let(dt_mt, cols("^q_\\d") := 42)
 )

@@ -18,6 +18,16 @@ expect_equal(
 )
 
 expect_equal(
+    dt_count(mtcars, "^(am|vs)", name = "total"),
+    take(mtcars, total = .N, by =.(vs, am))
+)
+
+expect_equal(
+    dt_count(mtcars, vs %to% gear, name = "total"),
+    take(mtcars, total = .N, by =.(vs, am, gear))
+)
+
+expect_equal(
     dt_count(mtcars, am, vs, sort = TRUE, name = "total"),
     take(mtcars, total = .N, by =.(am, vs)) %>% sort_by(-total)
 )
@@ -108,6 +118,11 @@ expect_equal(
     query_if(mtcars, order(-mpg), head(.SD, 2), by = list(am, vs))
 )
 
+indirect = c('am', 'vs')
+expect_equal(
+    dt_top_n(mtcars, 2, order_by = mpg, by = cols("{indirect}")),
+    query_if(mtcars, order(-mpg), head(.SD, 2), by = list(am, vs))
+)
 
 expect_equal(
     dt_top_n(mtcars, -2, order_by = mpg, by = list(am, vs)),

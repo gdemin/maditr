@@ -47,9 +47,19 @@ eval_in_parent_frame = function(data, expr, frame, need_expansion = TRUE){
     if(need_expansion){
         data_names = names(data)
         # i
-        expr[[3]] = replace_column_expr(expr[[3]], data_names = data_names, frame = frame, type = "data.table")
+        if(length(expr)>2) {
+            expr[[3]] = replace_column_expr(expr[[3]], data_names = data_names, frame = frame, type = "data.table")
+        }
         # j
-        expr[[4]] = replace_column_expr(expr[[4]], data_names = data_names, frame = frame, type = "data.table")
+        if(length(expr)>3) {
+            expr[[4]] = replace_column_expr(expr[[4]], data_names = data_names, frame = frame, type = "data.table")
+        }
+        if("by" %in% names(expr)){
+            curr_by = expr[["by"]]
+            if(!missing(curr_by) && is_columns(curr_by)){
+                expr[["by"]] = replace_column_expr(curr_by, data_names = data_names, frame = frame, type = "names")
+            }
+        }
     }
     assign("._***data***", data, envir = frame)
     on.exit({

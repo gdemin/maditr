@@ -33,9 +33,9 @@ dt_count = function(data, ..., weight = NULL, sort = FALSE, name = "n"){
     name = as.symbol(name)
     weight_expr = substitute(weight)
     if(is.null(weight_expr)){
-        res = eval.parent(substitute(maditr::take(data, name := .N, by = .(...))))
+        res = eval.parent(substitute(maditr::take(data, name := .N, by = cols(...))))
     } else {
-        res = eval.parent(substitute(maditr::take(data, name := sum(weight, na.rm = TRUE), by = .(...))))
+        res = eval.parent(substitute(maditr::take(data, name := sum(weight, na.rm = TRUE), by = cols(...))))
     }
     if(sort) {
         res = eval(substitute(maditr::sort_by(res, -name), list(name = name)))
@@ -50,9 +50,9 @@ dt_add_count = function(data, ..., weight = NULL, sort = FALSE, name = "n"){
     name = as.symbol(name)
     weight_expr = substitute(weight)
     if(is.null(weight_expr)){
-        res = eval.parent(substitute(maditr::let(data, name := .N, by = .(...))))
+        res = eval.parent(substitute(maditr::let(data, name := .N, by = cols(...))))
     } else {
-        res = eval.parent(substitute(maditr::let(data, name := sum(weight, na.rm = TRUE), by = .(...))))
+        res = eval.parent(substitute(maditr::let(data, name := sum(weight, na.rm = TRUE), by = cols(...))))
     }
     if(sort) {
         res = eval(substitute(maditr::sort_by(res, -name), list(name = name)))

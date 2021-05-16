@@ -67,7 +67,9 @@ columns.data.frame = function(data, ...){
 cols = columns
 
 
-
+is_columns = function(expr){
+    is.call(expr) && (identical(expr[[1]], quote(columns)) || identical(expr[[1]], quote(cols)) || identical(expr[[1]], quote(`%to%`)))
+}
 
 # here we find `columns` expression and replace it with data.table(...) or c(...)
 replace_column_expr = function(expr, data_names, frame,
@@ -75,15 +77,14 @@ replace_column_expr = function(expr, data_names, frame,
                                new = FALSE){
     if(missing(expr)) return(missing_arg())
     type = match.arg(type)
-    if(is.call(expr) && length(expr)>1){
+    if(is.call(expr)){
         if(new){
             curr_action = quote(create_columns)
         } else {
             curr_action = quote(select_columns)
         }
-        curr = expr[[1]]
-        if(identical(curr, quote(columns)) || identical(curr, quote(cols)) || identical(curr, quote(`%to%`))){
-            if(identical(curr, quote(`%to%`))){
+        if(is_columns(expr)){
+            if(identical(expr[[1]], quote(`%to%`))){
                 expr = as.call(list(curr_action, expr)) # standalone a %to% b, without 'columns'
             } else {
                 # 'columns(...)'
