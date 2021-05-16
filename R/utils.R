@@ -39,13 +39,18 @@ substitute_symbols = function(substitute_result, symbols) {
 # variable in the expression, then, in the case of the error
 # we have long lag to print this error in the console.
 # This function is workaround for this issue.
-eval_in_parent_frame = function(data, expr, frame){
+eval_in_parent_frame = function(data, expr, frame, need_expansion = TRUE){
     `._***data***` = NULL # to pass CRAN check
     if(!is.data.table(data)){
         data = as.data.table(data)
     }
-    data_names = names(data)
-    expr = replace_column_expr(expr, data_names = data_names, frame = frame)
+    if(need_expansion){
+        data_names = names(data)
+        # i
+        expr[[3]] = replace_column_expr(expr[[3]], data_names = data_names, frame = frame, type = "data.table")
+        # j
+        expr[[4]] = replace_column_expr(expr[[4]], data_names = data_names, frame = frame, type = "data.table")
+    }
     assign("._***data***", data, envir = frame)
     on.exit({
         rm(`._***data***`, envir = frame)

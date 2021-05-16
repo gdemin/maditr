@@ -203,14 +203,13 @@ to_long = function(data,
                    ...){
     parent_frame = parent.frame()
     data_names = names(data)
-    data_names_list = as.list(data_names)
-    names(data_names_list) = data_names
+    data_names_list = create_list_with_names(data_names)
     columns_expr = substitute(columns)
-    columns_expr = replace_column_expr(columns_expr, data_names, parent_frame, combine = quote(c))
+    columns_expr = replace_column_expr(columns_expr, data_names, parent_frame, type = "names")
     columns = eval(columns_expr, data_names_list, enclos = parent_frame)
 
     keep_expr = substitute(keep)
-    keep_expr = replace_column_expr(keep_expr, data_names, parent_frame, combine = quote(c))
+    keep_expr = replace_column_expr(keep_expr, data_names, parent_frame, type = "names")
     keep = eval(keep_expr, data_names_list, enclos = parent_frame)
     if(isFALSE(keep)) keep = integer(0)# no keep
 
@@ -242,19 +241,18 @@ to_wide = function(data,
 ){
     parent_frame = parent.frame()
     data_names = names(data)
-    data_names_list = as.list(data_names)
-    names(data_names_list) = data_names
+    data_names_list = create_list_with_names(data_names)
     names_in_expr = substitute(names_in)
-    names_in_expr = replace_column_expr(names_in_expr, data_names, parent_frame, combine = quote(c))
+    names_in_expr = replace_column_expr(names_in_expr, data_names, parent_frame, type = "names")
     names_in = eval(names_in_expr, data_names_list, enclos = parent_frame)
     if(isFALSE(names_in)) names_in = "." # no widening
 
     values_in_expr = substitute(values_in)
-    values_in_expr = replace_column_expr(values_in_expr, data_names, parent_frame, combine = quote(c))
+    values_in_expr = replace_column_expr(values_in_expr, data_names, parent_frame, type = "names")
     values_in = eval(values_in_expr, data_names_list, enclos = parent_frame)
 
     keep_expr = substitute(keep)
-    keep_expr = replace_column_expr(keep_expr, data_names, parent_frame, combine = quote(c))
+    keep_expr = replace_column_expr(keep_expr, data_names, parent_frame, type = "names")
     keep = eval(keep_expr, data_names_list, enclos = parent_frame)
     if(isFALSE(keep)) keep = "."   # no keep
     if(is.null(keep)) keep = "..." # keep all

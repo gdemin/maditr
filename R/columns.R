@@ -51,7 +51,7 @@ columns.data.frame = function(data, ...){
     var_indexes = select_columns(...,
                                  data_names = data_names,
                                  frame = parent_frame,
-                                 combine = NULL
+                                 type = "index"
                                  )
 
     if(is.data.table(data)){
@@ -66,9 +66,15 @@ columns.data.frame = function(data, ...){
 #' @export
 cols = columns
 
+
+
+
 # here we find `columns` expression and replace it with data.table(...) or c(...)
-replace_column_expr = function(expr, data_names, frame, combine = quote(data.table), new = FALSE){
+replace_column_expr = function(expr, data_names, frame,
+                               type = c("data.table", "index", "names"),
+                               new = FALSE){
     if(missing(expr)) return(missing_arg())
+    type = match.arg(type)
     if(is.call(expr) && length(expr)>1){
         if(new){
             curr_action = quote(create_columns)
@@ -86,7 +92,7 @@ replace_column_expr = function(expr, data_names, frame, combine = quote(data.tab
             expr = as.call(c(as.list(expr),
                              list(data_names = data_names,
                                   frame = frame,
-                                  combine = combine)
+                                  type = type)
                              )
                            )
             expr = eval(expr)
@@ -96,7 +102,7 @@ replace_column_expr = function(expr, data_names, frame, combine = quote(data.tab
                          replace_column_expr,
                          data_names = data_names,
                          frame = frame,
-                         combine = combine,
+                         type = type,
                          new = new
                          )
             expr = as.call(res)
@@ -106,7 +112,7 @@ replace_column_expr = function(expr, data_names, frame, combine = quote(data.tab
 }
 
 
-select_columns = function(..., data_names, frame, combine){
+select_columns = function(..., data_names, frame, type){
     var_list = substitute(list(...))
     curr_range_expander = create_range_expander(data_names, frame)
     var_list = substitute_symbols(var_list, list(
@@ -118,14 +124,19 @@ select_columns = function(..., data_names, frame, combine){
     var_list = eval(var_list, all_indexes, frame)
     var_indexes = expand_characters(var_list, data_names, frame)
     var_indexes = unique(unlist(var_indexes, recursive = TRUE, use.names = FALSE))
-    if(is.null(combine)) return(var_indexes)
-    all_symbols = create_list_with_symbols(data_names)
-    res = all_symbols[var_indexes]
-    as.call(c(combine, res))
+    switch(type,
+           "data.table"  = {
+               all_symbols = create_list_with_symbols(data_names)
+               res = all_symbols[var_indexes]
+               as.call(c(quote(data.table), res))
+           },
+           "index" = var_indexes,
+           "names" = data_names[var_indexes]
 
+    )
 }
 
-create_columns = function(..., data_names, frame, combine){
+create_columns = function(..., data_names, frame, type){
     var_list = substitute(list(...))
     var_list = eval_expressions(var_list, frame)
     # unknown names
@@ -258,11 +269,6 @@ create_list_with_names = function(data_names){
 
 
 
-create_vec_expression = function(data_names){
-    if(length(data_names)==1) return(as.symbol(data_names))
-    res = lapply(data_names, as.symbol)
-    as.call(c(quote(c), res))
-}
 
 
 ####
