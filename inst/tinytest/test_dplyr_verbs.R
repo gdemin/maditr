@@ -101,7 +101,12 @@ res3 = mt_dt[vs==0 & am==0, ]
 expect_identical(res3, res)
 expect_identical(res3, res2)
 
-
+data(mtcars)
+dt_mt = as.data.table(mtcars)
+expect_identical(
+    rows(mtcars, rowSums(vs %to% am)>0),
+    dt_mt[vs>0 | am>0, ]
+)
 ##########################
 
 cat("\nContext:", "dt_arrange", "\n")

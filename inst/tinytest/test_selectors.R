@@ -422,3 +422,30 @@ expect_identical(
     ),
     dt_mt2[, c("a1", "a2", "a3") := list(1,2,3)]
 )
+
+
+# dt_mt = as.data.table(mtcars)
+# dt_mt2 = data.table::copy(dt_mt)
+# library(expss)
+#
+# let(dt_mt,
+#     (vs %to% carb) := recode(cols("^(vs|am|gear|carb)"), 1 %thru% hi  ~ 1, TRUE ~ 0)
+#
+#     )
+#
+# dt_mt = as.data.table(mtcars)
+# dt_mt2 = data.table::copy(dt_mt)
+# library(expss)
+#
+# let(dt_mt,
+#     (new1 %to% new4) := recode(vs %to% carb, 1 %thru% hi  ~ 1, TRUE ~ 0)
+#
+# )
+#
+# dt_mt = as.data.table(mtcars)
+# dt_mt2 = data.table::copy(dt_mt)
+# library(expss)
+#
+# let(dt_mt,
+#     ind = (vs %to% am) %has% 1
+# )

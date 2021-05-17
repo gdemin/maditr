@@ -521,12 +521,15 @@ sort_by = function(data, ..., na.last = FALSE){
 
 #' @export
 sort_by.data.frame = function(data, ..., na.last = FALSE){
-    # NULL is just a placeholder
-    expr = substitute(data.table::setorder(NULL, ..., na.last = na.last))
+    # all_args = substitute(list(...))
+    # sort_order = lapply(all_args, function(item) if(is.call(item) && identical(item[[1]], quote(`-`))) -1 else 1)
+    # all_args
     parent_frame = parent.frame()
     # if data is expression we want to calculate it only once
     data = force(data)
-    eval_in_parent_frame(data, expr, frame = parent_frame)
+    # NULL is just a placeholder
+    expr = substitute(data.table::setorder(NULL, ..., na.last = na.last))
+    eval_in_parent_frame(data, expr, frame = parent_frame, need_expansion = FALSE)
 
 }
 

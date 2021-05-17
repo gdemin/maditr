@@ -233,3 +233,11 @@ res3 = mt_dt[, list(agg = mean(mpg), agg2 = mean(hp)), by = am]
 expect_equal(res3, res)
 expect_equal(res3, res2)
 
+
+####
+data(mtcars)
+mt_dt = as.data.table(mtcars)
+expect_identical(
+    take(mtcars, m = mean(mpg), by = cols(vs %to% gear)),
+    mt_dt[,.(m = mean(mpg)), by = .(vs, am, gear)]
+)
