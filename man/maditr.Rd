@@ -9,14 +9,15 @@ Package provides pipe-style interface for \code{data.table}. It preserves
 all data.table features without significant impact on performance. '\code{let}'
 and '\code{take}' functions are simplified interfaces for most common data
 manipulation tasks.
+}
+\details{
 \itemize{
-\item To select rows from data: \code{take_if(mtcars, am==0)}
-\item To select columns from data: \code{take(mtcars, am, vs, mpg)}
+\item To select rows from data: \code{rows(mtcars, am==0)}
+\item To select columns from data: \code{columns(mtcars, mpg, vs:carb)}
 \item To aggregate data: \code{take(mtcars, mean_mpg = mean(mpg), by = am)}
 \item To aggregate all non-grouping columns: \code{take_all(mtcars, mean, by = am)}
-\item To conditionally aggregate all non-grouping columns: \code{take_all(iris, if(is.numeric(.x)) mean(.x))}
 \item To aggregate several columns with one summary: \code{take(mtcars, mpg, hp, fun = mean, by = am)}
-\item To get total summary skip 'by' argument: \code{take_all(mtcars, mean)}
+\item To get total summary skip \code{by} argument: \code{take_all(mtcars, mean)}
 \item Use magrittr pipe '\%>\%' to chain several operations:
 }\preformatted{     mtcars \%>\%
         let(mpg_hp = mpg/hp) \%>\%
@@ -71,7 +72,8 @@ mtcars \%>\%
     let(
         cyl2 = cyl * 2,
         cyl4 = cyl2 * 2
-    ) \%>\% head()
+    ) \%>\%
+    head()
 
 # You can also use let() to remove variables and
 # modify existing variables
@@ -79,7 +81,8 @@ mtcars \%>\%
     let(
         mpg = NULL,
         disp = disp * 0.0163871 # convert to litres
-    ) \%>\% head()
+    ) \%>\%
+    head()
 
 
 # window functions are useful for grouped computations
@@ -107,14 +110,35 @@ mtcars \%>\%
     let(cyl = cyl * var) \%>\%
     head()
 
-# filter by condition
+# select rows
 mtcars \%>\%
-    take_if(am==0)
+    rows(am==0) \%>\%
+    head()
 
-# filter by compound condition
+# select rows with compound condition
 mtcars \%>\%
-    take_if(am==0 & mpg>mean(mpg))
+    rows(am==0 & mpg>mean(mpg))
 
+# select columns
+mtcars \%>\%
+    columns(vs:carb, cyl)
+
+mtcars \%>\%
+    columns(-am, -cyl)
+
+# regular expression pattern
+columns(iris, "^Petal") # variables which start from 'Petal'
+columns(iris, "Width$") # variables which end with 'Width'
+
+# move Species variable to the front
+# pattern "^." matches all variables
+columns(iris, Species, "^.")
+
+# pattern "^.*al" means "contains 'al'"
+columns(iris, "^.*al")
+
+# numeric indexing - all variables except Species
+columns(iris, 1:4)
 
 # A 'take' with summary functions applied without 'by' argument returns an aggregated data
 mtcars \%>\%
@@ -181,5 +205,39 @@ mtcars \%>\%
     let((new_var) := eval(var)) \%>\%
     head()
 take(mtcars, (new_var) := eval(var))
+
+########################################
+# variable selection
+
+# range selection
+iris \%>\%
+    let(
+        avg = rowMeans(Sepal.Length \%to\% Petal.Width)
+    ) \%>\%
+    head()
+
+# multiassignment
+iris \%>\%
+    let(
+        # starts with Sepal or Petal
+        multipled1 \%to\% multipled4 := cols("^(Sepal|Petal)")*2
+    ) \%>\%
+    head()
+
+
+mtcars \%>\%
+    let(
+        # text expansion
+        cols("scaled_{names(mtcars)}") := lapply(cols("{names(mtcars)}"), scale)
+    ) \%>\%
+    head()
+
+# range selection in 'by'
+# range selection  + additional column
+mtcars \%>\%
+    take(
+        res = sum(cols(mpg, disp \%to\% drat)),
+        by = vs \%to\% gear
+    )
 
 }

@@ -1,41 +1,61 @@
-#' Selects columns from the data set
+#' Selects columns or rows from the data set
 #'
-#' Variable ranges are supported, e. g. vs:carb. Alternatively, you can use
-#' `%to%` instead of colon: `vs %to% carb`. Characters which start with '^' or
-#' end with '$' considered as Perl-style regular expression patterns. For
-#' example, '^Petal' returns all variables started with 'Petal'. 'Width$'
-#' returns all variables which end with 'Width'. Pattern '^.' matches all
-#' variables and pattern '^.*my_str' is equivalent to 'contains "my_str"'. See
-#' examples.
+#' - `columns`: select columns from dataset. There are four ways of column selection:
+#' 1. Simply by column names
+#' 2. By variable ranges, e. g. vs:carb. Alternatively, you can use '%to%'
+#' instead of colon: 'vs %to% carb'.
+#' 3. With regular expressions. Characters which start with '^' or end with '$'
+#' considered as Perl-style regular expression patterns. For example, '^Petal'
+#' returns all variables started with 'Petal'. 'Width$' returns all variables
+#' which end with 'Width'. Pattern '^.' matches all variables and pattern
+#' '^.*my_str' is equivalent to contains "my_str"'.
+#' 4. By character variables with interpolated parts. Expression in the curly
+#' brackets inside characters will be evaluated in the parent frame with
+#' [text_expand]. For example, `a{1:3}` will be transformed to the names 'a1',
+#' 'a2', 'a3'. 'cols' is just a shortcut for 'columns'. See examples.
+#' ```
+#' ```
+#' - `rows`: select rows from dataset by logical conditions.
 #'
-#' @param data data.table/data.frame data.frame will be automatically converted
-#'   to data.table.
-#' @param ... List of variables or name-value pairs of summary/modifications
-#'   functions. The name will be the name of the variable in the result.
-#'   Advantages of `:=` are multiassignment (`c("a", "b") := list(1,2)`)
-#'   and parametric assignment (`(a) := 2`)
 #'
-#' @return data.table
+#' @param data data.table/data.frame
+#' @param ... unquoted or quoted column names, regex selectors or variable
+#'   ranges for 'columns' and logical conditions for 'rows'.
+#'
+#' @return data.frame/data.table
 #' @export
 #' @examples
+#'
+#' ## columns
 #' mtcars %>%
 #'     columns(vs:carb, cyl)
 #' mtcars %>%
 #'     columns(-am, -cyl)
 #'
 #' # regular expression pattern
-#' columns(iris, "^Petal") # variables which start from 'Petal'
-#' columns(iris, "Width$") # variables which end with 'Width'
+#' columns(iris, "^Petal") %>% head() # variables which start from 'Petal'
+#' columns(iris, "Width$") %>% head() # variables which end with 'Width'
 #' # move Species variable to the front.
 #' # pattern "^." matches all variables
-#' columns(iris, Species, "^.")
+#' columns(iris, Species, "^.") %>% head()
 #' # pattern "^.*i" means "contains 'i'"
-#' columns(iris, "^.*i")
-#' columns(iris, 1:4) # numeric indexing - all variables except Species
+#' columns(iris, "^.*i") %>% head()
+#' # numeric indexing - all variables except Species
+#' columns(iris, 1:4) %>% head()
 #'
 #' # variable expansion
 #' dims = c("Width", "Length")
-#' columns(iris, "Petal.{dims}")
+#' columns(iris, "Petal.{dims}") %>% head()
+#'
+#' # rows
+#'
+#' mtcars %>%
+#'     rows(am==0) %>%
+#'     head()
+#'
+#' # select rows with compound condition
+#' mtcars %>%
+#'     rows(am==0 & mpg>mean(mpg))
 #'
 columns = function(data, ...){
     UseMethod("columns")

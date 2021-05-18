@@ -173,6 +173,7 @@ pre code {
 <li><a href="#overview">Overview</a></li>
 <li><a href="#vlookup-xlookup">vlookup &amp; xlookup</a></li>
 <li><a href="#more-examples">More examples</a></li>
+<li><a href="#variable-selection-in-the-expressions">Variable selection in the expressions</a></li>
 <li><a href="#joins">Joins</a></li>
 <li><a href="#dplyr-like-interface-for-data.table.">‘dplyr’-like interface for data.table.</a></li>
 </ul>
@@ -190,8 +191,8 @@ pre code {
 <h2>Overview</h2>
 <p>Package provides pipe-style interface for <a href="https://cran.r-project.org/package=data.table">data.table</a> package. It preserves all data.table features without significant impact on performance. <code>let</code> and <code>take</code> functions are simplified interfaces for most common data manipulation tasks.</p>
 <ul>
-<li>To select rows from data: <code>take_if(mtcars, am==0)</code></li>
-<li>To select columns from data: <code>take(mtcars, am, vs, mpg)</code></li>
+<li>To select rows from data: <code>rows(mtcars, am==0)</code></li>
+<li>To select columns from data: <code>columns(mtcars, mpg, vs:carb)</code></li>
 <li>To aggregate data: <code>take(mtcars, mean_mpg = mean(mpg), by = am)</code></li>
 <li>To aggregate all non-grouping columns: <code>take_all(mtcars, mean, by = am)</code></li>
 <li>To aggregate several columns with one summary: <code>take(mtcars, mpg, hp, fun = mean, by = am)</code></li>
@@ -377,9 +378,9 @@ mtcars %&gt;%
 ## 4: 21.4 600  258 110 3.08 3.215 19.44  1  0    3    1
 ## 5: 18.7 800  360 175 3.15 3.440 17.02  0  0    3    2
 ## 6: 18.1 600  225 105 2.76 3.460 20.22  1  0    3    1</code></pre>
-<pre class="r"><code># filter by condition
+<pre class="r"><code># select rows
 mtcars %&gt;%
-    take_if(am==0) %&gt;% 
+    rows(am==0) %&gt;% 
     head()</code></pre>
 <pre><code>##     mpg cyl  disp  hp drat    wt  qsec vs am gear carb
 ## 1: 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
@@ -388,14 +389,130 @@ mtcars %&gt;%
 ## 4: 14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4
 ## 5: 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
 ## 6: 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2</code></pre>
-<pre class="r"><code># filter by compound condition
+<pre class="r"><code># select rows with compound condition
 mtcars %&gt;%
-    take_if(am==0 &amp; mpg&gt;mean(mpg))</code></pre>
+    rows(am==0 &amp; mpg&gt;mean(mpg))</code></pre>
 <pre><code>##     mpg cyl  disp  hp drat    wt  qsec vs am gear carb
 ## 1: 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
 ## 2: 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
 ## 3: 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
 ## 4: 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1</code></pre>
+<pre class="r"><code># select columns
+mtcars %&gt;% 
+    columns(vs:carb, cyl)</code></pre>
+<pre><code>##                     vs am gear carb cyl
+## Mazda RX4            0  1    4    4   6
+## Mazda RX4 Wag        0  1    4    4   6
+## Datsun 710           1  1    4    1   4
+## Hornet 4 Drive       1  0    3    1   6
+## Hornet Sportabout    0  0    3    2   8
+## Valiant              1  0    3    1   6
+## Duster 360           0  0    3    4   8
+## Merc 240D            1  0    4    2   4
+## Merc 230             1  0    4    2   4
+## Merc 280             1  0    4    4   6
+## Merc 280C            1  0    4    4   6
+## Merc 450SE           0  0    3    3   8
+## Merc 450SL           0  0    3    3   8
+## Merc 450SLC          0  0    3    3   8
+## Cadillac Fleetwood   0  0    3    4   8
+## Lincoln Continental  0  0    3    4   8
+## Chrysler Imperial    0  0    3    4   8
+## Fiat 128             1  1    4    1   4
+## Honda Civic          1  1    4    2   4
+## Toyota Corolla       1  1    4    1   4
+## Toyota Corona        1  0    3    1   4
+## Dodge Challenger     0  0    3    2   8
+## AMC Javelin          0  0    3    2   8
+## Camaro Z28           0  0    3    4   8
+## Pontiac Firebird     0  0    3    2   8
+## Fiat X1-9            1  1    4    1   4
+## Porsche 914-2        0  1    5    2   4
+## Lotus Europa         1  1    5    2   4
+## Ford Pantera L       0  1    5    4   8
+## Ferrari Dino         0  1    5    6   6
+## Maserati Bora        0  1    5    8   8
+## Volvo 142E           1  1    4    2   4</code></pre>
+<pre class="r"><code>mtcars %&gt;% 
+    columns(-am, -cyl)    </code></pre>
+<pre><code>##                      mpg  disp  hp drat    wt  qsec vs gear carb
+## Mazda RX4           21.0 160.0 110 3.90 2.620 16.46  0    4    4
+## Mazda RX4 Wag       21.0 160.0 110 3.90 2.875 17.02  0    4    4
+## Datsun 710          22.8 108.0  93 3.85 2.320 18.61  1    4    1
+## Hornet 4 Drive      21.4 258.0 110 3.08 3.215 19.44  1    3    1
+## Hornet Sportabout   18.7 360.0 175 3.15 3.440 17.02  0    3    2
+## Valiant             18.1 225.0 105 2.76 3.460 20.22  1    3    1
+## Duster 360          14.3 360.0 245 3.21 3.570 15.84  0    3    4
+## Merc 240D           24.4 146.7  62 3.69 3.190 20.00  1    4    2
+## Merc 230            22.8 140.8  95 3.92 3.150 22.90  1    4    2
+## Merc 280            19.2 167.6 123 3.92 3.440 18.30  1    4    4
+## Merc 280C           17.8 167.6 123 3.92 3.440 18.90  1    4    4
+## Merc 450SE          16.4 275.8 180 3.07 4.070 17.40  0    3    3
+## Merc 450SL          17.3 275.8 180 3.07 3.730 17.60  0    3    3
+## Merc 450SLC         15.2 275.8 180 3.07 3.780 18.00  0    3    3
+## Cadillac Fleetwood  10.4 472.0 205 2.93 5.250 17.98  0    3    4
+## Lincoln Continental 10.4 460.0 215 3.00 5.424 17.82  0    3    4
+## Chrysler Imperial   14.7 440.0 230 3.23 5.345 17.42  0    3    4
+## Fiat 128            32.4  78.7  66 4.08 2.200 19.47  1    4    1
+## Honda Civic         30.4  75.7  52 4.93 1.615 18.52  1    4    2
+## Toyota Corolla      33.9  71.1  65 4.22 1.835 19.90  1    4    1
+## Toyota Corona       21.5 120.1  97 3.70 2.465 20.01  1    3    1
+## Dodge Challenger    15.5 318.0 150 2.76 3.520 16.87  0    3    2
+## AMC Javelin         15.2 304.0 150 3.15 3.435 17.30  0    3    2
+## Camaro Z28          13.3 350.0 245 3.73 3.840 15.41  0    3    4
+## Pontiac Firebird    19.2 400.0 175 3.08 3.845 17.05  0    3    2
+## Fiat X1-9           27.3  79.0  66 4.08 1.935 18.90  1    4    1
+## Porsche 914-2       26.0 120.3  91 4.43 2.140 16.70  0    5    2
+## Lotus Europa        30.4  95.1 113 3.77 1.513 16.90  1    5    2
+## Ford Pantera L      15.8 351.0 264 4.22 3.170 14.50  0    5    4
+## Ferrari Dino        19.7 145.0 175 3.62 2.770 15.50  0    5    6
+## Maserati Bora       15.0 301.0 335 3.54 3.570 14.60  0    5    8
+## Volvo 142E          21.4 121.0 109 4.11 2.780 18.60  1    4    2</code></pre>
+<pre class="r"><code># regular expression pattern
+columns(iris, &quot;^Petal&quot;) %&gt;% head() # variables which start from &#39;Petal&#39;</code></pre>
+<pre><code>##   Petal.Length Petal.Width
+## 1          1.4         0.2
+## 2          1.4         0.2
+## 3          1.3         0.2
+## 4          1.5         0.2
+## 5          1.4         0.2
+## 6          1.7         0.4</code></pre>
+<pre class="r"><code>columns(iris, &quot;Width$&quot;) %&gt;% head() # variables which end with &#39;Width&#39;</code></pre>
+<pre><code>##   Sepal.Width Petal.Width
+## 1         3.5         0.2
+## 2         3.0         0.2
+## 3         3.2         0.2
+## 4         3.1         0.2
+## 5         3.6         0.2
+## 6         3.9         0.4</code></pre>
+<pre class="r"><code># move Species variable to the front
+# pattern &quot;^.&quot; matches all variables
+columns(iris, Species, &quot;^.&quot;) %&gt;% head()</code></pre>
+<pre><code>##   Species Sepal.Length Sepal.Width Petal.Length Petal.Width
+## 1  setosa          5.1         3.5          1.4         0.2
+## 2  setosa          4.9         3.0          1.4         0.2
+## 3  setosa          4.7         3.2          1.3         0.2
+## 4  setosa          4.6         3.1          1.5         0.2
+## 5  setosa          5.0         3.6          1.4         0.2
+## 6  setosa          5.4         3.9          1.7         0.4</code></pre>
+<pre class="r"><code># pattern &quot;^.*al&quot; means &quot;contains &#39;al&#39;&quot;
+columns(iris, &quot;^.*al&quot;) %&gt;% head()</code></pre>
+<pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width
+## 1          5.1         3.5          1.4         0.2
+## 2          4.9         3.0          1.4         0.2
+## 3          4.7         3.2          1.3         0.2
+## 4          4.6         3.1          1.5         0.2
+## 5          5.0         3.6          1.4         0.2
+## 6          5.4         3.9          1.7         0.4</code></pre>
+<pre class="r"><code># numeric indexing - all variables except Species
+columns(iris, 1:4) %&gt;% head()</code></pre>
+<pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width
+## 1          5.1         3.5          1.4         0.2
+## 2          4.9         3.0          1.4         0.2
+## 3          4.7         3.2          1.3         0.2
+## 4          4.6         3.1          1.5         0.2
+## 5          5.0         3.6          1.4         0.2
+## 6          5.4         3.9          1.7         0.4</code></pre>
 <pre class="r"><code># A &#39;take&#39; with summary functions applied without &#39;by&#39; argument returns an aggregated data
 mtcars %&gt;%
     take(mean = mean(disp), n = .N)</code></pre>
@@ -577,6 +694,92 @@ mtcars %&gt;%
 <pre class="r"><code>take(mtcars, (new_var) := eval(var))</code></pre>
 <pre><code>##    mean_cyl
 ## 1:   6.1875</code></pre>
+</div>
+<div id="variable-selection-in-the-expressions" class="section level2">
+<h2>Variable selection in the expressions</h2>
+<p>You can use ‘columns’ inside expression in the ‘take’/‘let’. ‘columns’ will be replaced with data.table with selected columns. In ‘let’ in the expressions with ‘:=’, ‘cols’ or ‘%to%’ can be placed in the left part of the expression. It is usefull for multiple assignment. There are four ways of column selection:</p>
+<ol style="list-style-type: decimal">
+<li>Simply by column names</li>
+<li>By variable ranges, e. g. vs:carb. Alternatively, you can use ‘%to%’ instead of colon: ‘vs %to% carb’.</li>
+<li>With regular expressions. Characters which start with ‘^’ or end with $ considered as Perl-style regular expression patterns. For example, ‘^Petal’ returns all variables started with ‘Petal’. ‘Width$’ returns all variables which end with ‘Width’. Pattern ‘^.’ matches all variables and pattern ’^.*my_str’ is equivalent to contains “my_str”’.</li>
+<li>By character variables with interpolated parts. Expression in the curly brackets inside characters will be evaluated in the parent frame with ‘text_expand’ function. For example, <code>a{1:3}</code> will be transformed to the names ‘a1’, ‘a2’, ‘a3’. ‘cols’ is just a shortcut for ‘columns’.</li>
+</ol>
+<pre class="r"><code># range selection
+iris %&gt;% 
+    let(
+        avg = rowMeans(Sepal.Length %to% Petal.Width)
+    ) %&gt;% 
+    head()</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species   avg
+## 1:          5.1         3.5          1.4         0.2  setosa 2.550
+## 2:          4.9         3.0          1.4         0.2  setosa 2.375
+## 3:          4.7         3.2          1.3         0.2  setosa 2.350
+## 4:          4.6         3.1          1.5         0.2  setosa 2.350
+## 5:          5.0         3.6          1.4         0.2  setosa 2.550
+## 6:          5.4         3.9          1.7         0.4  setosa 2.850</code></pre>
+<pre class="r"><code># multiassignment
+iris %&gt;% 
+    let(
+        # starts with Sepal or Petal
+        multipled1 %to% multipled4 := cols(&quot;^(Sepal|Petal)&quot;)*2
+    ) %&gt;% 
+    head()</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species multipled1
+## 1:          5.1         3.5          1.4         0.2  setosa       10.2
+## 2:          4.9         3.0          1.4         0.2  setosa        9.8
+## 3:          4.7         3.2          1.3         0.2  setosa        9.4
+## 4:          4.6         3.1          1.5         0.2  setosa        9.2
+## 5:          5.0         3.6          1.4         0.2  setosa       10.0
+## 6:          5.4         3.9          1.7         0.4  setosa       10.8
+##    multipled2 multipled3 multipled4
+## 1:        7.0        2.8        0.4
+## 2:        6.0        2.8        0.4
+## 3:        6.4        2.6        0.4
+## 4:        6.2        3.0        0.4
+## 5:        7.2        2.8        0.4
+## 6:        7.8        3.4        0.8</code></pre>
+<pre class="r"><code>mtcars %&gt;% 
+    let(
+        # text expansion
+        cols(&quot;scaled_{names(mtcars)}&quot;) := lapply(cols(&quot;{names(mtcars)}&quot;), scale)
+    ) %&gt;% 
+    head()</code></pre>
+<pre><code>##     mpg cyl disp  hp drat    wt  qsec vs am gear carb scaled_mpg scaled_cyl
+## 1: 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4  0.1508848 -0.1049878
+## 2: 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4  0.1508848 -0.1049878
+## 3: 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1  0.4495434 -1.2248578
+## 4: 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1  0.2172534 -0.1049878
+## 5: 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2 -0.2307345  1.0148821
+## 6: 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1 -0.3302874 -0.1049878
+##    scaled_disp  scaled_hp scaled_drat    scaled_wt scaled_qsec  scaled_vs
+## 1: -0.57061982 -0.5350928   0.5675137 -0.610399567  -0.7771651 -0.8680278
+## 2: -0.57061982 -0.5350928   0.5675137 -0.349785269  -0.4637808 -0.8680278
+## 3: -0.99018209 -0.7830405   0.4739996 -0.917004624   0.4260068  1.1160357
+## 4:  0.22009369 -0.5350928  -0.9661175 -0.002299538   0.8904872  1.1160357
+## 5:  1.04308123  0.4129422  -0.8351978  0.227654255  -0.4637808 -0.8680278
+## 6: -0.04616698 -0.6080186  -1.5646078  0.248094592   1.3269868  1.1160357
+##     scaled_am scaled_gear scaled_carb
+## 1:  1.1899014   0.4235542   0.7352031
+## 2:  1.1899014   0.4235542   0.7352031
+## 3:  1.1899014   0.4235542  -1.1221521
+## 4: -0.8141431  -0.9318192  -1.1221521
+## 5: -0.8141431  -0.9318192  -0.5030337
+## 6: -0.8141431  -0.9318192  -1.1221521</code></pre>
+<pre class="r"><code># range selection in &#39;by&#39;
+# selection of range + additional column
+mtcars %&gt;% 
+    take(
+        res = sum(cols(mpg, disp %to% drat)),
+        by = vs %to% gear
+    )</code></pre>
+<pre><code>##    vs am gear     res
+## 1:  0  1    4  589.80
+## 2:  1  1    4 1177.97
+## 3:  1  0    3  985.64
+## 4:  0  0    3 6839.45
+## 5:  1  0    4 1125.35
+## 6:  0  1    5 1874.61
+## 7:  1  1    5  242.27</code></pre>
 </div>
 <div id="joins" class="section level2">
 <h2>Joins</h2>

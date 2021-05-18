@@ -1,6 +1,9 @@
-0.7.5 (2021-03-)
+0.8.1 (2021-03-)
 ================
-
+* new function 'rows' for selecting rows/filtering dataset
+* new function 'columns' for selecting columns
+* 'columns' can be used inside expressions to select range of variables
+* new functions 'to_long' and 'to_wide' for converting dataset to long form and vice versa
 * remove `.res` variable from progress bar indicator in 'to_list'
 * bugfixes
 

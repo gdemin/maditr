@@ -205,8 +205,6 @@ columns(iris, "^.*al")
 # numeric indexing - all variables except Species
 columns(iris, 1:4) 
 
-
-
 # A 'take' with summary functions applied without 'by' argument returns an aggregated data
 mtcars %>%
     take(mean = mean(disp), n = .N)
@@ -280,6 +278,60 @@ mtcars %>%
     head()
 take(mtcars, (new_var) := eval(var))
 
+```
+
+## Variable selection in the expressions
+
+You can use 'columns' inside expression in the 'take'/'let'. 'columns' will
+be replaced with data.table with selected columns. In 'let' in the
+expressions with ':=', 'cols' or '%to%' can be placed in the left part of the
+expression. It is usefull for multiple assignment.
+There are four ways of column selection:
+
+1. Simply by column names
+2. By variable ranges, e. g. vs:carb. Alternatively, you can use '%to%'
+instead of colon: 'vs %to% carb'.
+3. With regular expressions. Characters which start with '^' or end with $
+considered as Perl-style regular expression patterns. For example, '^Petal'
+returns all variables started with 'Petal'. 'Width$' returns all variables
+which end with 'Width'. Pattern '^.' matches all variables and pattern
+'^.*my_str' is equivalent to contains "my_str"'.
+4. By character variables with interpolated parts. Expression in the curly
+brackets inside characters will be evaluated in the parent frame with
+'text_expand' function. For example, `a{1:3}` will be transformed to the names 'a1',
+'a2', 'a3'. 'cols' is just a shortcut for 'columns'.
+
+```R
+# range selection
+iris %>% 
+    let(
+        avg = rowMeans(Sepal.Length %to% Petal.Width)
+    ) %>% 
+    head()
+
+# multiassignment
+iris %>% 
+    let(
+        # starts with Sepal or Petal
+        multipled1 %to% multipled4 := cols("^(Sepal|Petal)")*2
+    ) %>% 
+    head()
+
+
+mtcars %>% 
+    let(
+        # text expansion
+        cols("scaled_{names(mtcars)}") := lapply(cols("{names(mtcars)}"), scale)
+    ) %>% 
+    head()
+
+# range selection in 'by'
+# selection of range + additional column
+mtcars %>% 
+    take(
+        res = sum(cols(mpg, disp %to% drat)),
+        by = vs %to% gear
+    )
 ```
 
 ## Joins

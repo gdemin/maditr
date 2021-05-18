@@ -23,8 +23,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Package provides pipe-style interface for [data.table](https://cran.r-project.org/package=data.table) package. It preserves all data.table features without significant impact on performance. `let` and `take` functions are simplified interfaces for most common data manipulation tasks.
 
-- To select rows from data: `take_if(mtcars, am==0)`
-- To select columns from data: `take(mtcars, am, vs, mpg)`
+- To select rows from data: `rows(mtcars, am==0)`
+- To select columns from data: `columns(mtcars, mpg, vs:carb)`
 - To aggregate data: `take(mtcars, mean_mpg = mean(mpg), by = am)`
 - To aggregate all non-grouping columns: `take_all(mtcars, mean, by = am)`
 - To aggregate several columns with one summary: `take(mtcars, mpg, hp, fun = mean, by = am)`
@@ -177,15 +177,35 @@ mtcars %>%
     let(cyl = cyl * var) %>%
     head()
 
-# filter by condition
+# select rows
 mtcars %>%
-    take_if(am==0) %>% 
+    rows(am==0) %>% 
     head()
 
-# filter by compound condition
+# select rows with compound condition
 mtcars %>%
-    take_if(am==0 & mpg>mean(mpg))
+    rows(am==0 & mpg>mean(mpg))
 
+# select columns
+mtcars %>% 
+    columns(vs:carb, cyl)
+    
+mtcars %>% 
+    columns(-am, -cyl)    
+
+# regular expression pattern
+columns(iris, "^Petal") %>% head() # variables which start from 'Petal'
+columns(iris, "Width$") %>% head() # variables which end with 'Width'
+
+# move Species variable to the front
+# pattern "^." matches all variables
+columns(iris, Species, "^.") %>% head()
+
+# pattern "^.*al" means "contains 'al'"
+columns(iris, "^.*al") %>% head()
+
+# numeric indexing - all variables except Species
+columns(iris, 1:4) %>% head()
 
 # A 'take' with summary functions applied without 'by' argument returns an aggregated data
 mtcars %>%
@@ -261,6 +281,60 @@ mtcars %>%
 take(mtcars, (new_var) := eval(var))
 
 
+```
+
+## Variable selection in the expressions
+
+You can use 'columns' inside expression in the 'take'/'let'. 'columns' will
+be replaced with data.table with selected columns. In 'let' in the
+expressions with ':=', 'cols' or '%to%' can be placed in the left part of the
+expression. It is usefull for multiple assignment.
+There are four ways of column selection:
+
+1. Simply by column names
+2. By variable ranges, e. g. vs:carb. Alternatively, you can use '%to%'
+instead of colon: 'vs %to% carb'.
+3. With regular expressions. Characters which start with '^' or end with $
+considered as Perl-style regular expression patterns. For example, '^Petal'
+returns all variables started with 'Petal'. 'Width$' returns all variables
+which end with 'Width'. Pattern '^.' matches all variables and pattern
+'^.*my_str' is equivalent to contains "my_str"'.
+4. By character variables with interpolated parts. Expression in the curly
+brackets inside characters will be evaluated in the parent frame with
+'text_expand' function. For example, `a{1:3}` will be transformed to the names 'a1',
+'a2', 'a3'. 'cols' is just a shortcut for 'columns'.
+
+```{r}
+# range selection
+iris %>% 
+    let(
+        avg = rowMeans(Sepal.Length %to% Petal.Width)
+    ) %>% 
+    head()
+
+# multiassignment
+iris %>% 
+    let(
+        # starts with Sepal or Petal
+        multipled1 %to% multipled4 := cols("^(Sepal|Petal)")*2
+    ) %>% 
+    head()
+
+
+mtcars %>% 
+    let(
+        # text expansion
+        cols("scaled_{names(mtcars)}") := lapply(cols("{names(mtcars)}"), scale)
+    ) %>% 
+    head()
+
+# range selection in 'by'
+# selection of range + additional column
+mtcars %>% 
+    take(
+        res = sum(cols(mpg, disp %to% drat)),
+        by = vs %to% gear
+    )
 ```
 
 ## Joins

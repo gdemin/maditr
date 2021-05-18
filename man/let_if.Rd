@@ -81,8 +81,7 @@ data.table. \code{let} returns its result invisibly.
 \itemize{
 \item \code{let} adds new variables or modify existing variables. 'let_if' make
 the same thing on the subset of rows.
-\item \code{take/take_if} aggregate data or select subset of the data by rows or
-columns.
+\item \code{take/take_if} aggregate data or aggregate subset of the data.
 \item \code{let_all} applies expressions to all variables in the dataset. It is also
 possible to modify the subset of the variables.
 \item \code{take_all} aggregates all variables in the dataset. It is also possible
@@ -95,7 +94,6 @@ All functions return \code{data.table}. Expression in the 'take_all' and
 variable. '.value' is is an alias to '.x'.
 \itemize{
 \item Add new variables: \code{let(mtcars, new_var = 42, new_var2 = new_var*hp)}
-\item Filter data: \code{take_if(mtcars, am==0)}
 \item Select variables: \code{take(mtcars, am, vs, mpg)}
 \item Aggregate data: \code{take(mtcars, mean_mpg = mean(mpg), by = am)}
 \item Aggregate all non-grouping columns: \code{take_all(mtcars, mean = mean(.x), sd = sd(.x), n = .N, by = am)}
@@ -109,6 +107,26 @@ variable. '.value' is is an alias to '.x'.
 }
 \itemize{
 \item Aggregate specific columns: \code{take_all(iris, if(startsWith(.name, "Sepal")) mean(.x))}
+}\preformatted{}
+
+You can use 'columns' inside expression in the 'take'/'let'. 'columns' will
+be replaced with data.table with selected columns. In 'let' in the
+expressions with ':=', 'cols' or '\%to\%' can be placed in the left part of the
+expression. It is usefull for multiple assignment.
+There are four ways of column selection:
+\enumerate{
+\item Simply by column names
+\item By variable ranges, e. g. vs:carb. Alternatively, you can use '\%to\%'
+instead of colon: 'vs \%to\% carb'.
+\item With regular expressions. Characters which start with '^' or end with '$'
+considered as Perl-style regular expression patterns. For example, '^Petal'
+returns all variables started with 'Petal'. 'Width$' returns all variables
+which end with 'Width'. Pattern '^.' matches all variables and pattern
+'^.*my_str' is equivalent to contains "my_str"'.
+\item By character variables with interpolated parts. Expression in the curly
+brackets inside characters will be evaluated in the parent frame with
+\link{text_expand}. For example, \verb{a\{1:3\}} will be transformed to the names 'a1',
+'a2', 'a3'. 'cols' is just a shortcut for 'columns'. See examples.
 }
 }
 \examples{
@@ -155,14 +173,6 @@ var = 100
 mtcars \%>\%
     let(cyl = cyl * var) \%>\%
     head()
-
-# filter by condition
-mtcars \%>\%
-    take_if(am==0)
-
-# filter by compound condition
-mtcars \%>\%
-    take_if(am==0 & mpg>mean(mpg))
 
 
 # A 'take' with summary functions applied without 'by' argument returns an aggregated data
@@ -230,6 +240,41 @@ mtcars \%>\%
     let((new_var) := eval(var)) \%>\%
     head()
 take(mtcars, (new_var) := eval(var))
+
+########################################
+
+# variable selection
+
+# range selection
+iris \%>\%
+    let(
+        avg = rowMeans(Sepal.Length \%to\% Petal.Width)
+    ) \%>\%
+    head()
+
+# multiassignment
+iris \%>\%
+    let(
+        # starts with Sepal or Petal
+        multipled1 \%to\% multipled4 := cols("^(Sepal|Petal)")*2
+    ) \%>\%
+    head()
+
+
+mtcars \%>\%
+    let(
+        # text expansion
+        cols("scaled_{names(mtcars)}") := lapply(cols("{names(mtcars)}"), scale)
+    ) \%>\%
+    head()
+
+# range selection in 'by'
+# range selection  + additional column
+mtcars \%>\%
+    take(
+        res = sum(cols(mpg, disp \%to\% drat)),
+        by = vs \%to\% gear
+    )
 
 ########################################
 
