@@ -1,4 +1,4 @@
-0.8.1 (2021-03-)
+0.8.1 (2021-05-18)
 ================
 * new function 'rows' for selecting rows/filtering dataset
 * new function 'columns' for selecting columns
