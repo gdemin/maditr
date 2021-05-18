@@ -52,7 +52,6 @@
 #' @return data.table
 #' @author Matt Dowle <mattjdowle@gmail.com>
 #' @export
-#' @noRd
 #' @keywords internal
 #' @examples
 #' # examples from 'tidyr' package
@@ -92,7 +91,7 @@ dcast.data.frame = function(data, formula, fun.aggregate = NULL, sep = "_",
 
 
 #' @export
-#' @noRd
+#' @rdname dcast
 melt = function(data, id.vars, measure.vars,
                 variable.name = "variable", value.name = "value",
                 ..., na.rm = FALSE, variable.factor = TRUE,
@@ -113,7 +112,7 @@ melt.data.frame = function(data, id.vars, measure.vars,
     eval.parent(curr_call)
 }
 
-#' @noRd
+#' @rdname dcast
 #' @export
 guess = function (data){
     if ("value" %chin% names(data))
