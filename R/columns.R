@@ -143,6 +143,7 @@ select_columns = function(..., data_names, frame, type){
     ))
     all_indexes = create_list_with_index(data_names)
     var_list = eval(var_list, all_indexes, frame)
+    # here we processed values which didn't resolved to numeric column index
     var_indexes = expand_characters(var_list, data_names, frame)
     var_indexes = unique(unlist(var_indexes, recursive = TRUE, use.names = FALSE))
     switch(type,
@@ -176,6 +177,7 @@ create_columns = function(..., data_names, frame, type){
 }
 
 eval_expressions = function(var_list, frame){
+    # eval expressions, symbols remain as is
     if(length(var_list)>1){
         var_list = as.list(var_list)
         var_list[-1] = lapply(var_list[-1], function(item){
@@ -252,7 +254,15 @@ create_range_expander = function(df_names, frame, new = FALSE){
         if(is.call(to)) to = eval(to, frame)
         if(is.symbol(from)) from = as.character(from)
         if(is.symbol(to)) to = as.character(to)
-        if(is.numeric(from) && is.numeric(to) && !new) return(from:to)
+        if(is.numeric(from) && is.numeric(to)) { #
+            if(new){
+                res = df_names[from:to]
+                !anyNA(res) || stop("'columns' range selection: positions ", from, ":", to, " out of range.")
+                return(res)
+            } else {
+                return(from:to)
+            }
+        }
         first = match(from, df_names)[1]
         last = match(to, df_names)[1]
         if(is.na(first) && is.na(last) && new) return(
@@ -260,7 +270,7 @@ create_range_expander = function(df_names, frame, new = FALSE){
         )
         (!is.na(first) &&  !is.na(last)) || stop("'columns' range selection: variables '", from, "' or '", to, "' are not found.")
         (last>=first) || stop( "'columns' range selection: '",to, "' located before '",from,"'. Did you mean '",to," %to% ",from,"'?")
-        return(first:last)
+        if(new) df_names[first:last] else first:last
     }
 }
 

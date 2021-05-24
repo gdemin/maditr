@@ -423,6 +423,73 @@ expect_identical(
     dt_mt2[, c("a1", "a2", "a3") := list(1,2,3)]
 )
 
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+expect_identical(
+    let(dt_mt,
+        vs %to% am := 42
+    ),
+    dt_mt2[, c("vs", "am") := 42]
+)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+
+expect_identical(
+    let(dt_mt,
+        c("hp", vs %to% am) := 42
+    ),
+    dt_mt2[, c("hp", "vs", "am") := 42]
+)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+
+expect_identical(
+    let(dt_mt,
+        cols(hp, vs %to% am) := 42
+    ),
+    dt_mt2[, c("hp", "vs", "am") := 42]
+)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+
+expect_identical(
+    let(dt_mt,
+        cols(new_col, vs %to% am) := list(1,2,3)
+    ),
+    dt_mt2[, c("new_col", "vs", "am") := list(1,2,3)]
+)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+
+expect_identical(
+    let(dt_mt,
+        cols(vs1 %to% vs3, new_col) := list(1,2,3, 4)
+    ),
+    dt_mt2[, c("vs1", "vs2", "vs3", "new_col") := list(1,2,3, 4)]
+)
+
+dt_mt = as.data.table(mtcars)
+dt_mt2 = data.table::copy(dt_mt)
+
+expect_error(
+    let(dt_mt, 12 %to% 15 := 42)
+)
+
+expect_identical(
+    let(dt_mt,
+        cols(1 %to% 3, new_col) := list(1,2,3, 4)
+    ),
+    dt_mt2[, (1:3) := list(1,2,3)][,new_col:=4]
+)
 
 # dt_mt = as.data.table(mtcars)
 # dt_mt2 = data.table::copy(dt_mt)

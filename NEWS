@@ -1,3 +1,7 @@
+0.8.2 (2021-05-25)
+================
+* fix serious bug with '%to%' in the multiassignment expression in the 'let'
+
 0.8.1 (2021-05-18)
 ================
 * new function 'rows' for selecting rows/filtering dataset
