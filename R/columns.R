@@ -352,18 +352,28 @@ rows.data.frame = function(data, ...){
         stop(sprintf("'rows': it seems you use '=' instead of '==': %s.", curr_names))
     }
 
-
+    parent_frame = parent.frame()
+    # if data is expression we want to calculate it only once
+    data = force(data)
     # NULL is just a placeholder
     expr = substitute(
         NULL[Reduce(f = '&', list(...)),]
     )
-    parent_frame = parent.frame()
-    # if data is expression we want to calculate it only once
-    data = force(data)
     eval_in_parent_frame(data, expr, frame = parent_frame)
 
 }
 
+#' @export
+rows.etable = function(data, ...){
+    data_class = class(data)
+    data = as.data.table(data)
+    res = eval.parent(
+        substitute(maditr::rows(data, ...))
+    )
+    setDF(res)
+    class(res) = data_class
+    res
+}
 
 
 

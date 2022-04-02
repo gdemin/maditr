@@ -107,6 +107,18 @@ expect_identical(
     rows(mtcars, rowSums(vs %to% am)>0),
     dt_mt[vs>0 | am>0, ]
 )
+
+etab = data.frame(a = 1:2, b = 3:4)
+class(etab) = c("etable", class(etab))
+res = etab[2,, drop = FALSE]
+rownames(res) = NULL
+expect_equal(res, rows(etab, 2))
+
+etab = data.frame(a = 1:2, b = 3:4)
+class(etab) = c("etable", class(etab))
+res = etab[1,, drop = FALSE]
+rownames(res) = NULL
+expect_equal(res, rows(etab, b<4))
 ##########################
 
 cat("\nContext:", "dt_arrange", "\n")

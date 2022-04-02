@@ -1,3 +1,7 @@
+0.8.3 (2022-04-02)
+================
+* now 'rows' respects 'etable' class
+
 0.8.2 (2021-05-25)
 ================
 * fix serious bug with '%to%' in the multiassignment expression in the 'let'
