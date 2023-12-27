@@ -86,7 +86,9 @@ the same thing on the subset of rows.
 possible to modify the subset of the variables.
 \item \code{take_all} aggregates all variables in the dataset. It is also possible
 to aggregate the subset of the variables.
-}\preformatted{}
+}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{}\if{html}{\out{</div>}}
 
 All functions return \code{data.table}. Expression in the 'take_all' and
 'let_all' can use predefined variables: '.x' is a value of current variable ,
@@ -99,15 +101,19 @@ variable. '.value' is is an alias to '.x'.
 \item Aggregate all non-grouping columns: \code{take_all(mtcars, mean = mean(.x), sd = sd(.x), n = .N, by = am)}
 \item Aggregate all numeric columns: \code{take_all(iris, if(is.numeric(.x)) mean(.x))}
 \item To modify all non-grouping variables:
-}\preformatted{      iris \%>\%
+}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{      iris \%>\%
          let_all(
              scaled = (.x - mean(.x))/sd(.x),
              by = Species) \%>\%
           head()
-}
+}\if{html}{\out{</div>}}
 \itemize{
 \item Aggregate specific columns: \code{take_all(iris, if(startsWith(.name, "Sepal")) mean(.x))}
-}\preformatted{}
+}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{}\if{html}{\out{</div>}}
 
 You can use 'columns' inside expression in the 'take'/'let'. 'columns' will
 be replaced with data.table with selected columns. In 'let' in the

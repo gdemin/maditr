@@ -232,9 +232,7 @@
 #'         by = vs %to% gear
 #'     )
 #'
-#' @docType package
-#' @name maditr
-NULL
+"_PACKAGE"
 
 #' @import magrittr
 #' @import data.table

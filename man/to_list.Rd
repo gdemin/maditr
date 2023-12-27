@@ -91,7 +91,9 @@ with \code{skip_null} argument.
 to vector via \link[base:unlist]{unlist}.
 \item \code{to_df} and \code{to_dfr} try to combine its results to data.table by rows.
 \item \code{to_dfc} tries to combine its result to data.table by columns.
-}\preformatted{}
+}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{}\if{html}{\out{</div>}}
 
 Expression can use predefined variables: '.x' is a value of current list
 element, '.name' is a name of the element and '.index' is sequential number

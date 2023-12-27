@@ -38,7 +38,9 @@ which end with 'Width'. Pattern '^.' matches all variables and pattern
 brackets inside characters will be evaluated in the parent frame with
 \link{text_expand}. For example, \verb{a\{1:3\}} will be transformed to the names 'a1',
 'a2', 'a3'. 'cols' is just a shortcut for 'columns'. See examples.
-}\preformatted{}
+}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{}\if{html}{\out{</div>}}
 \itemize{
 \item \code{rows}: select rows from dataset by logical conditions.
 }

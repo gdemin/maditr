@@ -15,8 +15,8 @@ query_if(
   nomatch = getOption("datatable.nomatch"),
   mult = "all",
   roll = FALSE,
-  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE)
-    else c(TRUE, FALSE),
+  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE) else
+    c(TRUE, FALSE),
   which = FALSE,
   .SDcols,
   verbose = getOption("datatable.verbose"),
@@ -34,8 +34,8 @@ query(
   nomatch = getOption("datatable.nomatch"),
   mult = "all",
   roll = FALSE,
-  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE)
-    else c(TRUE, FALSE),
+  rollends = if (roll == "nearest") c(TRUE, TRUE) else if (roll >= 0) c(FALSE, TRUE) else
+    c(TRUE, FALSE),
   which = FALSE,
   .SDcols,
   verbose = getOption("datatable.verbose"),
@@ -101,18 +101,22 @@ names or numeric positions. For details see \link[data.table:data.table]{data.ta
 It depends. For details see \link[data.table:data.table]{data.table}.
 }
 \description{
-Quote from \link[data.table:data.table]{data.table}:\preformatted{query(data, j,  by) # + extra arguments
+Quote from \link[data.table:data.table]{data.table}:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{query(data, j,  by) # + extra arguments
             |   |
             |    -------> grouped by what?
              -------> what to do?
-}
+}\if{html}{\out{</div>}}
 
-or,\preformatted{query_if(data, i,  j,  by) # + extra arguments
+or,
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{query_if(data, i,  j,  by) # + extra arguments
                |   |   |
                |   |    -------> grouped by what?
                |    -------> what to do?
                 ---> on which rows?
-}
+}\if{html}{\out{</div>}}
 
 If you don't need '\code{i}' argument, use '\code{query}'. In this case you can
 avoid printing leading comma inside brackets to denote empty '\code{i}'.
