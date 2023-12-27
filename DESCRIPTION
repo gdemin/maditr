@@ -1,7 +1,7 @@
 Package: maditr
 Type: Package
 Title: Fast Data Aggregation, Modification, and Filtering with Pipes and 'data.table'
-Version: 0.8.3
+Version: 0.8.3-1
 Maintainer: Gregory Demin <gdemin@gmail.com>
 Authors@R: person("Gregory", "Demin", email = "gdemin@gmail.com", role = c("aut", "cre"))
 Depends: R (>= 3.3.0)
@@ -18,5 +18,5 @@ URL: https://github.com/gdemin/maditr
 BugReports: https://github.com/gdemin/maditr/issues
 VignetteBuilder: knitr
 Encoding: UTF-8
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
