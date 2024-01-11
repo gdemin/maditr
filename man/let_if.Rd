@@ -138,7 +138,7 @@ brackets inside characters will be evaluated in the parent frame with
 \examples{
 # examples form 'dplyr' package
 data(mtcars)
-
+\donttest{
 # Newly created variables are available immediately
 mtcars \%>\%
     let(
@@ -363,5 +363,5 @@ dat \%>\%
     sort_by(-V1) \%>\%                  # ordering results
     head()
 
-
+}
 }

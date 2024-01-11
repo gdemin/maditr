@@ -87,7 +87,7 @@
 #' @examples
 #' # examples form 'dplyr' package
 #' data(mtcars)
-#'
+#' \donttest{
 #' # Newly created variables are available immediately
 #' mtcars %>%
 #'     let(
@@ -312,7 +312,7 @@
 #'     sort_by(-V1) %>%                  # ordering results
 #'     head()
 #'
-#'
+#' }
 let_if = function(data,
                   i,
                   ...,

@@ -77,7 +77,7 @@ method. Additionally there are some conveniences such as automatic
 \examples{
 # examples form 'dplyr' package
 data(mtcars)
-
+\donttest{
 # Newly created variables are available immediately
 mtcars \%>\%
     let(
@@ -250,7 +250,7 @@ mtcars \%>\%
         res = sum(cols(mpg, disp \%to\% drat)),
         by = vs \%to\% gear
     )
-
+}
 }
 \seealso{
 Useful links:
