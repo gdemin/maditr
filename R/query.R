@@ -59,6 +59,7 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' # examples from data.table
 #' dat = data.table(x=rep(c("b","a","c"),each=3), y=c(1,3,6), v=1:9)
 #' dat
@@ -208,17 +209,18 @@
 #'       },
 #'       by=x)
 #'
-#' \dontrun{
-#'     pdf("new.pdf")
-#'     query(dat, plot(a,b), by=x)                # can also plot in 'j'
-#'     dev.off()
-#' }
 #' # using rleid, get max(y) and min of all cols in .SDcols for each consecutive run of 'v'
 #' query(dat,
 #'       c(.(y=max(y)), lapply(.SD, min)),
 #'       by=rleid(v),
 #'       .SDcols=v:b
 #' )
+#' }
+#' \dontrun{
+#'     pdf("new.pdf")
+#'     query(dat, plot(a,b), by=x)                # can also plot in 'j'
+#'     dev.off()
+#' }
 query_if = function(data,
                     i,
                     j,
