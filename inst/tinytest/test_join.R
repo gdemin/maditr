@@ -105,8 +105,8 @@ etal = structure(list(name = c("John", "John", "John", "Daniela"), company = c("
 ), row.names = c(NA, -4L))
 expect_equal(res, etal)
 
-d1 = data.table(a=rep(1:2,each=3), b=1:6, key="a,b")
-d2 = data.table(a=0:1, b=0:1, key="a,b")
+d1 = data.table(a=rep(1:2,each=3), b=1:6, key=c("a","b"))
+d2 = data.table(a=0:1, b=0:1, key=c("a","b"))
 
 
 res = dt_inner_join(d1, d2, by="a")
@@ -121,7 +121,7 @@ etal = structure(list(a = c(1L, 1L, 1L), b.d1 = 1:3, b.d2 = c(1L, 1L,
 expect_equal(res, etal)
 
 d1 = data.table(a=rep(1:2,each=3), b=1:6, e = 1)
-d2 = data.table(a=0:1, b=0:1, key="a,b", d = 3)
+d2 = data.table(a=0:1, b=0:1, key=c("a","b"), d = 3)
 
 res = dt_left_join(d1, d2, by = c("a", "b"))
 etal = structure(list(a = c(1L, 1L, 1L, 2L, 2L, 2L), b = 1:6, e = c(1,
