@@ -113,13 +113,6 @@ iris_with_stat \%>\%
 long_iris \%>\%
     to_wide(fun = list(Mean = mean, SD = sd, N = length))
 
-# multiple variables
-iris \%>\%
-    to_long(list(Sepal = cols("^Sepal"), Petal = cols("^Petal"))) \%>\%
-    let(
-        variable = factor(variable, levels = 1:2, labels = c("Length", "Width"))
-    ) \%>\%
-    to_wide(values_in = c(Sepal, Petal))
 
 # '\%to\%' selector - example from tidyr::pivot_longer
 
