@@ -558,13 +558,7 @@ let.etable = function(data,
 
 #' @rdname let_if
 #' @export
-sort_by = function(data, ..., na.last = FALSE){
-    UseMethod("sort_by")
-}
-
-
-#' @export
-sort_by.data.frame = function(data, ..., na.last = FALSE){
+sort_by.data.table = function(data, ..., na.last = FALSE){
     # all_args = substitute(list(...))
     # sort_order = lapply(all_args, function(item) if(is.call(item) && identical(item[[1]], quote(`-`))) -1 else 1)
     # all_args
