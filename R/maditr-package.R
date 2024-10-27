@@ -374,4 +374,6 @@ data.table::fcoalesce
 #' @export
 data.table::fifelse
 #' @export
+data.table::fcase
+#' @export
 data.table::frollapply
