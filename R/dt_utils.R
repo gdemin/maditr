@@ -38,7 +38,7 @@ dt_count = function(data, ..., weight = NULL, sort = FALSE, name = "n"){
         res = eval.parent(substitute(maditr::take(data, name := sum(weight, na.rm = TRUE), by = cols(...))))
     }
     if(sort) {
-        res = eval(substitute(maditr::sort_by(res, -name), list(name = name)))
+        res = eval(substitute(data.table::setorder(res, -name), list(name = name)))
 
     }
     res
@@ -55,7 +55,7 @@ dt_add_count = function(data, ..., weight = NULL, sort = FALSE, name = "n"){
         res = eval.parent(substitute(maditr::let(data, name := sum(weight, na.rm = TRUE), by = cols(...))))
     }
     if(sort) {
-        res = eval(substitute(maditr::sort_by(res, -name), list(name = name)))
+        res = eval(substitute(data.table::setorder(res, -name), list(name = name)))
 
     }
     res
@@ -70,11 +70,11 @@ dt_top_n = function(data, n, by, order_by = NULL){
     }
     if(n>0){
         eval.parent(substitute({
-            maditr::query(sort_by(data, -order_by), head(.SD, n), by = by)
+            maditr::query(data.table::setorder(data, -order_by), head(.SD, n), by = by)
         }))
     } else {
         eval.parent(substitute({
-            maditr::query(sort_by(data, -order_by), tail(.SD, -n), by = by)
+            maditr::query(data.table::setorder(data, -order_by), tail(.SD, -n), by = by)
         }))
     }
 
