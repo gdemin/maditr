@@ -125,7 +125,7 @@ cat("\nContext:", "dt_arrange", "\n")
 mt_dt = as.data.table(mtcars)
 mt_dt2 = data.table::copy(mt_dt)
 new_dt = dt_arrange(mt_dt, -cyl, mpg)
-new_dt2 = dt_arrange(mtcars, -cyl, mpg)
+new_dt2 = dt_arrange(as.data.table(mtcars), -cyl, mpg)
 res3 = mt_dt2[order(-cyl, mpg), ]
 expect_identical(new_dt, mt_dt)
 expect_identical(new_dt, res3)

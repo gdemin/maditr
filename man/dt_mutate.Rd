@@ -25,7 +25,7 @@ dt_select(data, ...)
 
 dt_filter(data, ...)
 
-dt_arrange(data, ..., na.last = FALSE)
+dt_arrange(x, y, ...)
 }
 \arguments{
 \item{data}{data.table/data.frame data.frame will be automatically converted
