@@ -1,3 +1,10 @@
+0.8.5 (2024-11-10)
+================
+* fixes for compatibility with the new versions of R and data.table
+* remove generic `sort_by` in favour of base R `sort_by`. Now the syntax for sorting data.frame and data.table is different
+* remove `dt_arrange`
+* minor fixes
+
 0.8.4 (2024-01-11)
 ================
 * very minor fixes
