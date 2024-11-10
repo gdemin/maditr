@@ -8,7 +8,6 @@
 \alias{dt_summarise_all}
 \alias{dt_select}
 \alias{dt_filter}
-\alias{dt_arrange}
 \title{'dplyr'-like interface for data.table.}
 \usage{
 dt_mutate(data, ..., by)
@@ -24,8 +23,6 @@ dt_summarise_all(data, fun, by, keyby)
 dt_select(data, ...)
 
 dt_filter(data, ...)
-
-dt_arrange(x, y, ...)
 }
 \arguments{
 \item{data}{data.table/data.frame data.frame will be automatically converted
@@ -47,9 +44,6 @@ columns of the result, for convenience. It is common practice to use
 
 \item{fun}{function which will be applied to all variables in
 \code{dt_summarize} and \code{dt_summarize_all}.}
-
-\item{na.last}{logical. FALSE by default. If TRUE, missing values in the data
-are put last; if FALSE, they are put first.}
 }
 \value{
 data.table
@@ -73,8 +67,6 @@ example, '^Petal' returns all variables started with 'Petal'. 'Width$'
 returns all variables which end with 'Width'. Pattern '^.' matches all
 variables and pattern '^.*my_str' is equivalent to \verb{contains "my_str"}. See
 examples.
-\item \code{dt_arrange} sorts dataset by variable(-s). Use '-' to sort in
-descending order. If \code{data} is data.table then it modifies in-place.
 }
 }
 \examples{
@@ -155,8 +147,4 @@ dt_select(iris, Species, "^.")
 # pattern "^.*i" means "contains 'i'"
 dt_select(iris, "^.*i")
 dt_select(iris, 1:4) # numeric indexing - all variables except Species
-
-# sorting
-dt_arrange(mtcars, cyl, disp)
-dt_arrange(mtcars, -disp)
 }

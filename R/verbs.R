@@ -17,8 +17,6 @@
 #' returns all variables which end with 'Width'. Pattern '^.' matches all
 #' variables and pattern '^.*my_str' is equivalent to `contains "my_str"`. See
 #' examples.
-#' - `dt_arrange` sorts dataset by variable(-s). Use '-' to sort in
-#' descending order. If `data` is data.table then it modifies in-place.
 #'
 #' @param data data.table/data.frame data.frame will be automatically converted
 #'   to data.table. `dt_mutate` modify data.table object in-place.
@@ -35,8 +33,6 @@
 #'   [data.table][data.table::data.table].
 #' @param fun function which will be applied to all variables in
 #'   `dt_summarize` and `dt_summarize_all`.
-#' @param na.last logical. FALSE by default. If TRUE, missing values in the data
-#'   are put last; if FALSE, they are put first.
 #' @return data.table
 #' @export
 #' @examples
@@ -117,10 +113,6 @@
 #' # pattern "^.*i" means "contains 'i'"
 #' dt_select(iris, "^.*i")
 #' dt_select(iris, 1:4) # numeric indexing - all variables except Species
-#'
-#' # sorting
-#' dt_arrange(mtcars, cyl, disp)
-#' dt_arrange(mtcars, -disp)
 dt_mutate = function(data, ..., by){
     eval.parent(substitute(maditr::let(data, ...,
                                by = by))
@@ -167,11 +159,6 @@ dt_select = columns
 #' @export
 dt_filter = rows
 
-
-
-#' @rdname dt_mutate
-#' @export
-dt_arrange = sort_by
 
 
 

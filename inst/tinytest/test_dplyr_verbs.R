@@ -3,7 +3,6 @@
 data(mtcars)
 
 cat("\nContext:", "verbs errors", "\n")
-expect_error(dt_arrange(1:5, am))
 expect_error(dt_select(1:5, am))
 expect_error(dt_select(iris, "^aaa"))
 expect_error(dt_mutate(1:5, new := 1))
@@ -121,17 +120,7 @@ rownames(res) = NULL
 expect_equal(res, rows(etab, b<4))
 ##########################
 
-cat("\nContext:", "dt_arrange", "\n")
-mt_dt = as.data.table(mtcars)
-mt_dt2 = data.table::copy(mt_dt)
-new_dt = dt_arrange(mt_dt, -cyl, mpg)
-new_dt2 = dt_arrange(as.data.table(mtcars), -cyl, mpg)
-res3 = mt_dt2[order(-cyl, mpg), ]
-expect_identical(new_dt, mt_dt)
-expect_identical(new_dt, res3)
-expect_identical(new_dt2, res3)
 
-##########################
 
 cat("\nContext:", "dt_select", "\n")
 mt_dt = as.data.table(mtcars)

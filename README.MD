@@ -392,7 +392,6 @@ verb - use `by` or `keyby` argument when needed.
 - `dt_filter` Selects rows/cases where conditions are true. Rows where the condition evaluates to NA are dropped.
 - `dt_select` Selects column/variables from the data set. Range of variables are supported, e. g. `vs:carb`. Characters which start with `^` or end with `\$` considered as Perl-style regular expression patterns. For example, `'^Petal'`
 returns all variables started with 'Petal'. `'Width\$'` returns all variables which end with 'Width'. Pattern `^.` matches all variables and pattern `'^.*my_str'` is equivalent to contains `"my_str"`. See examples.
-- `dt_arrange` sorts dataset by variable(-s). Use '-' to sort in desending order. If data is data.table then it modifies in-place.
 
 ```R
 # examples from 'dplyr'
@@ -473,9 +472,6 @@ dt_select(iris, Species, "^.")
 dt_select(iris, "^.*al")
 dt_select(iris, 1:4) # numeric indexing - all variables except Species
 
-# sorting
-dt_arrange(mtcars, cyl, disp)
-dt_arrange(mtcars, -disp)
 ```
 
 

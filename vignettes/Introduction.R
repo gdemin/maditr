@@ -2,25 +2,25 @@
 knitr::opts_chunk$set(echo = TRUE)
 data.table::setDTthreads(2)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #       mtcars %>%
 #          let(mpg_hp = mpg/hp) %>%
 #          take(mean(mpg_hp), by = am)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #        mtcars %>%
 #           let(new_var = 42,
 #               new_var2 = new_var*hp) %>%
 #           head()
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #      iris %>%
 #        let_all(
 #            scaled = (.x - mean(.x))/sd(.x),
 #            by = Species) %>%
 #         head()
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #      iris %>%
 #        take_all(
 #            mean = if(startsWith(.name, "Sepal")) mean(.x),
@@ -28,7 +28,7 @@ data.table::setDTthreads(2)
 #            by = Species
 #        )
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #      new_var = "my_var"
 #      old_var = "mpg"
 #      mtcars %>%
@@ -297,98 +297,10 @@ workers %>% dt_full_join(positions)
 workers %>% dt_anti_join(positions)
 workers %>% dt_semi_join(positions)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  workers %>% dt_left_join(positions, by = "name")
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  positions2 = setNames(positions, c("worker", "position")) # rename first column in 'positions'
 #  workers %>% dt_inner_join(positions2, by = c("name" = "worker"))
-
-## -----------------------------------------------------------------------------
-# examples from 'dplyr'
-# newly created variables are available immediately
-mtcars  %>%
-    dt_mutate(
-        cyl2 = cyl * 2,
-        cyl4 = cyl2 * 2
-    ) %>%
-    head()
-
-
-# you can also use dt_mutate() to remove variables and
-# modify existing variables
-mtcars %>%
-    dt_mutate(
-        mpg = NULL,
-        disp = disp * 0.0163871 # convert to litres
-    ) %>%
-    head()
-
-
-# window functions are useful for grouped mutates
-mtcars %>%
-    dt_mutate(
-        rank = rank(-mpg, ties.method = "min"),
-        keyby = cyl) %>%
-    print()
-
-
-# You can drop variables by setting them to NULL
-mtcars %>% dt_mutate(cyl = NULL) %>% head()
-
-# A summary applied without by returns a single row
-mtcars %>%
-    dt_summarise(mean = mean(disp), n = .N)
-
-# Usually, you'll want to group first
-mtcars %>%
-    dt_summarise(mean = mean(disp), n = .N, by = cyl)
-
-
-# Multiple 'by' - variables
-mtcars %>%
-    dt_summarise(cyl_n = .N, by = list(cyl, vs))
-
-# Newly created summaries immediately
-# doesn't overwrite existing variables
-mtcars %>%
-    dt_summarise(disp = mean(disp),
-                  sd = sd(disp),
-                  by = cyl)
-
-# You can group by expressions:
-mtcars %>%
-    dt_summarise_all(mean, by = list(vsam = vs + am))
-
-# filter by condition
-mtcars %>%
-    dt_filter(am==0)
-
-# filter by compound condition
-mtcars %>%
-    dt_filter(am==0,  mpg>mean(mpg))
-
-
-# select
-mtcars %>% 
-  dt_select(vs:carb, cyl) %>% 
-  head()
-
-mtcars %>% 
-  dt_select(-am, -cyl) %>% 
-  head()
-
-# regular expression pattern
-dt_select(iris, "^Petal") %>% head() # variables which start from 'Petal'
-dt_select(iris, "Width$") %>% head()  # variables which end with 'Width'
-# move Species variable to the front
-# pattern "^." matches all variables
-dt_select(iris, Species, "^.") %>% head() 
-# pattern "^.*al" means "contains 'al'"
-dt_select(iris, "^.*al") %>% head() 
-dt_select(iris, 1:4) %>% head()  # numeric indexing - all variables except Species
-
-# sorting
-dt_arrange(mtcars, cyl, disp)
-dt_arrange(mtcars, -disp)
 

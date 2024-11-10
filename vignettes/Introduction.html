@@ -363,8 +363,6 @@ examples</a></li>
 <li><a href="#variable-selection-in-the-expressions" id="toc-variable-selection-in-the-expressions">Variable selection in the
 expressions</a></li>
 <li><a href="#joins" id="toc-joins">Joins</a></li>
-<li><a href="#dplyr-like-interface-for-data.table." id="toc-dplyr-like-interface-for-data.table.">‘dplyr’-like interface for
-data.table.</a></li>
 </ul>
 </div>
 
@@ -487,6 +485,7 @@ workers = let(workers,
 
 head(workers)</code></pre>
 <pre><code>##       name company  position
+##     &lt;char&gt;  &lt;char&gt;    &lt;char&gt;
 ## 1:    Nick    Acme Not found
 ## 2:    John    Ajax  designer
 ## 3: Daniela    Ajax  engineer</code></pre>
@@ -504,13 +503,22 @@ mtcars %&gt;%
         cyl2 = cyl * 2,
         cyl4 = cyl2 * 2
     ) %&gt;% head()</code></pre>
-<pre><code>##     mpg cyl disp  hp drat    wt  qsec vs am gear carb cyl2 cyl4
-## 1: 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4   12   24
-## 2: 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4   12   24
-## 3: 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1    8   16
-## 4: 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1   12   24
-## 5: 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2   16   32
-## 6: 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1   12   24</code></pre>
+<pre><code>##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb  cyl2
+##    &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;
+## 1:  21.0     6   160   110  3.90 2.620 16.46     0     1     4     4    12
+## 2:  21.0     6   160   110  3.90 2.875 17.02     0     1     4     4    12
+## 3:  22.8     4   108    93  3.85 2.320 18.61     1     1     4     1     8
+## 4:  21.4     6   258   110  3.08 3.215 19.44     1     0     3     1    12
+## 5:  18.7     8   360   175  3.15 3.440 17.02     0     0     3     2    16
+## 6:  18.1     6   225   105  2.76 3.460 20.22     1     0     3     1    12
+##     cyl4
+##    &lt;num&gt;
+## 1:    24
+## 2:    24
+## 3:    16
+## 4:    24
+## 5:    32
+## 6:    24</code></pre>
 <pre class="r"><code># You can also use let() to remove variables and
 # modify existing variables
 mtcars %&gt;%
@@ -518,52 +526,57 @@ mtcars %&gt;%
         mpg = NULL,
         disp = disp * 0.0163871 # convert to litres
     ) %&gt;% head()</code></pre>
-<pre><code>##    cyl     disp  hp drat    wt  qsec vs am gear carb
-## 1:   6 2.621936 110 3.90 2.620 16.46  0  1    4    4
-## 2:   6 2.621936 110 3.90 2.875 17.02  0  1    4    4
-## 3:   4 1.769807  93 3.85 2.320 18.61  1  1    4    1
-## 4:   6 4.227872 110 3.08 3.215 19.44  1  0    3    1
-## 5:   8 5.899356 175 3.15 3.440 17.02  0  0    3    2
-## 6:   6 3.687098 105 2.76 3.460 20.22  1  0    3    1</code></pre>
+<pre><code>##      cyl     disp    hp  drat    wt  qsec    vs    am  gear  carb
+##    &lt;num&gt;    &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;
+## 1:     6 2.621936   110  3.90 2.620 16.46     0     1     4     4
+## 2:     6 2.621936   110  3.90 2.875 17.02     0     1     4     4
+## 3:     4 1.769807    93  3.85 2.320 18.61     1     1     4     1
+## 4:     6 4.227872   110  3.08 3.215 19.44     1     0     3     1
+## 5:     8 5.899356   175  3.15 3.440 17.02     0     0     3     2
+## 6:     6 3.687098   105  2.76 3.460 20.22     1     0     3     1</code></pre>
 <pre class="r"><code># window functions are useful for grouped computations
 mtcars %&gt;%
     let(rank = rank(-mpg, ties.method = &quot;min&quot;),
         by = cyl) %&gt;%
     head()</code></pre>
-<pre><code>##     mpg cyl disp  hp drat    wt  qsec vs am gear carb rank
-## 1: 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4    2
-## 2: 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4    2
-## 3: 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1    8
-## 4: 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1    1
-## 5: 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2    2
-## 6: 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1    6</code></pre>
+<pre><code>##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb  rank
+##    &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;int&gt;
+## 1:  21.0     6   160   110  3.90 2.620 16.46     0     1     4     4     2
+## 2:  21.0     6   160   110  3.90 2.875 17.02     0     1     4     4     2
+## 3:  22.8     4   108    93  3.85 2.320 18.61     1     1     4     1     8
+## 4:  21.4     6   258   110  3.08 3.215 19.44     1     0     3     1     1
+## 5:  18.7     8   360   175  3.15 3.440 17.02     0     0     3     2     2
+## 6:  18.1     6   225   105  2.76 3.460 20.22     1     0     3     1     6</code></pre>
 <pre class="r"><code># You can drop variables by setting them to NULL
 mtcars %&gt;%
     let(cyl = NULL) %&gt;%
     head()</code></pre>
-<pre><code>##     mpg disp  hp drat    wt  qsec vs am gear carb
-## 1: 21.0  160 110 3.90 2.620 16.46  0  1    4    4
-## 2: 21.0  160 110 3.90 2.875 17.02  0  1    4    4
-## 3: 22.8  108  93 3.85 2.320 18.61  1  1    4    1
-## 4: 21.4  258 110 3.08 3.215 19.44  1  0    3    1
-## 5: 18.7  360 175 3.15 3.440 17.02  0  0    3    2
-## 6: 18.1  225 105 2.76 3.460 20.22  1  0    3    1</code></pre>
+<pre><code>##      mpg  disp    hp  drat    wt  qsec    vs    am  gear  carb
+##    &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;
+## 1:  21.0   160   110  3.90 2.620 16.46     0     1     4     4
+## 2:  21.0   160   110  3.90 2.875 17.02     0     1     4     4
+## 3:  22.8   108    93  3.85 2.320 18.61     1     1     4     1
+## 4:  21.4   258   110  3.08 3.215 19.44     1     0     3     1
+## 5:  18.7   360   175  3.15 3.440 17.02     0     0     3     2
+## 6:  18.1   225   105  2.76 3.460 20.22     1     0     3     1</code></pre>
 <pre class="r"><code># keeps all existing variables
 mtcars %&gt;%
     let(displ_l = disp / 61.0237) %&gt;%
     head()</code></pre>
-<pre><code>##     mpg cyl disp  hp drat    wt  qsec vs am gear carb  displ_l
-## 1: 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4 2.621932
-## 2: 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4 2.621932
-## 3: 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1 1.769804
-## 4: 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1 4.227866
-## 5: 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2 5.899347
-## 6: 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1 3.687092</code></pre>
+<pre><code>##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb  displ_l
+##    &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;    &lt;num&gt;
+## 1:  21.0     6   160   110  3.90 2.620 16.46     0     1     4     4 2.621932
+## 2:  21.0     6   160   110  3.90 2.875 17.02     0     1     4     4 2.621932
+## 3:  22.8     4   108    93  3.85 2.320 18.61     1     1     4     1 1.769804
+## 4:  21.4     6   258   110  3.08 3.215 19.44     1     0     3     1 4.227866
+## 5:  18.7     8   360   175  3.15 3.440 17.02     0     0     3     2 5.899347
+## 6:  18.1     6   225   105  2.76 3.460 20.22     1     0     3     1 3.687092</code></pre>
 <pre class="r"><code># keeps only the variables you create
 mtcars %&gt;%
     take(displ_l = disp / 61.0237) %&gt;% 
     head()</code></pre>
 <pre><code>##     displ_l
+##       &lt;num&gt;
 ## 1: 2.621932
 ## 2: 2.621932
 ## 3: 1.769804
@@ -575,32 +588,35 @@ var = 100
 mtcars %&gt;%
     let(cyl = cyl * var) %&gt;%
     head()</code></pre>
-<pre><code>##     mpg cyl disp  hp drat    wt  qsec vs am gear carb
-## 1: 21.0 600  160 110 3.90 2.620 16.46  0  1    4    4
-## 2: 21.0 600  160 110 3.90 2.875 17.02  0  1    4    4
-## 3: 22.8 400  108  93 3.85 2.320 18.61  1  1    4    1
-## 4: 21.4 600  258 110 3.08 3.215 19.44  1  0    3    1
-## 5: 18.7 800  360 175 3.15 3.440 17.02  0  0    3    2
-## 6: 18.1 600  225 105 2.76 3.460 20.22  1  0    3    1</code></pre>
+<pre><code>##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+##    &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;
+## 1:  21.0   600   160   110  3.90 2.620 16.46     0     1     4     4
+## 2:  21.0   600   160   110  3.90 2.875 17.02     0     1     4     4
+## 3:  22.8   400   108    93  3.85 2.320 18.61     1     1     4     1
+## 4:  21.4   600   258   110  3.08 3.215 19.44     1     0     3     1
+## 5:  18.7   800   360   175  3.15 3.440 17.02     0     0     3     2
+## 6:  18.1   600   225   105  2.76 3.460 20.22     1     0     3     1</code></pre>
 <pre class="r"><code># select rows
 mtcars %&gt;%
     rows(am==0) %&gt;% 
     head()</code></pre>
-<pre><code>##     mpg cyl  disp  hp drat    wt  qsec vs am gear carb
-## 1: 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
-## 2: 18.7   8 360.0 175 3.15 3.440 17.02  0  0    3    2
-## 3: 18.1   6 225.0 105 2.76 3.460 20.22  1  0    3    1
-## 4: 14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4
-## 5: 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
-## 6: 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2</code></pre>
+<pre><code>##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+##    &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;
+## 1:  21.4     6 258.0   110  3.08 3.215 19.44     1     0     3     1
+## 2:  18.7     8 360.0   175  3.15 3.440 17.02     0     0     3     2
+## 3:  18.1     6 225.0   105  2.76 3.460 20.22     1     0     3     1
+## 4:  14.3     8 360.0   245  3.21 3.570 15.84     0     0     3     4
+## 5:  24.4     4 146.7    62  3.69 3.190 20.00     1     0     4     2
+## 6:  22.8     4 140.8    95  3.92 3.150 22.90     1     0     4     2</code></pre>
 <pre class="r"><code># select rows with compound condition
 mtcars %&gt;%
     rows(am==0 &amp; mpg&gt;mean(mpg))</code></pre>
-<pre><code>##     mpg cyl  disp  hp drat    wt  qsec vs am gear carb
-## 1: 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
-## 2: 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
-## 3: 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
-## 4: 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1</code></pre>
+<pre><code>##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+##    &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;
+## 1:  21.4     6 258.0   110  3.08 3.215 19.44     1     0     3     1
+## 2:  24.4     4 146.7    62  3.69 3.190 20.00     1     0     4     2
+## 3:  22.8     4 140.8    95  3.92 3.150 22.90     1     0     4     2
+## 4:  21.5     4 120.1    97  3.70 2.465 20.01     1     0     3     1</code></pre>
 <pre class="r"><code># select columns
 mtcars %&gt;% 
     columns(vs:carb, cyl)</code></pre>
@@ -720,33 +736,38 @@ columns(iris, 1:4) %&gt;% head()</code></pre>
 <pre class="r"><code># A &#39;take&#39; with summary functions applied without &#39;by&#39; argument returns an aggregated data
 mtcars %&gt;%
     take(mean = mean(disp), n = .N)</code></pre>
-<pre><code>##        mean  n
-## 1: 230.7219 32</code></pre>
+<pre><code>##        mean     n
+##       &lt;num&gt; &lt;int&gt;
+## 1: 230.7219    32</code></pre>
 <pre class="r"><code># Usually, you&#39;ll want to group first
 mtcars %&gt;%
     take(mean = mean(disp), n = .N, by = am)</code></pre>
-<pre><code>##    am     mean  n
-## 1:  1 143.5308 13
-## 2:  0 290.3789 19</code></pre>
+<pre><code>##       am     mean     n
+##    &lt;num&gt;    &lt;num&gt; &lt;int&gt;
+## 1:     1 143.5308    13
+## 2:     0 290.3789    19</code></pre>
 <pre class="r"><code># grouping by multiple variables
 mtcars %&gt;%
     take(mean = mean(disp), n = .N, by = list(am, vs))</code></pre>
-<pre><code>##    am vs     mean  n
-## 1:  1  0 206.2167  6
-## 2:  1  1  89.8000  7
-## 3:  0  1 175.1143  7
-## 4:  0  0 357.6167 12</code></pre>
+<pre><code>##       am    vs     mean     n
+##    &lt;num&gt; &lt;num&gt;    &lt;num&gt; &lt;int&gt;
+## 1:     1     0 206.2167     6
+## 2:     1     1  89.8000     7
+## 3:     0     1 175.1143     7
+## 4:     0     0 357.6167    12</code></pre>
 <pre class="r"><code># You can group by expressions:
 mtcars %&gt;%
     take_all(
         mean,
         by = list(vsam = vs + am)
     )</code></pre>
-<pre><code>##    vsam      mpg      cyl     disp        hp     drat       wt     qsec
-## 1:    1 20.28462 5.692308 189.4692 138.46154 3.738462 3.038846 18.04231
-## 2:    2 28.37143 4.000000  89.8000  80.57143 4.148571 2.028286 18.70000
-## 3:    0 15.05000 8.000000 357.6167 194.16667 3.120833 4.104083 17.14250
+<pre><code>##     vsam      mpg      cyl     disp        hp     drat       wt     qsec
+##    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;     &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;
+## 1:     1 20.28462 5.692308 189.4692 138.46154 3.738462 3.038846 18.04231
+## 2:     2 28.37143 4.000000  89.8000  80.57143 4.148571 2.028286 18.70000
+## 3:     0 15.05000 8.000000 357.6167 194.16667 3.120833 4.104083 17.14250
 ##        gear     carb
+##       &lt;num&gt;    &lt;num&gt;
 ## 1: 4.076923 3.307692
 ## 2: 4.142857 1.428571
 ## 3: 3.000000 3.083333</code></pre>
@@ -755,49 +776,55 @@ mtcars %&gt;%
     let_all((.x - mean(.x))/sd(.x), by = am) %&gt;%
     head()</code></pre>
 <pre><code>##           mpg        cyl       disp         hp       drat         wt       qsec
+##         &lt;num&gt;      &lt;num&gt;      &lt;num&gt;      &lt;num&gt;      &lt;num&gt;      &lt;num&gt;      &lt;num&gt;
 ## 1: -0.5501185  0.5945745  0.1888587 -0.2004008 -0.4120299  0.3387459 -0.5021316
 ## 2: -0.5501185  0.5945745  0.1888587 -0.2004008 -0.4120299  0.7520483 -0.1896942
 ## 3: -0.2582189 -0.6936702 -0.4074443 -0.4026317 -0.5493732 -0.1474922  0.6974050
 ## 4:  1.1091990 -0.6133196 -0.2938955 -0.9323843 -0.5259081 -0.7124963  0.7176592
 ## 5:  0.4049674  0.6814663  0.6319326  0.2733692 -0.3474750 -0.4230701 -0.6641654
 ## 6:  0.2484716 -0.6133196 -0.5934281 -1.0251346 -1.3416023 -0.3973433  1.1630407
-##            vs am       gear       carb
-## 1: -1.0377490  1 -0.7595545  0.4944600
-## 2: -1.0377490  1 -0.7595545  0.4944600
-## 3:  0.8894992  1 -0.7595545 -0.8829642
-## 4:  1.2743862  0 -0.5026247 -1.5141438
-## 5: -0.7433919  0 -0.5026247 -0.6423641
-## 6:  1.2743862  0 -0.5026247 -1.5141438</code></pre>
+##            vs    am       gear       carb
+##         &lt;num&gt; &lt;num&gt;      &lt;num&gt;      &lt;num&gt;
+## 1: -1.0377490     1 -0.7595545  0.4944600
+## 2: -1.0377490     1 -0.7595545  0.4944600
+## 3:  0.8894992     1 -0.7595545 -0.8829642
+## 4:  1.2743862     0 -0.5026247 -1.5141438
+## 5: -0.7433919     0 -0.5026247 -0.6423641
+## 6:  1.2743862     0 -0.5026247 -1.5141438</code></pre>
 <pre class="r"><code># modify all non-grouping variables to new variables
 mtcars %&gt;%
     let_all(scaled = (.x - mean(.x))/sd(.x), by = am) %&gt;%
     head()</code></pre>
-<pre><code>##     mpg cyl disp  hp drat    wt  qsec vs am gear carb mpg_scaled cyl_scaled
-## 1: 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4 -0.5501185  0.5945745
-## 2: 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4 -0.5501185  0.5945745
-## 3: 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1 -0.2582189 -0.6936702
-## 4: 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1  1.1091990 -0.6133196
-## 5: 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2  0.4049674  0.6814663
-## 6: 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1  0.2484716 -0.6133196
-##    disp_scaled  hp_scaled drat_scaled  wt_scaled qsec_scaled  vs_scaled
-## 1:   0.1888587 -0.2004008  -0.4120299  0.3387459  -0.5021316 -1.0377490
-## 2:   0.1888587 -0.2004008  -0.4120299  0.7520483  -0.1896942 -1.0377490
-## 3:  -0.4074443 -0.4026317  -0.5493732 -0.1474922   0.6974050  0.8894992
-## 4:  -0.2938955 -0.9323843  -0.5259081 -0.7124963   0.7176592  1.2743862
-## 5:   0.6319326  0.2733692  -0.3474750 -0.4230701  -0.6641654 -0.7433919
-## 6:  -0.5934281 -1.0251346  -1.3416023 -0.3973433   1.1630407  1.2743862
-##    gear_scaled carb_scaled
-## 1:  -0.7595545   0.4944600
-## 2:  -0.7595545   0.4944600
-## 3:  -0.7595545  -0.8829642
-## 4:  -0.5026247  -1.5141438
-## 5:  -0.5026247  -0.6423641
-## 6:  -0.5026247  -1.5141438</code></pre>
+<pre><code>##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb mpg_scaled
+##    &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;      &lt;num&gt;
+## 1:  21.0     6   160   110  3.90 2.620 16.46     0     1     4     4 -0.5501185
+## 2:  21.0     6   160   110  3.90 2.875 17.02     0     1     4     4 -0.5501185
+## 3:  22.8     4   108    93  3.85 2.320 18.61     1     1     4     1 -0.2582189
+## 4:  21.4     6   258   110  3.08 3.215 19.44     1     0     3     1  1.1091990
+## 5:  18.7     8   360   175  3.15 3.440 17.02     0     0     3     2  0.4049674
+## 6:  18.1     6   225   105  2.76 3.460 20.22     1     0     3     1  0.2484716
+##    cyl_scaled disp_scaled  hp_scaled drat_scaled  wt_scaled qsec_scaled
+##         &lt;num&gt;       &lt;num&gt;      &lt;num&gt;       &lt;num&gt;      &lt;num&gt;       &lt;num&gt;
+## 1:  0.5945745   0.1888587 -0.2004008  -0.4120299  0.3387459  -0.5021316
+## 2:  0.5945745   0.1888587 -0.2004008  -0.4120299  0.7520483  -0.1896942
+## 3: -0.6936702  -0.4074443 -0.4026317  -0.5493732 -0.1474922   0.6974050
+## 4: -0.6133196  -0.2938955 -0.9323843  -0.5259081 -0.7124963   0.7176592
+## 5:  0.6814663   0.6319326  0.2733692  -0.3474750 -0.4230701  -0.6641654
+## 6: -0.6133196  -0.5934281 -1.0251346  -1.3416023 -0.3973433   1.1630407
+##     vs_scaled gear_scaled carb_scaled
+##         &lt;num&gt;       &lt;num&gt;       &lt;num&gt;
+## 1: -1.0377490  -0.7595545   0.4944600
+## 2: -1.0377490  -0.7595545   0.4944600
+## 3:  0.8894992  -0.7595545  -0.8829642
+## 4:  1.2743862  -0.5026247  -1.5141438
+## 5: -0.7433919  -0.5026247  -0.6423641
+## 6:  1.2743862  -0.5026247  -1.5141438</code></pre>
 <pre class="r"><code># conditionally modify all variables
 iris %&gt;%
     let_all(mean = if(is.numeric(.x)) mean(.x)) %&gt;%
     head()</code></pre>
 <pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species Sepal.Length_mean
+##           &lt;num&gt;       &lt;num&gt;        &lt;num&gt;       &lt;num&gt;  &lt;fctr&gt;             &lt;num&gt;
 ## 1:          5.1         3.5          1.4         0.2  setosa          5.843333
 ## 2:          4.9         3.0          1.4         0.2  setosa          5.843333
 ## 3:          4.7         3.2          1.3         0.2  setosa          5.843333
@@ -805,6 +832,7 @@ iris %&gt;%
 ## 5:          5.0         3.6          1.4         0.2  setosa          5.843333
 ## 6:          5.4         3.9          1.7         0.4  setosa          5.843333
 ##    Sepal.Width_mean Petal.Length_mean Petal.Width_mean
+##               &lt;num&gt;             &lt;num&gt;            &lt;num&gt;
 ## 1:         3.057333             3.758         1.199333
 ## 2:         3.057333             3.758         1.199333
 ## 3:         3.057333             3.758         1.199333
@@ -820,6 +848,7 @@ iris %&gt;%
     ) %&gt;%
     head()</code></pre>
 <pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species Sepal.Length_mean
+##           &lt;num&gt;       &lt;num&gt;        &lt;num&gt;       &lt;num&gt;  &lt;fctr&gt;             &lt;num&gt;
 ## 1:          5.1         3.5          1.4         0.2  setosa             5.006
 ## 2:          4.9         3.0          1.4         0.2  setosa             5.006
 ## 3:          4.7         3.2          1.3         0.2  setosa             5.006
@@ -827,6 +856,7 @@ iris %&gt;%
 ## 5:          5.0         3.6          1.4         0.2  setosa             5.006
 ## 6:          5.4         3.9          1.7         0.4  setosa             5.006
 ##    Sepal.Width_mean Petal.Length_median Petal.Width_median
+##               &lt;num&gt;               &lt;num&gt;              &lt;num&gt;
 ## 1:            3.428                 1.5                0.2
 ## 2:            3.428                 1.5                0.2
 ## 3:            3.428                 1.5                0.2
@@ -836,22 +866,27 @@ iris %&gt;%
 <pre class="r"><code># aggregation with &#39;take_all&#39;
 mtcars %&gt;%
     take_all(mean = mean(.x), sd = sd(.x), n = .N, by = am)</code></pre>
-<pre><code>##    am mpg_mean cyl_mean disp_mean  hp_mean drat_mean  wt_mean qsec_mean
-## 1:  1 24.39231 5.076923  143.5308 126.8462  4.050000 2.411000  17.36000
-## 2:  0 17.14737 6.947368  290.3789 160.2632  3.286316 3.768895  18.18316
+<pre><code>##       am mpg_mean cyl_mean disp_mean  hp_mean drat_mean  wt_mean qsec_mean
+##    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;     &lt;num&gt;    &lt;num&gt;     &lt;num&gt;    &lt;num&gt;     &lt;num&gt;
+## 1:     1 24.39231 5.076923  143.5308 126.8462  4.050000 2.411000  17.36000
+## 2:     0 17.14737 6.947368  290.3789 160.2632  3.286316 3.768895  18.18316
 ##      vs_mean gear_mean carb_mean   mpg_sd   cyl_sd   disp_sd    hp_sd   drat_sd
+##        &lt;num&gt;     &lt;num&gt;     &lt;num&gt;    &lt;num&gt;    &lt;num&gt;     &lt;num&gt;    &lt;num&gt;     &lt;num&gt;
 ## 1: 0.5384615  4.384615  2.923077 6.166504 1.552500  87.20399 84.06232 0.3640513
 ## 2: 0.3684211  3.210526  2.736842 3.833966 1.544657 110.17165 53.90820 0.3923039
-##        wt_sd  qsec_sd     vs_sd   gear_sd  carb_sd mpg_n cyl_n disp_n hp_n
-## 1: 0.6169816 1.792359 0.5188745 0.5063697 2.177978    13    13     13   13
-## 2: 0.7774001 1.751308 0.4955946 0.4188539 1.147079    19    19     19   19
-##    drat_n wt_n qsec_n vs_n gear_n carb_n
-## 1:     13   13     13   13     13     13
-## 2:     19   19     19   19     19     19</code></pre>
+##        wt_sd  qsec_sd     vs_sd   gear_sd  carb_sd mpg_n cyl_n disp_n  hp_n
+##        &lt;num&gt;    &lt;num&gt;     &lt;num&gt;     &lt;num&gt;    &lt;num&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt; &lt;int&gt;
+## 1: 0.6169816 1.792359 0.5188745 0.5063697 2.177978    13    13     13    13
+## 2: 0.7774001 1.751308 0.4955946 0.4188539 1.147079    19    19     19    19
+##    drat_n  wt_n qsec_n  vs_n gear_n carb_n
+##     &lt;int&gt; &lt;int&gt;  &lt;int&gt; &lt;int&gt;  &lt;int&gt;  &lt;int&gt;
+## 1:     13    13     13    13     13     13
+## 2:     19    19     19    19     19     19</code></pre>
 <pre class="r"><code># conditionally aggregate all variables
 iris %&gt;%
     take_all(mean = if(is.numeric(.x)) mean(.x))</code></pre>
 <pre><code>##    Sepal.Length_mean Sepal.Width_mean Petal.Length_mean Petal.Width_mean
+##                &lt;num&gt;            &lt;num&gt;             &lt;num&gt;            &lt;num&gt;
 ## 1:          5.843333         3.057333             3.758         1.199333</code></pre>
 <pre class="r"><code># aggregate all variables conditionally on name
 iris %&gt;%
@@ -861,10 +896,12 @@ iris %&gt;%
         by = Species
     )</code></pre>
 <pre><code>##       Species Sepal.Length_mean Sepal.Width_mean Petal.Length_median
+##        &lt;fctr&gt;             &lt;num&gt;            &lt;num&gt;               &lt;num&gt;
 ## 1:     setosa             5.006            3.428                1.50
 ## 2: versicolor             5.936            2.770                4.35
 ## 3:  virginica             6.588            2.974                5.55
 ##    Petal.Width_median
+##                 &lt;num&gt;
 ## 1:                0.2
 ## 2:                1.3
 ## 3:                2.0</code></pre>
@@ -873,30 +910,34 @@ var = quote(mean(cyl))
 mtcars %&gt;% 
     let(mean_cyl = eval(var)) %&gt;% 
     head()</code></pre>
-<pre><code>##     mpg cyl disp  hp drat    wt  qsec vs am gear carb mean_cyl
-## 1: 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4   6.1875
-## 2: 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4   6.1875
-## 3: 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1   6.1875
-## 4: 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1   6.1875
-## 5: 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2   6.1875
-## 6: 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1   6.1875</code></pre>
+<pre><code>##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb mean_cyl
+##    &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;    &lt;num&gt;
+## 1:  21.0     6   160   110  3.90 2.620 16.46     0     1     4     4   6.1875
+## 2:  21.0     6   160   110  3.90 2.875 17.02     0     1     4     4   6.1875
+## 3:  22.8     4   108    93  3.85 2.320 18.61     1     1     4     1   6.1875
+## 4:  21.4     6   258   110  3.08 3.215 19.44     1     0     3     1   6.1875
+## 5:  18.7     8   360   175  3.15 3.440 17.02     0     0     3     2   6.1875
+## 6:  18.1     6   225   105  2.76 3.460 20.22     1     0     3     1   6.1875</code></pre>
 <pre class="r"><code>take(mtcars, eval(var))</code></pre>
 <pre><code>##    eval(var)
+##        &lt;num&gt;
 ## 1:    6.1875</code></pre>
 <pre class="r"><code># all together
 new_var = &quot;mean_cyl&quot;
 mtcars %&gt;% 
     let((new_var) := eval(var)) %&gt;% 
     head()</code></pre>
-<pre><code>##     mpg cyl disp  hp drat    wt  qsec vs am gear carb mean_cyl
-## 1: 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4   6.1875
-## 2: 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4   6.1875
-## 3: 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1   6.1875
-## 4: 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1   6.1875
-## 5: 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2   6.1875
-## 6: 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1   6.1875</code></pre>
+<pre><code>##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb mean_cyl
+##    &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;    &lt;num&gt;
+## 1:  21.0     6   160   110  3.90 2.620 16.46     0     1     4     4   6.1875
+## 2:  21.0     6   160   110  3.90 2.875 17.02     0     1     4     4   6.1875
+## 3:  22.8     4   108    93  3.85 2.320 18.61     1     1     4     1   6.1875
+## 4:  21.4     6   258   110  3.08 3.215 19.44     1     0     3     1   6.1875
+## 5:  18.7     8   360   175  3.15 3.440 17.02     0     0     3     2   6.1875
+## 6:  18.1     6   225   105  2.76 3.460 20.22     1     0     3     1   6.1875</code></pre>
 <pre class="r"><code>take(mtcars, (new_var) := eval(var))</code></pre>
 <pre><code>##    mean_cyl
+##       &lt;num&gt;
 ## 1:   6.1875</code></pre>
 </div>
 <div id="variable-selection-in-the-expressions" class="section level2">
@@ -929,6 +970,7 @@ iris %&gt;%
     ) %&gt;% 
     head()</code></pre>
 <pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species   avg
+##           &lt;num&gt;       &lt;num&gt;        &lt;num&gt;       &lt;num&gt;  &lt;fctr&gt; &lt;num&gt;
 ## 1:          5.1         3.5          1.4         0.2  setosa 2.550
 ## 2:          4.9         3.0          1.4         0.2  setosa 2.375
 ## 3:          4.7         3.2          1.3         0.2  setosa 2.350
@@ -943,6 +985,7 @@ iris %&gt;%
     ) %&gt;% 
     head()</code></pre>
 <pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species multipled1
+##           &lt;num&gt;       &lt;num&gt;        &lt;num&gt;       &lt;num&gt;  &lt;fctr&gt;      &lt;num&gt;
 ## 1:          5.1         3.5          1.4         0.2  setosa       10.2
 ## 2:          4.9         3.0          1.4         0.2  setosa        9.8
 ## 3:          4.7         3.2          1.3         0.2  setosa        9.4
@@ -950,6 +993,7 @@ iris %&gt;%
 ## 5:          5.0         3.6          1.4         0.2  setosa       10.0
 ## 6:          5.4         3.9          1.7         0.4  setosa       10.8
 ##    multipled2 multipled3 multipled4
+##         &lt;num&gt;      &lt;num&gt;      &lt;num&gt;
 ## 1:        7.0        2.8        0.4
 ## 2:        6.0        2.8        0.4
 ## 3:        6.4        2.6        0.4
@@ -962,27 +1006,30 @@ iris %&gt;%
         cols(&quot;scaled_{names(mtcars)}&quot;) := lapply(cols(&quot;{names(mtcars)}&quot;), scale)
     ) %&gt;% 
     head()</code></pre>
-<pre><code>##     mpg cyl disp  hp drat    wt  qsec vs am gear carb scaled_mpg scaled_cyl
-## 1: 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4  0.1508848 -0.1049878
-## 2: 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4  0.1508848 -0.1049878
-## 3: 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1  0.4495434 -1.2248578
-## 4: 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1  0.2172534 -0.1049878
-## 5: 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2 -0.2307345  1.0148821
-## 6: 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1 -0.3302874 -0.1049878
-##    scaled_disp  scaled_hp scaled_drat    scaled_wt scaled_qsec  scaled_vs
-## 1: -0.57061982 -0.5350928   0.5675137 -0.610399567  -0.7771651 -0.8680278
-## 2: -0.57061982 -0.5350928   0.5675137 -0.349785269  -0.4637808 -0.8680278
-## 3: -0.99018209 -0.7830405   0.4739996 -0.917004624   0.4260068  1.1160357
-## 4:  0.22009369 -0.5350928  -0.9661175 -0.002299538   0.8904872  1.1160357
-## 5:  1.04308123  0.4129422  -0.8351978  0.227654255  -0.4637808 -0.8680278
-## 6: -0.04616698 -0.6080186  -1.5646078  0.248094592   1.3269868  1.1160357
-##     scaled_am scaled_gear scaled_carb
-## 1:  1.1899014   0.4235542   0.7352031
-## 2:  1.1899014   0.4235542   0.7352031
-## 3:  1.1899014   0.4235542  -1.1221521
-## 4: -0.8141431  -0.9318192  -1.1221521
-## 5: -0.8141431  -0.9318192  -0.5030337
-## 6: -0.8141431  -0.9318192  -1.1221521</code></pre>
+<pre><code>##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb scaled_mpg
+##    &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;      &lt;num&gt;
+## 1:  21.0     6   160   110  3.90 2.620 16.46     0     1     4     4  0.1508848
+## 2:  21.0     6   160   110  3.90 2.875 17.02     0     1     4     4  0.1508848
+## 3:  22.8     4   108    93  3.85 2.320 18.61     1     1     4     1  0.4495434
+## 4:  21.4     6   258   110  3.08 3.215 19.44     1     0     3     1  0.2172534
+## 5:  18.7     8   360   175  3.15 3.440 17.02     0     0     3     2 -0.2307345
+## 6:  18.1     6   225   105  2.76 3.460 20.22     1     0     3     1 -0.3302874
+##    scaled_cyl scaled_disp  scaled_hp scaled_drat    scaled_wt scaled_qsec
+##         &lt;num&gt;       &lt;num&gt;      &lt;num&gt;       &lt;num&gt;        &lt;num&gt;       &lt;num&gt;
+## 1: -0.1049878 -0.57061982 -0.5350928   0.5675137 -0.610399567  -0.7771651
+## 2: -0.1049878 -0.57061982 -0.5350928   0.5675137 -0.349785269  -0.4637808
+## 3: -1.2248578 -0.99018209 -0.7830405   0.4739996 -0.917004624   0.4260068
+## 4: -0.1049878  0.22009369 -0.5350928  -0.9661175 -0.002299538   0.8904872
+## 5:  1.0148821  1.04308123  0.4129422  -0.8351978  0.227654255  -0.4637808
+## 6: -0.1049878 -0.04616698 -0.6080186  -1.5646078  0.248094592   1.3269868
+##     scaled_vs  scaled_am scaled_gear scaled_carb
+##         &lt;num&gt;      &lt;num&gt;       &lt;num&gt;       &lt;num&gt;
+## 1: -0.8680278  1.1899014   0.4235542   0.7352031
+## 2: -0.8680278  1.1899014   0.4235542   0.7352031
+## 3:  1.1160357  1.1899014   0.4235542  -1.1221521
+## 4:  1.1160357 -0.8141431  -0.9318192  -1.1221521
+## 5: -0.8680278 -0.8141431  -0.9318192  -0.5030337
+## 6:  1.1160357 -0.8141431  -0.9318192  -1.1221521</code></pre>
 <pre class="r"><code># range selection in &#39;by&#39;
 # selection of range + additional column
 mtcars %&gt;% 
@@ -990,14 +1037,15 @@ mtcars %&gt;%
         res = sum(cols(mpg, disp %to% drat)),
         by = vs %to% gear
     )</code></pre>
-<pre><code>##    vs am gear     res
-## 1:  0  1    4  589.80
-## 2:  1  1    4 1177.97
-## 3:  1  0    3  985.64
-## 4:  0  0    3 6839.45
-## 5:  1  0    4 1125.35
-## 6:  0  1    5 1874.61
-## 7:  1  1    5  242.27</code></pre>
+<pre><code>##       vs    am  gear     res
+##    &lt;num&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;
+## 1:     0     1     4  589.80
+## 2:     1     1     4 1177.97
+## 3:     1     0     3  985.64
+## 4:     0     0     3 6839.45
+## 5:     1     0     4 1125.35
+## 6:     0     1     5 1874.61
+## 7:     1     1     5  242.27</code></pre>
 </div>
 <div id="joins" class="section level2">
 <h2>Joins</h2>
@@ -1018,11 +1066,13 @@ positions = fread(&quot;
 
 workers</code></pre>
 <pre><code>##       name company
+##     &lt;char&gt;  &lt;char&gt;
 ## 1:    Nick    Acme
 ## 2:    John    Ajax
 ## 3: Daniela    Ajax</code></pre>
 <pre class="r"><code>positions</code></pre>
 <pre><code>##       name position
+##     &lt;char&gt;   &lt;char&gt;
 ## 1:    John designer
 ## 2: Daniela engineer
 ## 3:  Cathie  manager</code></pre>
@@ -1030,23 +1080,27 @@ workers</code></pre>
 <pre class="r"><code>workers %&gt;% dt_inner_join(positions)</code></pre>
 <pre><code>## dt_inner_join: joining, by = &quot;name&quot;</code></pre>
 <pre><code>##       name company position
+##     &lt;char&gt;  &lt;char&gt;   &lt;char&gt;
 ## 1:    John    Ajax designer
 ## 2: Daniela    Ajax engineer</code></pre>
 <pre class="r"><code>workers %&gt;% dt_left_join(positions)</code></pre>
 <pre><code>## dt_left_join: joining, by = &quot;name&quot;</code></pre>
 <pre><code>##       name company position
+##     &lt;char&gt;  &lt;char&gt;   &lt;char&gt;
 ## 1:    Nick    Acme     &lt;NA&gt;
 ## 2:    John    Ajax designer
 ## 3: Daniela    Ajax engineer</code></pre>
 <pre class="r"><code>workers %&gt;% dt_right_join(positions)</code></pre>
 <pre><code>## dt_right_join: joining, by = &quot;name&quot;</code></pre>
 <pre><code>##       name company position
+##     &lt;char&gt;  &lt;char&gt;   &lt;char&gt;
 ## 1:    John    Ajax designer
 ## 2: Daniela    Ajax engineer
 ## 3:  Cathie    &lt;NA&gt;  manager</code></pre>
 <pre class="r"><code>workers %&gt;% dt_full_join(positions)</code></pre>
 <pre><code>## dt_full_join: joining, by = &quot;name&quot;</code></pre>
 <pre><code>##       name company position
+##     &lt;char&gt;  &lt;char&gt;   &lt;char&gt;
 ## 1:    Nick    Acme     &lt;NA&gt;
 ## 2:    John    Ajax designer
 ## 3: Daniela    Ajax engineer
@@ -1054,11 +1108,13 @@ workers</code></pre>
 <pre class="r"><code># filtering joins
 workers %&gt;% dt_anti_join(positions)</code></pre>
 <pre><code>## dt_anti_join: joining, by = &quot;name&quot;</code></pre>
-<pre><code>##    name company
-## 1: Nick    Acme</code></pre>
+<pre><code>##      name company
+##    &lt;char&gt;  &lt;char&gt;
+## 1:   Nick    Acme</code></pre>
 <pre class="r"><code>workers %&gt;% dt_semi_join(positions)</code></pre>
 <pre><code>## dt_semi_join: joining, by = &quot;name&quot;</code></pre>
 <pre><code>##       name company
+##     &lt;char&gt;  &lt;char&gt;
 ## 1:    John    Ajax
 ## 2: Daniela    Ajax</code></pre>
 <p>To suppress the message, supply <code>by</code> argument:</p>
@@ -1067,256 +1123,6 @@ workers %&gt;% dt_anti_join(positions)</code></pre>
 names:</p>
 <pre class="r"><code>positions2 = setNames(positions, c(&quot;worker&quot;, &quot;position&quot;)) # rename first column in &#39;positions&#39;
 workers %&gt;% dt_inner_join(positions2, by = c(&quot;name&quot; = &quot;worker&quot;))</code></pre>
-</div>
-<div id="dplyr-like-interface-for-data.table." class="section level2">
-<h2>‘dplyr’-like interface for data.table.</h2>
-<p>There are a small subset of ‘dplyr’ verbs to work with data.table.
-Note that there is no <code>group_by</code> verb - use by or keyby
-argument when needed.</p>
-<ul>
-<li><code>dt_mutate</code> adds new variables or modify existing
-variables. If data is data.table then it modifies in-place.</li>
-<li><code>dt_summarize</code> computes summary statistics. Splits the
-data into subsets, computes summary statistics for each, and returns the
-result in the “data.table” form.</li>
-<li><code>dt_summarize_all</code> the same as <code>dt_summarize</code>
-but work over all non-grouping variables.</li>
-<li><code>dt_filter</code> Selects rows/cases where conditions are true.
-Rows where the condition evaluates to NA are dropped.</li>
-<li><code>dt_select</code> Selects column/variables from the data set.
-Range of variables are supported, e. g. <code>vs:carb</code>. Characters
-which start with <code>^</code> or end with <code>\$</code> considered
-as Perl-style regular expression patterns. For example,
-<code>&#39;^Petal&#39;</code> returns all variables started with ‘Petal’.
-<code>&#39;Width\$&#39;</code> returns all variables which end with ‘Width’.
-Pattern <code>^.</code> matches all variables and pattern
-<code>&#39;^.*my_str&#39;</code> is equivalent to contains
-<code>&quot;my_str&quot;</code>. See examples.</li>
-<li><code>dt_arrange</code> sorts dataset by variable(-s). Use ‘-’ to
-sort in desending order. If data is data.table then it modifies
-in-place.</li>
-</ul>
-<p>The same examples with ‘dplyr’-verbs:</p>
-<pre class="r"><code># examples from &#39;dplyr&#39;
-# newly created variables are available immediately
-mtcars  %&gt;%
-    dt_mutate(
-        cyl2 = cyl * 2,
-        cyl4 = cyl2 * 2
-    ) %&gt;%
-    head()</code></pre>
-<pre><code>##     mpg cyl disp  hp drat    wt  qsec vs am gear carb cyl2 cyl4
-## 1: 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4   12   24
-## 2: 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4   12   24
-## 3: 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1    8   16
-## 4: 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1   12   24
-## 5: 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2   16   32
-## 6: 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1   12   24</code></pre>
-<pre class="r"><code># you can also use dt_mutate() to remove variables and
-# modify existing variables
-mtcars %&gt;%
-    dt_mutate(
-        mpg = NULL,
-        disp = disp * 0.0163871 # convert to litres
-    ) %&gt;%
-    head()</code></pre>
-<pre><code>##    cyl     disp  hp drat    wt  qsec vs am gear carb
-## 1:   6 2.621936 110 3.90 2.620 16.46  0  1    4    4
-## 2:   6 2.621936 110 3.90 2.875 17.02  0  1    4    4
-## 3:   4 1.769807  93 3.85 2.320 18.61  1  1    4    1
-## 4:   6 4.227872 110 3.08 3.215 19.44  1  0    3    1
-## 5:   8 5.899356 175 3.15 3.440 17.02  0  0    3    2
-## 6:   6 3.687098 105 2.76 3.460 20.22  1  0    3    1</code></pre>
-<pre class="r"><code># window functions are useful for grouped mutates
-mtcars %&gt;%
-    dt_mutate(
-        rank = rank(-mpg, ties.method = &quot;min&quot;),
-        keyby = cyl) %&gt;%
-    print()</code></pre>
-<pre><code>##      mpg cyl  disp  hp drat    wt  qsec vs am gear carb rank
-##  1: 22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1    8
-##  2: 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2    7
-##  3: 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2    8
-##  4: 32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1    2
-##  5: 30.4   4  75.7  52 4.93 1.615 18.52  1  1    4    2    3
-##  6: 33.9   4  71.1  65 4.22 1.835 19.90  1  1    4    1    1
-##  7: 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1   10
-##  8: 27.3   4  79.0  66 4.08 1.935 18.90  1  1    4    1    5
-##  9: 26.0   4 120.3  91 4.43 2.140 16.70  0  1    5    2    6
-## 10: 30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2    3
-## 11: 21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2   11
-## 12: 21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4    2
-## 13: 21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4    2
-## 14: 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1    1
-## 15: 18.1   6 225.0 105 2.76 3.460 20.22  1  0    3    1    6
-## 16: 19.2   6 167.6 123 3.92 3.440 18.30  1  0    4    4    5
-## 17: 17.8   6 167.6 123 3.92 3.440 18.90  1  0    4    4    7
-## 18: 19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6    4
-## 19: 18.7   8 360.0 175 3.15 3.440 17.02  0  0    3    2    2
-## 20: 14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4   11
-## 21: 16.4   8 275.8 180 3.07 4.070 17.40  0  0    3    3    4
-## 22: 17.3   8 275.8 180 3.07 3.730 17.60  0  0    3    3    3
-## 23: 15.2   8 275.8 180 3.07 3.780 18.00  0  0    3    3    7
-## 24: 10.4   8 472.0 205 2.93 5.250 17.98  0  0    3    4   13
-## 25: 10.4   8 460.0 215 3.00 5.424 17.82  0  0    3    4   13
-## 26: 14.7   8 440.0 230 3.23 5.345 17.42  0  0    3    4   10
-## 27: 15.5   8 318.0 150 2.76 3.520 16.87  0  0    3    2    6
-## 28: 15.2   8 304.0 150 3.15 3.435 17.30  0  0    3    2    7
-## 29: 13.3   8 350.0 245 3.73 3.840 15.41  0  0    3    4   12
-## 30: 19.2   8 400.0 175 3.08 3.845 17.05  0  0    3    2    1
-## 31: 15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4    5
-## 32: 15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8    9
-##      mpg cyl  disp  hp drat    wt  qsec vs am gear carb rank</code></pre>
-<pre class="r"><code># You can drop variables by setting them to NULL
-mtcars %&gt;% dt_mutate(cyl = NULL) %&gt;% head()</code></pre>
-<pre><code>##     mpg disp  hp drat    wt  qsec vs am gear carb
-## 1: 21.0  160 110 3.90 2.620 16.46  0  1    4    4
-## 2: 21.0  160 110 3.90 2.875 17.02  0  1    4    4
-## 3: 22.8  108  93 3.85 2.320 18.61  1  1    4    1
-## 4: 21.4  258 110 3.08 3.215 19.44  1  0    3    1
-## 5: 18.7  360 175 3.15 3.440 17.02  0  0    3    2
-## 6: 18.1  225 105 2.76 3.460 20.22  1  0    3    1</code></pre>
-<pre class="r"><code># A summary applied without by returns a single row
-mtcars %&gt;%
-    dt_summarise(mean = mean(disp), n = .N)</code></pre>
-<pre><code>##        mean  n
-## 1: 230.7219 32</code></pre>
-<pre class="r"><code># Usually, you&#39;ll want to group first
-mtcars %&gt;%
-    dt_summarise(mean = mean(disp), n = .N, by = cyl)</code></pre>
-<pre><code>##    cyl     mean  n
-## 1:   6 183.3143  7
-## 2:   4 105.1364 11
-## 3:   8 353.1000 14</code></pre>
-<pre class="r"><code># Multiple &#39;by&#39; - variables
-mtcars %&gt;%
-    dt_summarise(cyl_n = .N, by = list(cyl, vs))</code></pre>
-<pre><code>##    cyl vs cyl_n
-## 1:   6  0     3
-## 2:   4  1    10
-## 3:   6  1     4
-## 4:   8  0    14
-## 5:   4  0     1</code></pre>
-<pre class="r"><code># Newly created summaries immediately
-# doesn&#39;t overwrite existing variables
-mtcars %&gt;%
-    dt_summarise(disp = mean(disp),
-                  sd = sd(disp),
-                  by = cyl)</code></pre>
-<pre><code>##    cyl     disp       sd
-## 1:   6 183.3143 41.56246
-## 2:   4 105.1364 26.87159
-## 3:   8 353.1000 67.77132</code></pre>
-<pre class="r"><code># You can group by expressions:
-mtcars %&gt;%
-    dt_summarise_all(mean, by = list(vsam = vs + am))</code></pre>
-<pre><code>##    vsam      mpg      cyl     disp        hp     drat       wt     qsec
-## 1:    1 20.28462 5.692308 189.4692 138.46154 3.738462 3.038846 18.04231
-## 2:    2 28.37143 4.000000  89.8000  80.57143 4.148571 2.028286 18.70000
-## 3:    0 15.05000 8.000000 357.6167 194.16667 3.120833 4.104083 17.14250
-##        gear     carb
-## 1: 4.076923 3.307692
-## 2: 4.142857 1.428571
-## 3: 3.000000 3.083333</code></pre>
-<pre class="r"><code># filter by condition
-mtcars %&gt;%
-    dt_filter(am==0)</code></pre>
-<pre><code>##      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
-##  1: 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
-##  2: 18.7   8 360.0 175 3.15 3.440 17.02  0  0    3    2
-##  3: 18.1   6 225.0 105 2.76 3.460 20.22  1  0    3    1
-##  4: 14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4
-##  5: 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
-##  6: 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
-##  7: 19.2   6 167.6 123 3.92 3.440 18.30  1  0    4    4
-##  8: 17.8   6 167.6 123 3.92 3.440 18.90  1  0    4    4
-##  9: 16.4   8 275.8 180 3.07 4.070 17.40  0  0    3    3
-## 10: 17.3   8 275.8 180 3.07 3.730 17.60  0  0    3    3
-## 11: 15.2   8 275.8 180 3.07 3.780 18.00  0  0    3    3
-## 12: 10.4   8 472.0 205 2.93 5.250 17.98  0  0    3    4
-## 13: 10.4   8 460.0 215 3.00 5.424 17.82  0  0    3    4
-## 14: 14.7   8 440.0 230 3.23 5.345 17.42  0  0    3    4
-## 15: 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1
-## 16: 15.5   8 318.0 150 2.76 3.520 16.87  0  0    3    2
-## 17: 15.2   8 304.0 150 3.15 3.435 17.30  0  0    3    2
-## 18: 13.3   8 350.0 245 3.73 3.840 15.41  0  0    3    4
-## 19: 19.2   8 400.0 175 3.08 3.845 17.05  0  0    3    2</code></pre>
-<pre class="r"><code># filter by compound condition
-mtcars %&gt;%
-    dt_filter(am==0,  mpg&gt;mean(mpg))</code></pre>
-<pre><code>##     mpg cyl  disp  hp drat    wt  qsec vs am gear carb
-## 1: 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
-## 2: 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
-## 3: 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
-## 4: 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1</code></pre>
-<pre class="r"><code># select
-mtcars %&gt;% 
-  dt_select(vs:carb, cyl) %&gt;% 
-  head()</code></pre>
-<pre><code>##                   vs am gear carb cyl
-## Mazda RX4          0  1    4    4   6
-## Mazda RX4 Wag      0  1    4    4   6
-## Datsun 710         1  1    4    1   4
-## Hornet 4 Drive     1  0    3    1   6
-## Hornet Sportabout  0  0    3    2   8
-## Valiant            1  0    3    1   6</code></pre>
-<pre class="r"><code>mtcars %&gt;% 
-  dt_select(-am, -cyl) %&gt;% 
-  head()</code></pre>
-<pre><code>##                    mpg disp  hp drat    wt  qsec vs gear carb
-## Mazda RX4         21.0  160 110 3.90 2.620 16.46  0    4    4
-## Mazda RX4 Wag     21.0  160 110 3.90 2.875 17.02  0    4    4
-## Datsun 710        22.8  108  93 3.85 2.320 18.61  1    4    1
-## Hornet 4 Drive    21.4  258 110 3.08 3.215 19.44  1    3    1
-## Hornet Sportabout 18.7  360 175 3.15 3.440 17.02  0    3    2
-## Valiant           18.1  225 105 2.76 3.460 20.22  1    3    1</code></pre>
-<pre class="r"><code># regular expression pattern
-dt_select(iris, &quot;^Petal&quot;) %&gt;% head() # variables which start from &#39;Petal&#39;</code></pre>
-<pre><code>##   Petal.Length Petal.Width
-## 1          1.4         0.2
-## 2          1.4         0.2
-## 3          1.3         0.2
-## 4          1.5         0.2
-## 5          1.4         0.2
-## 6          1.7         0.4</code></pre>
-<pre class="r"><code>dt_select(iris, &quot;Width$&quot;) %&gt;% head()  # variables which end with &#39;Width&#39;</code></pre>
-<pre><code>##   Sepal.Width Petal.Width
-## 1         3.5         0.2
-## 2         3.0         0.2
-## 3         3.2         0.2
-## 4         3.1         0.2
-## 5         3.6         0.2
-## 6         3.9         0.4</code></pre>
-<pre class="r"><code># move Species variable to the front
-# pattern &quot;^.&quot; matches all variables
-dt_select(iris, Species, &quot;^.&quot;) %&gt;% head() </code></pre>
-<pre><code>##   Species Sepal.Length Sepal.Width Petal.Length Petal.Width
-## 1  setosa          5.1         3.5          1.4         0.2
-## 2  setosa          4.9         3.0          1.4         0.2
-## 3  setosa          4.7         3.2          1.3         0.2
-## 4  setosa          4.6         3.1          1.5         0.2
-## 5  setosa          5.0         3.6          1.4         0.2
-## 6  setosa          5.4         3.9          1.7         0.4</code></pre>
-<pre class="r"><code># pattern &quot;^.*al&quot; means &quot;contains &#39;al&#39;&quot;
-dt_select(iris, &quot;^.*al&quot;) %&gt;% head() </code></pre>
-<pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width
-## 1          5.1         3.5          1.4         0.2
-## 2          4.9         3.0          1.4         0.2
-## 3          4.7         3.2          1.3         0.2
-## 4          4.6         3.1          1.5         0.2
-## 5          5.0         3.6          1.4         0.2
-## 6          5.4         3.9          1.7         0.4</code></pre>
-<pre class="r"><code>dt_select(iris, 1:4) %&gt;% head()  # numeric indexing - all variables except Species</code></pre>
-<pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width
-## 1          5.1         3.5          1.4         0.2
-## 2          4.9         3.0          1.4         0.2
-## 3          4.7         3.2          1.3         0.2
-## 4          4.6         3.1          1.5         0.2
-## 5          5.0         3.6          1.4         0.2
-## 6          5.4         3.9          1.7         0.4</code></pre>
-<pre class="r"><code># sorting
-dt_arrange(mtcars, cyl, disp)
-dt_arrange(mtcars, -disp)</code></pre>
 </div>
 
 
