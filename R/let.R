@@ -49,6 +49,8 @@
 #'
 #' @param data data.table/data.frame data.frame will be automatically converted
 #'   to data.table. `let` modify data.table object in-place.
+#' @param x data.table in the `sort_by` function.
+#' @param y first sorting variable in the `sort_by` function.
 #' @param i integer/logical vector. Supposed to use to subset/conditional
 #'   modifications of `data`. For details see [data.table][data.table::data.table]
 #' @param ... List of variables or name-value pairs of summary/modifications
@@ -558,16 +560,16 @@ let.etable = function(data,
 
 #' @rdname let_if
 #' @export
-sort_by.data.table = function(data, ..., na.last = FALSE){
+sort_by.data.table = function(x, y, ..., na.last = FALSE){
     # all_args = substitute(list(...))
     # sort_order = lapply(all_args, function(item) if(is.call(item) && identical(item[[1]], quote(`-`))) -1 else 1)
     # all_args
     parent_frame = parent.frame()
     # if data is expression we want to calculate it only once
-    data = force(data)
+    x = force(x)
     # NULL is just a placeholder
-    expr = substitute(data.table::setorder(NULL, ..., na.last = na.last))
-    eval_in_parent_frame(data, expr, frame = parent_frame, need_expansion = FALSE)
+    expr = substitute(data.table::setorder(NULL, y, ..., na.last = na.last))
+    eval_in_parent_frame(x, expr, frame = parent_frame, need_expansion = FALSE)
 
 }
 
