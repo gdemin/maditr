@@ -1,3 +1,8 @@
+0.8.6 (2025-09-01)
+================
+* remove `sort_by` method in favor to `data.table::sort_by`
+* due to removing `sort_by` we can decrease minimum R version to 3.6 in the requirements
+
 0.8.5 (2024-11-10)
 ================
 * fixes for compatibility with the new versions of R and data.table

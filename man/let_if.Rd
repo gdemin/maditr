@@ -7,7 +7,6 @@
 \alias{let}
 \alias{let.data.frame}
 \alias{let.etable}
-\alias{sort_by.data.table}
 \alias{let_all}
 \alias{take_all}
 \title{Modify, aggregate, select or filter data.frame/data.table}
@@ -23,8 +22,6 @@ let(data, ..., by, keyby)
 \method{let}{data.frame}(data, ..., by, keyby, i)
 
 \method{let}{etable}(data, ..., by, keyby, i)
-
-\method{sort_by}{data.table}(x, y, ..., na.last = FALSE)
 
 let_all(data, ..., by, keyby, .SDcols, suffix = TRUE, sep = "_", i)
 
@@ -63,13 +60,6 @@ names or numeric positions. For details see \link[data.table:data.table]{data.ta
 \item{fun}{Function which will be applied to all variables in \code{take}. If
 there are no variables in \code{take} then it will be applied to all
 non-grouping variables in the \code{data}.}
-
-\item{x}{data.table in the \code{sort_by} function.}
-
-\item{y}{first sorting variable in the \code{sort_by} function.}
-
-\item{na.last}{logical. FALSE by default. If TRUE, missing values in the data
-are put last; if FALSE, they are put first.}
 
 \item{suffix}{logical TRUE by default. For 'let_all'/'take_all'. If TRUE than
 we append summary name to the end of the variable name. If FALSE summary
@@ -361,11 +351,5 @@ take(dat, seq = min(a):max(b), by=x)  # j is not limited to just aggregations
 dat \%>\%
     take(V1 = sum(v), by=x) \%>\%
     take_if(V1<20)                    # compound query
-
-dat \%>\%
-    take(V1 = sum(v), by=x) \%>\%
-    sort_by(-V1) \%>\%                  # ordering results
-    head()
-
 }
 }

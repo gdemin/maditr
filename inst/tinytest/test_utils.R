@@ -9,7 +9,7 @@ expect_equal(
 
 expect_equal(
     dt_count(mtcars, am, vs, sort = TRUE),
-    take(mtcars, n = .N, by =.(am, vs)) %>% sort_by(-n)
+    take(mtcars, n = .N, by =.(am, vs)) %>% setorder(-n)
 )
 
 expect_equal(
@@ -29,7 +29,7 @@ expect_equal(
 
 expect_equal(
     dt_count(mtcars, am, vs, sort = TRUE, name = "total"),
-    take(mtcars, total = .N, by =.(am, vs)) %>% sort_by(-total)
+    take(mtcars, total = .N, by =.(am, vs)) %>% setorder(-total)
 )
 
 mtcars2 = mtcars
@@ -43,12 +43,12 @@ expect_equal(
 
 expect_equal(
     dt_count(mtcars2,weight = mpg, sort = TRUE, name = "total"),
-    take(mtcars2, total = sum(mpg, na.rm = TRUE)) %>% sort_by(-total)
+    take(mtcars2, total = sum(mpg, na.rm = TRUE)) %>% setorder(-total)
 )
 
 expect_equal(
     dt_count(mtcars2, am, vs, weight = mpg, sort = TRUE, name = "total"),
-    take(mtcars2, total = sum(mpg, na.rm = TRUE), by =.(am, vs)) %>% sort_by(-total)
+    take(mtcars2, total = sum(mpg, na.rm = TRUE), by =.(am, vs)) %>% setorder(-total)
 )
 
 ############
@@ -63,7 +63,7 @@ expect_equal(
 
 expect_equal(
     dt_add_count(mtcars, am, vs, sort = TRUE),
-    let(mtcars, n = .N, by =.(am, vs)) %>% sort_by(-n)
+    let(mtcars, n = .N, by =.(am, vs)) %>% setorder(-n)
 )
 
 expect_equal(
@@ -73,7 +73,7 @@ expect_equal(
 
 expect_equal(
     dt_add_count(mtcars, am, vs, sort = TRUE, name = "total"),
-    let(mtcars, total = .N, by =.(am, vs)) %>% sort_by(-total)
+    let(mtcars, total = .N, by =.(am, vs)) %>% setorder(-total)
 )
 
 
@@ -89,12 +89,12 @@ expect_equal(
 
 expect_equal(
     dt_add_count(mtcars2, am, vs, weight = mpg, sort = TRUE, name = "total"),
-    let(mtcars2, total = sum(mpg, na.rm = TRUE), by =.(am, vs)) %>% sort_by(-total)
+    let(mtcars2, total = sum(mpg, na.rm = TRUE), by =.(am, vs)) %>% setorder(-total)
 )
 
 expect_equal(
     dt_add_count(mtcars2,  weight = mpg, sort = TRUE, name = "total"),
-    let(mtcars2, total = sum(mpg, na.rm = TRUE)) %>% sort_by(-total)
+    let(mtcars2, total = sum(mpg, na.rm = TRUE)) %>% setorder(-total)
 )
 
 cat("\nContext:","dt_top_n", "\n")

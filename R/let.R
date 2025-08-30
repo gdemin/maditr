@@ -49,8 +49,6 @@
 #'
 #' @param data data.table/data.frame data.frame will be automatically converted
 #'   to data.table. `let` modify data.table object in-place.
-#' @param x data.table in the `sort_by` function.
-#' @param y first sorting variable in the `sort_by` function.
 #' @param i integer/logical vector. Supposed to use to subset/conditional
 #'   modifications of `data`. For details see [data.table][data.table::data.table]
 #' @param ... List of variables or name-value pairs of summary/modifications
@@ -81,8 +79,6 @@
 #' @param fun Function which will be applied to all variables in `take`. If
 #'   there are no variables in `take` then it will be applied to all
 #'   non-grouping variables in the `data`.
-#' @param na.last logical. FALSE by default. If TRUE, missing values in the data
-#'   are put last; if FALSE, they are put first.
 #' @return data.table. `let` returns its result invisibly.
 #' @export
 #'
@@ -308,13 +304,7 @@
 #' dat %>%
 #'     take(V1 = sum(v), by=x) %>%
 #'     take_if(V1<20)                    # compound query
-#'
-#' dat %>%
-#'     take(V1 = sum(v), by=x) %>%
-#'     sort_by(-V1) %>%                  # ordering results
-#'     head()
-#'
-#' }
+#'}
 let_if = function(data,
                   i,
                   ...,
@@ -553,23 +543,4 @@ let.etable = function(data,
     )
 }
 
-
-
-
-#######################################
-
-#' @rdname let_if
-#' @export
-sort_by.data.table = function(x, y, ..., na.last = FALSE){
-    # all_args = substitute(list(...))
-    # sort_order = lapply(all_args, function(item) if(is.call(item) && identical(item[[1]], quote(`-`))) -1 else 1)
-    # all_args
-    parent_frame = parent.frame()
-    # if data is expression we want to calculate it only once
-    x = force(x)
-    # NULL is just a placeholder
-    expr = substitute(data.table::setorder(NULL, y, ..., na.last = na.last))
-    eval_in_parent_frame(x, expr, frame = parent_frame, need_expansion = FALSE)
-
-}
 
