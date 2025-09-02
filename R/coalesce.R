@@ -15,4 +15,4 @@
 #' z = c(NA, NA, 3, 4, 5)
 #' coalesce(y, z)
 #' @export
-coalesce = data.table::fcoalesce
+coalesce = function(...)data.table::fcoalesce(...)
