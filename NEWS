@@ -1,3 +1,7 @@
+0.8.7 (2026-01-19)
+================
+* fixes for CRAN warnings
+
 0.8.6 (2025-09-01)
 ================
 * remove `sort_by` method in favor to `data.table::sort_by`
