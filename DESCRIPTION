@@ -5,7 +5,7 @@ Version: 0.8.7
 Maintainer: Gregory Demin <gdemin@gmail.com>
 Authors@R: person("Gregory", "Demin", email = "gdemin@gmail.com", role = c("aut", "cre"))
 Depends: R (>= 3.4.0)
-Imports: data.table (>= 1.12.6), magrittr (>= 1.5)
+Imports: data.table (>= 1.18.0), magrittr (>= 1.5)
 Suggests: knitr, tinytest, utils, rmarkdown, stats
 Description: Provides pipe-style interface for 'data.table'. Package preserves all 'data.table' features without
               significant impact on performance. 'let' and 'take' functions are simplified interfaces for most common data

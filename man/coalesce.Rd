@@ -4,10 +4,12 @@
 \alias{coalesce}
 \title{Return first non-missing element}
 \usage{
-coalesce(...)
+coalesce(..., nan = NA)
 }
 \arguments{
 \item{...}{vectors}
+
+\item{nan}{NA or NaN. For details see \link[data.table:coalesce]{fcoalesce}}
 }
 \value{
 A vector the same length as the first ... argument with NA

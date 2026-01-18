@@ -2,6 +2,7 @@
 #'
 #' It is an alias for data.table `fcoalesce`. For details see [fcoalesce][data.table::fcoalesce]
 #' @param ... vectors
+#' @param nan NA or NaN. For details see [fcoalesce][data.table::fcoalesce]
 #'
 #' @return A vector the same length as the first ... argument with NA
 #'   values replaced by the first non-missing value.
@@ -15,4 +16,4 @@
 #' z = c(NA, NA, 3, 4, 5)
 #' coalesce(y, z)
 #' @export
-coalesce = function(...)data.table::fcoalesce(...)
+coalesce = function(..., nan = NA) data.table::fcoalesce(..., nan = nan)
